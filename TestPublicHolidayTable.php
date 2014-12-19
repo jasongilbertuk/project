@@ -1,28 +1,32 @@
 <?php
 
-function testPublicHolidayTable($connection)
+function testPublicHolidayTable()
 {
-	 $date = CreateDate($connection,
-	 					"2014-12-25",
+	 $date = CreateDate("2014-12-25",
                     	NULL);
-	//CREATE
-	$publicHoliday = CreatePublicHoliday($connection,
-										 "Boxing Day",
-										 $date[DATE_TABLE_DATE_ID]);
- 	//RETRIEVE
-	$publicHolidays = RetrievePublicHolidays($connection);
+                    	
+    if ($date)
+    {
+		//CREATE
+		$publicHoliday = CreatePublicHoliday("Boxing Day",
+											 $date[DATE_TABLE_DATE_ID]);
+				
+		if ($publicHoliday)
+		{									 
+			//RETRIEVE
+			$publicHolidays = RetrievePublicHolidays();
 
-	$filter[PUB_HOL_DATE_ID] = $date[DATE_TABLE_DATE_ID];
-	$publicHolidays	= RetrievePublicHolidays($connection,$filter);
-	
-	//UPDATE
-	$publicHoliday[PUB_HOL_NAME] = "Box Day";
-	$success = UpdatePublicHoliday($connection,$publicHoliday);
-	
-	//DELETE
-	$success = DeletePublicHoliday($connection, 
-                         $publicHoliday[PUB_HOL_ID]);
-	
+			$filter[PUB_HOL_DATE_ID] = $date[DATE_TABLE_DATE_ID];
+			$publicHolidays	= RetrievePublicHolidays($filter);
+		
+			//UPDATE
+			$publicHoliday[PUB_HOL_NAME] = "Box Day";
+			$success = UpdatePublicHoliday($publicHoliday);
+		
+			//DELETE
+			$success = DeletePublicHoliday($publicHoliday[PUB_HOL_ID]);
+		}
+	}
 }
 
 ?>

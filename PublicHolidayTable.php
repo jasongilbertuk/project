@@ -1,12 +1,25 @@
 <?php
 
+/*--------------------------------------------------------------------------------------
+ * CONSTANTS
+ *
+ * These constants should be used when refering to the table and the fields within its
+ * records.
+ *-------------------------------------------------------------------------------------*/
 define ("PUBLIC_HOLIDAY_TABLE",             "publicHolidayTable");
-
 define ("PUB_HOL_ID",                       "publicHolidayID");
 define ("PUB_HOL_NAME",                     "nameOfPublicHoliday");
 define ("PUB_HOL_DATE_ID",                  "dateID");
 
-function createPublicHolidayTable($connection)
+/*--------------------------------------------------------------------------------------
+ * Function CreatePublicHolidayTable
+ *
+ * This function creates the SQL statement needed to construct the PublicHoliday table
+ * in the database.
+ *
+ * @return (bool)  True if table is created successfully, false otherwise.
+ *-------------------------------------------------------------------------------------*/
+ function CreatePublicHolidayTable()
 {
    $sql="CREATE TABLE IF NOT EXISTS `mydb`.`publicHolidayTable` (
         `publicHolidayID` INT NOT NULL AUTO_INCREMENT,
@@ -19,54 +32,320 @@ function createPublicHolidayTable($connection)
         REFERENCES `mydb`.`DateTable` (`dateID`)
         ON DELETE NO ACTION
         ON UPDATE NO ACTION);"; 
-    performSQL($connection,$sql);
+    performSQL($sql);
 }
 
-function CreatePublicHoliday($connection,
-							 $nameOfPublicHoliday,
+/*--------------------------------------------------------------------------------------
+ * Function CreatePublicHoliday
+ *
+ * This function creates a new Absence Type row in the AbsenceTypeTable.
+ *
+ * $absenceTypeName (string) Textual name of the type of absence.
+ * $usesAnnual Leave (boolean) Whether or not this type of absence uses annual leave.
+ * $canBeDenied (boolean) Whether or not this type of absence can be denied.
+ *
+ * @return (array) If successful, an array is returned where each key represents a field
+ *                 in the record. If unsuccessful, the return will be NULL.
+ *-------------------------------------------------------------------------------------*/
+ function CreatePublicHoliday($nameOfPublicHoliday,
                              $dateID)
 {
-    $publicHoliday[PUB_HOL_ID]              = NULL;                 
-    $publicHoliday[PUB_HOL_NAME]            = $nameOfPublicHoliday;
-    $publicHoliday[PUB_HOL_DATE_ID]         = $dateID;
-
-    $success = sqlInsertPublicHoliday($connection, $publicHoliday);
-
-    if (! $success )
+	$publicHoliday = NULL;
+	//--------------------------------------------------------------------------------
+	// Validate Input parameters
+	//--------------------------------------------------------------------------------
+	$inputIsValid = TRUE;
+	if ( $nameOfPublicHoliday == NULL )
 	{
-		error_log ("Failed to create public holiday. ".print_r($publicHoliday));
-		$publicHoliday = NULL;
+		error_log ("Invalid NULL name passed to CreatePublicHoliday.");
+		$inputIsValid = FALSE;
+	}
+
+	if ( $nameOfPublicHoliday == "" )
+	{
+		error_log ("Invalid empty name passed to CreatePublicHoliday.");
+		$inputIsValid = FALSE;
+	}
+
+	if ( $dateID == NULL )
+	{
+		error_log ("Invalid dateID passed to CreatePublicHoliday.");
+		$inputIsValid = FALSE;
+	}
+	
+	//-------------------------------------------------------------
+	// Check that a record with the DateID exists in the database.
+	//-------------------------------------------------------------
+	$dateRecord = RetrieveDateByID($dateID);
+	
+	if ( $dateRecord == NULL)
+	{
+		error_log ("DateID passed to CreatePublicHoliday doesn't exist in database.");
+		$inputIsValid = FALSE;
+	}
+	
+	if ($inputIsValid)
+	{
+		//-------------------------------------------------------------
+		// Create the public holiday record in the database.
+		//-------------------------------------------------------------
+		$publicHoliday[PUB_HOL_ID]              = NULL;                 
+    	$publicHoliday[PUB_HOL_NAME]            = $nameOfPublicHoliday;
+    	$publicHoliday[PUB_HOL_DATE_ID]         = $dateID;
+	
+    	$success = sqlInsertPublicHoliday($publicHoliday);
+		
+    	if (! $success )
+		{
+			error_log ("Failed to create public holiday.");
+			$publicHoliday = NULL;
+		}
+		else
+		{
+			//-------------------------------------------------------------
+			// Update the date records public holiday ID field.
+			//-------------------------------------------------------------
+			$dateRecord[DATE_TABLE_PUBLIC_HOL_ID] = $publicHoliday[PUB_HOL_ID];
+			$success = UpdateDate($dateRecord);
+			
+			if (! $success )
+			{
+				error_log ("Failed to update date reference to public holiday.");
+				$publicHoliday = NULL;
+			}
+		}
 	}
     return $publicHoliday;
 }
 
-function sqlInsertPublicHoliday($connection,&$publicHoliday)
+/*--------------------------------------------------------------------------------------
+ * Function sqlInsertPublicHoliday
+ *
+ * This function constructs the SQL statement required to insert a new record
+ * into the publicHolidayTable
+ *
+ * &$publicHoliday (array) Array containing all of the fields required for the record.
+ *
+ * @return (bool) TRUE if insert into database was successful, false otherwise.
+ *		   
+ * Note: If successful then the PUB_HOL_ID entry in the publicHoliday array
+ *	     passed by the caller will be set to the ID of the record in the database. 
+ *-------------------------------------------------------------------------------------*/
+ function sqlInsertPublicHoliday(&$publicHoliday)
 {
     $sql="INSERT INTO publicHolidayTable (nameOfPublicHoliday,dateID) ".
-         "VALUES ('".$publicHoliday[PUB_HOL_NAME].
-         "','".$publicHoliday[PUB_HOL_DATE_ID]."');";
-    //todo update date to point to new public holiday.
-    $publicHoliday[PUB_HOL_ID] = performSQLInsert($connection,$sql);
+         "VALUES ('"
+         .$publicHoliday[PUB_HOL_NAME]."','"
+         .$publicHoliday[PUB_HOL_DATE_ID]."');";
+         
+    $publicHoliday[PUB_HOL_ID] = performSQLInsert($sql);
     return $publicHoliday[PUB_HOL_ID] <> 0;
     
 }
 
-function RetrievePublicHolidays($connection,$filter=NULL)     
+
+/*--------------------------------------------------------------------------------------
+ * Function RetrieveMainVacationRequestByID
+ *
+ * This function uses the ID supplied as a parameter to construct an SQL select statement
+ * and then performs this query, returning an array containing the key value pairs of the
+ * record (or NULL if no record is found matching the id).
+ *
+ * $id (int) id of the record to retrieve from the database..
+ *
+ * @return (array) array of key value pairs representing the fields in the record, or 
+ *                 NULL if no record exists with the id supplied.
+ *-------------------------------------------------------------------------------------*/
+function RetrievePublicHolidayByID($id)
 {
-	return performSQLSelect($connection,PUBLIC_HOLIDAY_TABLE,$filter);
+	$filter[PUB_HOL_ID] = $id;
+	$resultArray = performSQLSelect(PUBLIC_HOLIDAY_TABLE,$filter);
+	
+	$result = NULL;
+	
+	if (count($resultArray) == 1)      //Check to see if record was found.
+	{
+		$result = $resultArray[0];
+	}
+
+	return $result;
 }
 
-function UpdatePublicHoliday($connection,$fields)
+/*--------------------------------------------------------------------------------------
+ * Function RetrievePublicHolidays
+ *
+ * This function constructs the SQL statement required to query the PublicHolidayTable.
+ *
+ * $filter (array) Optional parameter. If supplied, then the array should contain a set
+ *                 of key value pairs, where the keys correspond to one (or more) fields
+ *                 in the record (see constants at top of file) and the values correspond
+ *                 to the values to filter against (IE: The WHERE clause).
+ *
+ * @return (array) If successful, an array of arrays, where each element corresponds to 
+ *                 a row from the query. If a failure occurs, return will be NULL. 
+ *-------------------------------------------------------------------------------------*/
+ function RetrievePublicHolidays($filter=NULL)     
 {
-    return performSQLUpdate($connection,PUBLIC_HOLIDAY_TABLE,
+	$inputIsValid = TRUE;
+	
+	//--------------------------------------------------------------------------------
+	// Validate Input parameters
+	//--------------------------------------------------------------------------------
+	if ( $filter <> NULL )
+	{
+		foreach ($filter as $key=>$value)
+		{
+			if (strcmp($key,PUB_HOL_ID) == 0)
+			{
+				if (! is_numeric($value))
+				{
+					error_log ("Invalid PUB_HOL_ID of ".$value.
+								" passed to RetrievePublicHolidays.");
+					$inputIsValid = FALSE;
+				}
+
+			}
+			else if (strcmp($key,PUB_HOL_NAME) == 0)
+			{
+				if ($value == NULL or $value == "")
+				{
+					error_log ("Invalid PUB_HOL_NAME of ".$value.
+								" passed to RetrievePublicHolidays.");
+					$inputIsValid = FALSE;
+				}
+			}
+			else if (strcmp($key,PUB_HOL_DATE_ID) == 0)
+			{
+				if (! is_numeric($value))
+				{
+						error_log ("Invalid PUB_HOL_DATE_ID of ".$value.
+								" passed toRetrievePublicHolidays.");
+					$inputIsValid = FALSE;
+				}
+			}
+			else
+			{
+				error_log ("Unknown Filter ".$key." passed to RetrievePublicHolidays.");
+				$inputIsValid = FALSE;
+			}
+		}
+	}
+	
+	//--------------------------------------------------------------------------------
+	// Only attempt to perform query in the database if the input parameters are ok.
+	//--------------------------------------------------------------------------------
+	$result = NULL;
+	if ($inputIsValid)
+	{
+		$result = performSQLSelect(PUBLIC_HOLIDAY_TABLE,$filter);
+	}
+	return $result;
+}
+
+/*--------------------------------------------------------------------------------------
+ * Function UpdatePublicHoliday
+ *
+ * This function constructs the SQL statement required to update a row in 
+ * the publicHolidayTable.
+ *
+ * $fields (array) array of key value pairs, where keys correspond to fields in the
+ *                 record (see constants at start of this file). Note, this array
+ *                 MUST provide the id of the record (PUB_HOL_ID) and one or more other
+ *                 fields to be updated. 
+ *
+ * @return (bool) TRUE if update succeeds. FALSE otherwise. 
+ *-------------------------------------------------------------------------------------*/
+function UpdatePublicHoliday($fields)
+{
+	//--------------------------------------------------------------------------------
+	// Validate Input parameters
+	//--------------------------------------------------------------------------------
+	$inputIsValid = TRUE;
+	$validID = false;
+	$countOfFields = 0;
+	
+	foreach ($fields as $key=>$value)
+	{
+		if ($key == PUB_HOL_ID)
+		{
+			$record = RetrievePublicHolidayByID($value);
+			if ($record <> NULL)
+			{
+				$validID = true;
+				$countOfFields++;
+			}
+		}
+		else if ($key == PUB_HOL_NAME)
+		{
+			$countOfFields++;
+
+			if ( $value == NULL OR $value="" )
+			{
+				error_log ("Invalid PUB_HOL_NAME passed to UpdatePublicHoliday.");
+				$inputIsValid = FALSE;
+			}
+
+		}	
+		else if ($key == PUB_HOL_DATE_ID)
+		{
+			$countOfFields++;
+
+			$record = RetrieveDateByID($value);
+			
+			if ($record == NULL)
+			{
+				error_log ("Invalid  PUB_HOL_DATE_ID passed to UpdatePublicHoliday.");
+				$inputIsValid = FALSE;
+			}
+		}
+		else
+		{
+			error_log ("Invalid field passed to UpdatePublicHoliday.");
+			$inputIsValid = FALSE;
+		}
+	}
+	
+	if (!$validID)
+	{
+		error_log ("No valid ID supplied in call to UpdatePublicHoliday.");
+		$inputIsValid = FALSE;
+	}
+	
+	if ($countOfFields < 2)
+	{
+		error_log ("Insufficent fields supplied in call to UpdatePublicHoliday.");
+		$inputIsValid = FALSE;
+	}
+	
+	//--------------------------------------------------------------------------------
+	// Only attempt to update a record in the database if the input parameters are ok.
+	//--------------------------------------------------------------------------------
+	$success = false;
+	
+	if ($inputIsValid)
+	{    $success = performSQLUpdate(PUBLIC_HOLIDAY_TABLE,
                             PUB_HOL_ID,$fields); 	
+    }
+    
+    return $success;
 }
 
-function DeletePublicHoliday($connection,$ID)
+/*--------------------------------------------------------------------------------------
+ * Function DeletePublicHoliday
+ *
+ * This function constructs the SQL statement required to delete a row in 
+ * the PublicHolidayTable.
+ *
+ * $ID(integer) ID of the record to be removed from the table. This should be set to 
+ *              the PUB_HOL_ID value of the record you wish to delete.
+ *
+ * @return (int) count of rows deleted. 0 means delete was unsuccessful. 
+ *-------------------------------------------------------------------------------------*/
+ function DeletePublicHoliday($ID)
 {
+	//TODO Update Date record.
     $sql ="DELETE FROM publicHolidayTable WHERE publicHolidayID=".$ID.";";
-    
-    return performSQL($connection,$sql);
+    return performSQL($sql);
 }
 
 ?>

@@ -25,8 +25,15 @@ include 'TestApprovedAbsenceBookingDateTable.php';
 include 'TestDateTable.php';
 include 'TestPublicHolidayTable.php';
 
-function createNewDatabase($connection)
+function createNewDatabase(&$connection)
 {
+	if ($connection)
+	{
+		mysqli_close($connection);  
+	}
+	
+	$connection = connectToSql("localhost","root","root");
+
     dropDB($connection);
     createDB($connection);
     useDB($connection);
@@ -55,11 +62,12 @@ function testTables($connection)
 	testApprovedAbsenceBookingDateTable($connection);
 }
 
-$connection = connectToSql("localhost","root","root");
-
+$connection = NULL;
 createNewDatabase($connection);
+
 testTables($connection);
 
 mysqli_close($connection);  
+$connection = NULL;
 ?>
 

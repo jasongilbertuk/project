@@ -1,5 +1,12 @@
 <?php
 
+function isValidDate($date)
+{
+    $d = DateTime::createFromFormat('Y-m-d', $date);
+    return $d && $d->format('Y-m-d') == $date;
+}
+
+
 function printCallstackAndDie()
 {
 	echo "Fatal Error. Please contact your system administrator.<br/>";
@@ -24,9 +31,10 @@ function connectToSql($server,$username,$password)
     return $connection;
 }
 
-function performSQL($connection,$sql)
+function performSQL($sql)
 {
-    $result = mysqli_query($connection,$sql);
+	$conn = $GLOBALS["connection"];
+    $result = mysqli_query($conn,$sql);
     if (! $result)
     {
     	printCallstackAndDie();
@@ -34,18 +42,35 @@ function performSQL($connection,$sql)
     return TRUE;
 }      
 
-function performSQLInsert($connection,$sql)
+function performSQLDelete($sql)
 {
-    $result = mysqli_query($connection,$sql);
+  	$deletedRows = 0;
+	
+	$conn = $GLOBALS["connection"];
+    $result = mysqli_query($conn,$sql);
+    if ($result)
+    {
+	    $deletedRows =  mysqli_affected_rows($conn);
+   }
+    
+    return $deletedRows;
+}      
+
+function performSQLInsert($sql)
+{
+	$conn = $GLOBALS["connection"];
+    $result = mysqli_query($conn,$sql);
     if (! $result)
     {
     	printCallstackAndDie();
     }   
-    return mysqli_insert_id($connection);
+    return mysqli_insert_id($conn);
 }
 
-function performSQLSelect($connection,$tableName,$filter)     
+function performSQLSelect($tableName,$filter)     
 {
+	$conn = $GLOBALS["connection"];
+
     $sql ="SELECT * FROM ".$tableName;
 	
     if ($filter != NULL)
@@ -60,22 +85,24 @@ function performSQLSelect($connection,$tableName,$filter)
 	$sql = $sql.implode(" AND ",$whereClause);
     }
       	
-    $result = mysqli_query($connection,$sql);
+    $result = mysqli_query($conn,$sql);
     if (! $result)
     {
  	  	printCallstackAndDie();
     }
-    
-    $results[] = NULL;
-    while ($row = mysqli_fetch_array($result))
+    $results = NULL;
+    while ($row = mysqli_fetch_array($result,MYSQLI_ASSOC))
     {
     	$results[] = $row;
     }   
+    
+    
     return $results; 
 }
 
-function performSQLUpdate($connection,$tableName,$idFieldName,$fields)     
+function performSQLUpdate($tableName,$idFieldName,$fields)     
 {
+	$conn = $GLOBALS["connection"];
  	$sql ="UPDATE ".$tableName." SET ";
 	
 	if ($fields <> NULL)
@@ -100,33 +127,33 @@ function performSQLUpdate($connection,$tableName,$idFieldName,$fields)
 	}
    	$sql = $sql." WHERE ".$idFieldName."='".$fields[$idFieldName]."';";
         
-       $result = mysqli_query($connection,$sql);
+       $result = mysqli_query($conn,$sql);
     if (! $result)
     {
-           echo mysqli_error($connection);
+           echo mysqli_error($conn);
  	  	printCallstackAndDie();
     }
     
     return TRUE;
  }
 
-function useDB($connection)
+function UseDB()
 {
 	$sql ="USE mydb;";
-	performSQL($connection,$sql);
+	performSQL($sql);
 }
 
-function dropDB($connection)
+function DropDB()
 {
     $sql ="DROP DATABASE IF EXISTS `mydb`;";
-    performSQL($connection,$sql);
+    performSQL($sql);
 }
 
-function createDB($connection)
+function CreateDB()
 {
     $sql ="CREATE SCHEMA IF NOT EXISTS `mydb`".
     		"DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;";
-    performSQL($connection,$sql);
+    performSQL($sql);
 }
 
 ?>

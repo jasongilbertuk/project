@@ -1,11 +1,10 @@
 <?php
 
-function testMainVacationRequestTable($connection)
+function testMainVacationRequestTable()
 {
-	$role = CreateCompanyRole($connection,"Cashier",8);
+	$role = CreateCompanyRole("Cashier",8);
 	
-	$employee = CreateEmployee( $connection,
-							    "Jason Gilbert",
+	$employee = CreateEmployee( "Jason Gilbert",
         	                   "jasongilbertuk@hotmail.com",
             	               "zaq12wsx",
                 	           "1990-11-28",
@@ -14,25 +13,23 @@ function testMainVacationRequestTable($connection)
                            		$role[COMP_ROLE_ID]);
 
 	//CREATE
-	$mainVacationRequest = CreateMainVactionRequest($connection,
-													$employee[EMP_ID],
+	$mainVacationRequest = CreateMainVactionRequest($employee[EMP_ID],
                                                     "2014-08-12",
                                                     "2014-08-19",
 												    "2014-09-12",
 						    						"2014-09-19");
 
 	//RETRIEVE
-	$mainVacationRequests 		= RetrieveMainVacationRequests($connection);
+	$mainVacationRequests 		= RetrieveMainVacationRequests();
 	$filter[MAIN_VACATION_1ST_START] = "2014-08-12";
-	$mainVacationRequests 		= RetrieveMainVacationRequests($connection,$filter);
+	$mainVacationRequests 		= RetrieveMainVacationRequests($filter);
 
 	//UPDATE
 	$mainVacationRequest[MAIN_VACATION_2ND_START] = "2014-02-11";
-	$success = UpdateMainVacactionRequest($connection,$mainVacationRequest);
+	$success = UpdateMainVacactionRequest($mainVacationRequest);
 
 	//DELETE
-	$success = DeleteMainVacationRequest($connection,
-                                    $mainVacationRequest[MAIN_VACATION_REQ_ID]);
+	$success = DeleteMainVacationRequest($mainVacationRequest[MAIN_VACATION_REQ_ID]);
 }
 
 

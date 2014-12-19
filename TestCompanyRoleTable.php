@@ -1,22 +1,22 @@
 <?php
 
-function testCompanyRoleTable($connection)
+function testCompanyRoleTable()
 {
 	//CREATE
-	$role = CreateCompanyRole($connection,"Cashier",8);
+	$role = CreateCompanyRole("Cashier",8);
 
 	//RETRIEVE
-	$companyRoles = RetrieveCompanyRoles($connection);
+	$companyRoles = RetrieveCompanyRoles();
 
 	$filter[COMP_ROLE_MIN_STAFF] = 8;
-	$companyRoles = RetrieveCompanyRoles($connection,$filter);
+	$companyRoles = RetrieveCompanyRoles($filter);
 
 	//UPDATE
 	$role[COMP_ROLE_MIN_STAFF] = 2;
-	$success = UpdateCompanyRole($connection,$role);
+	$success = UpdateCompanyRole($role);
 
 	//DELETE
-	$success = DeleteCompanyRole($connection,$role[COMP_ROLE_ID]);
+	$success = DeleteCompanyRole($role[COMP_ROLE_ID]);
 }
 
 ?>
