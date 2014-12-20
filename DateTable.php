@@ -324,9 +324,29 @@ function UpdateDate($fields)
  *-------------------------------------------------------------------------------------*/
 function DeleteDate($ID)
 {
-    $sql ="DELETE FROM dateTable WHERE dateID=".$ID.";";
+    $result = 0;
     
-    return performSQL($sql);
+    $date = RetrieveDateByID($ID);
+    if ($date <> NULL)
+    {
+        $filter[APPR_ABS_BOOK_DATE_DATE_ID] = $date[DATE_TABLE_DATE_ID];
+        $approvedAbsenceBookingDates = RetrieveApprovedAbsenceBookingDates($filter);
+        
+        if ($approvedAbsenceBookingsDates <> NULL)
+        {
+            foreach ($approvedAbsenceBookingDates as $value)
+            {
+                DeleteApprovedAbsenceBooking($value[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
+            }
+        }
+        
+        if ($filter[DATE_TABLE_PUBLIC_HOL_ID]<> NULL)
+        {
+            DeletePublicHoliday(filter[DATE_TABLE_PUBLIC_HOL_ID]);
+        }
+        $sql ="DELETE FROM dateTable WHERE dateID=".$ID.";";
+        $result = performSQL($sql);
+    }
+    return $result;
 }
-
 ?>

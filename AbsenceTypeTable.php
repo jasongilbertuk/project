@@ -55,26 +55,28 @@ function CreateAbsenceType($absenceTypeName,
 
 	if ( $absenceTypeName == NULL )
 	{
+            echo "A";
 		error_log ("Invalid NULL absenceTypeName passed to CreateAbsenceType.");
 		$inputIsValid = FALSE;
 	}
 	
  	if ( $absenceTypeName == "" )
 	{
+	 echo "B";
 		error_log ("Invalid empty absenceTypeName passed to CreateAbsenceType.");
 		$inputIsValid = FALSE;
 	}
  	
- 	if ( ($usesAnnualLeave <> TRUE AND $usesAnnualLeave <> FALSE) )
+ 	if ( ! is_bool($usesAnnualLeave) )
 	{
-		error_log ("Invalid usesAnnualLeave parameter passed to CreateAbsenceType.");
+	 	error_log ("Invalid usesAnnualLeave parameter passed to CreateAbsenceType.");
 		$inputIsValid = FALSE;
 	}
 	
-	if ( ($canBeDenied <> TRUE AND $canBeDenied <> FALSE) )
+	if ( ! is_bool($canBeDenied) )
 	{
-		error_log ("Invalid canBeDenied parameter passed to CreateAbsenceType.");
-		$inputIsValid = FALSE;
+            error_log ("Invalid canBeDenied parameter passed to CreateAbsenceType.");
+            $inputIsValid = FALSE;
 	}
 	
 	//--------------------------------------------------------------------------------
@@ -122,6 +124,8 @@ function CreateAbsenceType($absenceTypeName,
             .$absenceType[ABS_TYPE_USES_LEAVE]."','"
             .$absenceType[ABS_TYPE_CAN_BE_DENIED]."');";
     
+            echo $sql;
+        
    	$absenceType[ABS_TYPE_ID] = performSQLInsert($sql);
 
     return $absenceType[ABS_TYPE_ID] <> 0;

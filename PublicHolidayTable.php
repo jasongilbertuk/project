@@ -80,7 +80,7 @@ define ("PUB_HOL_DATE_ID",                  "dateID");
 	
 	if ( $dateRecord == NULL)
 	{
-		error_log ("DateID passed to CreatePublicHoliday doesn't exist in database.");
+	       error_log ("DateID passed to CreatePublicHoliday doesn't exist in database.");
 		$inputIsValid = FALSE;
 	}
 	

@@ -45,17 +45,19 @@ function CreateNewDatabase()
 
 function testTables()
 {
-	testCompanyRoleTable();
+/*	testCompanyRoleTable();
 	testEmployeeTable();
 	testMainVacationRequestTable();
 	testAbsenceTypeTable();
 	testAdHocAbsenceRequestTable();
-	testDateTable();
-	testPublicHolidayTable();
+*/	testDateTable();
+/*	testPublicHolidayTable();
 	testApprovedAbsenceBookingTable();
 	testApprovedAbsenceBookingDateTable();
-}
 
+ 
+ */
+}
 $connection = connectToSql("localhost","root","root");
 
 createNewDatabase();

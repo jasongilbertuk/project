@@ -80,7 +80,6 @@ function AbsenceTypeTableTest_Create_004()
 	
 	//CREATE
 	$absenceType = CreateAbsenceType( "Sick Leave",FALSE,TRUE);
-    
     if ($absenceType != NULL AND $absenceType[ABS_TYPE_ID] <> NULL)
     {
     	//-------------------------------------------------------------------------- 
@@ -817,10 +816,10 @@ function testAbsenceTypeTableRetrieve()
 	//--------------------------------------------------------------
 	// Create some sample data which will be used in retrieve tests.
 	//--------------------------------------------------------------
-	$absenceType = CreateAbsenceType( "Sick Leave"		,FALSE,FALSE);
-	$absenceType = CreateAbsenceType( "Annual Leave"	,TRUE,TRUE);
-	$absenceType = CreateAbsenceType( "Training" 		,FALSE,TRUE);
-	$absenceType = CreateAbsenceType( "Emergency Leave"	,TRUE,FALSE);
+	CreateAbsenceType( "Sick Leave"		,FALSE,FALSE);
+	CreateAbsenceType( "Annual Leave"	,TRUE,TRUE);
+	CreateAbsenceType( "Training" 		,FALSE,TRUE);
+	CreateAbsenceType( "Emergency Leave"	,TRUE,FALSE);
 	
 	//--------------------------------------------------------------
 	// Run the tests
