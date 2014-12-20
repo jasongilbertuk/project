@@ -63,7 +63,7 @@ function testDateTable()
    echo "<br/>PUBLIC HOLIDAYS<br/>";
    print_r($publicHolidays);
    echo "<br/>APPROVED ABSENCE BOOKING DATES<br/>";
-   print_r($approvedAbsenceBookingDates);
+   print_r($approveAbsenceBookingDates);
 
    DeleteEmployee($employee[EMP_ID]); 
 	echo "<br/><br/>Employee Deleted<br/><br/>";
@@ -95,7 +95,7 @@ function testDateTable()
    echo "<br/>PUBLIC HOLIDAYS<br/>";
    print_r($publicHolidays);
    echo "<br/>APPROVED ABSENCE BOOKING DATES<br/>";
-   print_r($approvedAbsenceBookingDates);
+   print_r($approveAbsenceBookingDates);
     
     
 }

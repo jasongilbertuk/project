@@ -29,7 +29,6 @@ function CreateDateTable()
     performSQL($sql);
 }
 
-
 /*--------------------------------------------------------------------------------------
  * Function CreateDate
  *
@@ -91,7 +90,6 @@ function CreateDate($dateParam,
 	
     return $date;
 }
-
 /*--------------------------------------------------------------------------------------
  * Function sqlInsertDate 
  *
@@ -124,7 +122,6 @@ function sqlInsertDate(&$date)
     
     return $date[DATE_TABLE_DATE_ID]<>0;
 }
-
 /*--------------------------------------------------------------------------------------
  * Function RetrieveDateByID
  *
@@ -151,7 +148,6 @@ function RetrieveDateByID($id)
 
 	return $result;
 }
-
 /*--------------------------------------------------------------------------------------
  * Function RetrievDates
  *
@@ -222,7 +218,6 @@ function RetrieveDates($filter=NULL)
 	}
 	return $result;
 }
-
 /*--------------------------------------------------------------------------------------
  * Function UpdateDate
  *
@@ -310,7 +305,6 @@ function UpdateDate($fields)
     return $success;
 }
 
-
 /*--------------------------------------------------------------------------------------
  * Function DeleteDate
  *
@@ -342,7 +336,7 @@ function DeleteDate($ID)
         
         if ($filter[DATE_TABLE_PUBLIC_HOL_ID]<> NULL)
         {
-            DeletePublicHoliday(filter[DATE_TABLE_PUBLIC_HOL_ID]);
+            DeletePublicHoliday($filter[DATE_TABLE_PUBLIC_HOL_ID]);
         }
         $sql ="DELETE FROM dateTable WHERE dateID=".$ID.";";
         $result = performSQL($sql);

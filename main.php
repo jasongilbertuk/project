@@ -1,5 +1,5 @@
 <?php
-
+echo "Hello";
 //ini_set('display_startup_errors',1);
 //ini_set('display_errors',1);
 //error_reporting(-1);
@@ -14,7 +14,6 @@ include 'ApprovedAbsenceBookingTable.php';
 include 'ApprovedAbsenceBookingDateTable.php';
 include 'DateTable.php';
 include 'PublicHolidayTable.php';
-
 include 'TestTable.php';
 include 'TestAdHocRequestTable.php';
 include 'TestCompanyRoleTable.php';
@@ -58,6 +57,9 @@ function testTables()
  
  */
 }
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 $connection = connectToSql("localhost","root","root");
 
 createNewDatabase();
