@@ -1,26 +1,27 @@
 <?php
-/*--------------------------------------------------------------------------------------
+
+/* --------------------------------------------------------------------------------------
  * CONSTANTS
  *
  * These constants should be used when refering to the table and the fields within its
  * records.
- *-------------------------------------------------------------------------------------*/
- define ("APPROVED_ABSENCE_BOOKING_DATE",    "approvedAbsenceBookingDate");
- define ("APPR_ABS_BOOK_DATE_ID",            "approvedAbsenceBookingDateID");
- define ("APPR_ABS_BOOK_DATE_DATE_ID",       "dateID");
- define ("APPR_ABS_BOOK_DATE_ABS_BOOK_ID",   "approvedAbsenceBookingID");
+ * ------------------------------------------------------------------------------------- */
+define("APPROVED_ABSENCE_BOOKING_DATE", "approvedAbsenceBookingDate");
+define("APPR_ABS_BOOK_DATE_ID", "approvedAbsenceBookingDateID");
+define("APPR_ABS_BOOK_DATE_DATE_ID", "dateID");
+define("APPR_ABS_BOOK_DATE_ABS_BOOK_ID", "approvedAbsenceBookingID");
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function CreateApprovedAbsenceDateTable
  *
  * This function creates the SQL statement needed to construct the table
  * in the database.
  *
  * @return (bool)  True if table is created successfully, false otherwise.
- *-------------------------------------------------------------------------------------*/
-function CreateApprovedAbsenceDateTable()
-{
-   $sql="CREATE TABLE IF NOT EXISTS `mydb`.`approvedAbsenceBookingDate` (
+ * ------------------------------------------------------------------------------------- */
+
+function CreateApprovedAbsenceDateTable() {
+    $sql = "CREATE TABLE IF NOT EXISTS `mydb`.`approvedAbsenceBookingDate` (
   `approvedAbsenceBookingDateID` INT NOT NULL AUTO_INCREMENT,
   `dateID` INT NOT NULL,
   `approvedAbsenceBookingID` INT NOT NULL,
@@ -38,11 +39,11 @@ function CreateApprovedAbsenceDateTable()
     REFERENCES `mydb`.`approvedAbsenceBookingTable` (`approvedAbsenceBookingID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);";
-   
+
     performSQL($sql);
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function CreateApprovedAbsenceBookingDate
  *
  * This function creates a new ApprovedAbsenceBookingDate record in the 
@@ -54,57 +55,52 @@ function CreateApprovedAbsenceDateTable()
  *
  * @return (array) If successful, an array is returned where each key represents a field
  *                 in the record. If unsuccessful, the return will be NULL.
- *-------------------------------------------------------------------------------------*/
-function CreateApprovedAbsenceBookingDate($dateID,
-                                          $approvedAbsenceBookingID)
-{
-	$absenceRequest = NULL;
-	//--------------------------------------------------------------------------------
-	// Validate Input parameters
-	//--------------------------------------------------------------------------------
-	$inputIsValid = TRUE;
+ * ------------------------------------------------------------------------------------- */
 
-	// Check that a record with the DateID supplied exists in the database.
-	$record = RetrieveDateByID($dateID);
-	
-	if ( $record  == NULL )
-	{
-		error_log ("dateID passed to CreateApprovedAbsenceBookingDate ".
-		           " does not exist in the database. ID=".$dateID);
-		$inputIsValid = FALSE;
-	}
-	
-	// Check that a record with the approvedAbsenceBookingID supplied exists in the database.
-	$record = RetrieveApprovedAbsenceBookingByID($approvedAbsenceBookingID);
-	if ( $record == NULL )
-	{
-		error_log ("approvedAbsenceBookingID passed to CreateApprovedAbsenceBookingDate ".
-		           " does not exist in the database. ID=".$approvedAbsenceBookingID);
-		$inputIsValid = FALSE;
-	}
-	
- 	//--------------------------------------------------------------------------------
-	// Only attempt to insert a record in the database if the input parameters are ok.
-	//--------------------------------------------------------------------------------
-	$bookingDate = NULL;
-	
-	if ($inputIsValid)
-	{
-	    $bookingDate[APPR_ABS_BOOK_DATE_ID]          = NULL;
-    	$bookingDate[APPR_ABS_BOOK_DATE_DATE_ID]     = $dateID;
-    	$bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID] = $approvedAbsenceBookingID;
-    
-    	$success = sqlInsertApprovedAbsenceBookingDate($bookingDate);
-		if (! $success )
-		{
-			error_log ("Failed to create Approved Absence Booking Date.");
-			$bookingDate = NULL;
-		}
-	}
+function CreateApprovedAbsenceBookingDate($dateID, $approvedAbsenceBookingID) {
+    $absenceRequest = NULL;
+    //--------------------------------------------------------------------------------
+    // Validate Input parameters
+    //--------------------------------------------------------------------------------
+    $inputIsValid = TRUE;
+
+    // Check that a record with the DateID supplied exists in the database.
+    $record = RetrieveDateByID($dateID);
+
+    if ($record == NULL) {
+        error_log("dateID passed to CreateApprovedAbsenceBookingDate " .
+                " does not exist in the database. ID=" . $dateID);
+        $inputIsValid = FALSE;
+    }
+
+    // Check that a record with the approvedAbsenceBookingID supplied exists in the database.
+    $record = RetrieveApprovedAbsenceBookingByID($approvedAbsenceBookingID);
+    if ($record == NULL) {
+        error_log("approvedAbsenceBookingID passed to CreateApprovedAbsenceBookingDate " .
+                " does not exist in the database. ID=" . $approvedAbsenceBookingID);
+        $inputIsValid = FALSE;
+    }
+
+    //--------------------------------------------------------------------------------
+    // Only attempt to insert a record in the database if the input parameters are ok.
+    //--------------------------------------------------------------------------------
+    $bookingDate = NULL;
+
+    if ($inputIsValid) {
+        $bookingDate[APPR_ABS_BOOK_DATE_ID] = NULL;
+        $bookingDate[APPR_ABS_BOOK_DATE_DATE_ID] = $dateID;
+        $bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID] = $approvedAbsenceBookingID;
+
+        $success = sqlInsertApprovedAbsenceBookingDate($bookingDate);
+        if (!$success) {
+            error_log("Failed to create Approved Absence Booking Date.");
+            $bookingDate = NULL;
+        }
+    }
     return $bookingDate;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function sqlInsertApprovedAbsenceBookingDate 
  *
  * This function constructs the SQL statement required to insert a new record
@@ -114,23 +110,23 @@ function CreateApprovedAbsenceBookingDate($dateID,
  * the record.
  *
  * @return (bool) TRUE if insert into database was successful, false otherwise.
- *		   
+ * 		   
  * Note: If successful then the APPR_ABS_BOOK_DATE_ID entry in the 
  * array passed by the caller will be set to the ID of the record in the database. 
- *-------------------------------------------------------------------------------------*/
-function sqlInsertApprovedAbsenceBookingDate(&$absenceBookingDate)
-{
-    $sql="INSERT INTO approvedAbsenceBookingDate ".
-         "(dateID,approvedAbsenceBookingID) ".
-         "VALUES ('".
-            $absenceBookingDate[APPR_ABS_BOOK_DATE_DATE_ID]."','".
-            $absenceBookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]."');";
-    
+ * ------------------------------------------------------------------------------------- */
+
+function sqlInsertApprovedAbsenceBookingDate(&$absenceBookingDate) {
+    $sql = "INSERT INTO approvedAbsenceBookingDate " .
+            "(dateID,approvedAbsenceBookingID) " .
+            "VALUES ('" .
+            $absenceBookingDate[APPR_ABS_BOOK_DATE_DATE_ID] . "','" .
+            $absenceBookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID] . "');";
+
     $absenceBookingDate[APPR_ABS_BOOK_DATE_ID] = performSQLInsert($sql);
-   return $absenceBookingDate[APPR_ABS_BOOK_DATE_ID] <> 0;
+    return $absenceBookingDate[APPR_ABS_BOOK_DATE_ID] <> 0;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function RetrieveApprovedAbsenceBookingDateByID
  *
  * This function uses the ID supplied as a parameter to construct an SQL select statement
@@ -141,24 +137,22 @@ function sqlInsertApprovedAbsenceBookingDate(&$absenceBookingDate)
  *
  * @return (array) array of key value pairs representing the fields in the record, or 
  *                 NULL if no record exists with the id supplied.
- *-------------------------------------------------------------------------------------*/
-function RetrieveApprovedAbsenceBookingDateByID($id)
-{
-	$filter[APPR_ABS_BOOK_DATE_ID] = $id;
-	$resultArray = performSQLSelect(APPROVED_ABSENCE_BOOKING_DATE,$filter);
-	
-	$result = NULL;
-	
-	if (count($resultArray) == 1)      //Check to see if record was found.
-	{
-		$result = $resultArray[0];
-	}
+ * ------------------------------------------------------------------------------------- */
 
-	return $result;
+function RetrieveApprovedAbsenceBookingDateByID($id) {
+    $filter[APPR_ABS_BOOK_DATE_ID] = $id;
+    $resultArray = performSQLSelect(APPROVED_ABSENCE_BOOKING_DATE, $filter);
+
+    $result = NULL;
+
+    if (count($resultArray) == 1) {      //Check to see if record was found.
+        $result = $resultArray[0];
+    }
+
+    return $result;
 }
 
-
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function RetrieveApprovedAbsenceBookingDates
  *
  * This function constructs the SQL statement required to query the 
@@ -171,68 +165,54 @@ function RetrieveApprovedAbsenceBookingDateByID($id)
  *
  * @return (array) If successful, an array of arrays, where each element corresponds to 
  *                 a row from the query. If a failure occurs, return will be NULL. 
- *-------------------------------------------------------------------------------------*/
-function RetrieveApprovedAbsenceBookingDates($filter=NULL)     
-{
-	$inputIsValid = TRUE;
+ * ------------------------------------------------------------------------------------- */
 
-	//--------------------------------------------------------------------------------
-	// Validate Input parameters
-	//--------------------------------------------------------------------------------
-	if ( $filter <> NULL )
-	{
-		foreach ($filter as $key=>$value)
-		{
-			if (strcmp($key,APPR_ABS_BOOK_DATE_ID) == 0)
-			{
-				if (! is_numeric($value))
-				{
-					error_log ("Invalid approvedAbsenceBookingDateID of ".$value.
-								" passed to RetrieveApprovedAbsenceBookingDates.");
-					$inputIsValid = FALSE;
-				}
+function RetrieveApprovedAbsenceBookingDates($filter = NULL) {
+    $inputIsValid = TRUE;
 
-			}
-			else if (strcmp($key,APPR_ABS_BOOK_DATE_DATE_ID) == 0)
-			{
-				if (! is_numeric($value))
-				{
-					error_log ("Invalid dateID of ".$value.
-								" passed to RetrieveApprovedAbsenceBookingDates.");
-					$inputIsValid = FALSE;
-				}
-			}
-			else if (strcmp($key,APPR_ABS_BOOK_DATE_ABS_BOOK_ID) == 0)
-			{
-				if (! is_numeric($value))
-				{
-					error_log ("Invalid approvedAbsenceBookingID of ".$value.
-								" passed to RetrieveApprovedAbsenceBookingDates.");
-					$inputIsValid = FALSE;
-				}
-			}
-			else
-			{
-				error_log ("Unknown Filter ".$key." passed to ".
-						   "RetrieveApprovedAbsenceBookingDates.");
-				$inputIsValid = FALSE;
-			}
-		}
-	}
-	
-	//--------------------------------------------------------------------------------
-	// Only attempt to perform query in the database if the input parameters are ok.
-	//--------------------------------------------------------------------------------
-	$result = NULL;
-	if ($inputIsValid)
-	{
-		$result = performSQLSelect(APPROVED_ABSENCE_BOOKING_DATE,$filter);
-	}
-	
-	return $result;
+    //--------------------------------------------------------------------------------
+    // Validate Input parameters
+    //--------------------------------------------------------------------------------
+    if ($filter <> NULL) {
+        foreach ($filter as $key => $value) {
+            if (strcmp($key, APPR_ABS_BOOK_DATE_ID) == 0) {
+                if (!is_numeric($value)) {
+                    error_log("Invalid approvedAbsenceBookingDateID of " . $value .
+                            " passed to RetrieveApprovedAbsenceBookingDates.");
+                    $inputIsValid = FALSE;
+                }
+            } else if (strcmp($key, APPR_ABS_BOOK_DATE_DATE_ID) == 0) {
+                if (!is_numeric($value)) {
+                    error_log("Invalid dateID of " . $value .
+                            " passed to RetrieveApprovedAbsenceBookingDates.");
+                    $inputIsValid = FALSE;
+                }
+            } else if (strcmp($key, APPR_ABS_BOOK_DATE_ABS_BOOK_ID) == 0) {
+                if (!is_numeric($value)) {
+                    error_log("Invalid approvedAbsenceBookingID of " . $value .
+                            " passed to RetrieveApprovedAbsenceBookingDates.");
+                    $inputIsValid = FALSE;
+                }
+            } else {
+                error_log("Unknown Filter " . $key . " passed to " .
+                        "RetrieveApprovedAbsenceBookingDates.");
+                $inputIsValid = FALSE;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------
+    // Only attempt to perform query in the database if the input parameters are ok.
+    //--------------------------------------------------------------------------------
+    $result = NULL;
+    if ($inputIsValid) {
+        $result = performSQLSelect(APPROVED_ABSENCE_BOOKING_DATE, $filter);
+    }
+
+    return $result;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function UpdateApprovedAbsenceBookingDate
  *
  * This function constructs the SQL statement required to update a row in 
@@ -244,85 +224,70 @@ function RetrieveApprovedAbsenceBookingDates($filter=NULL)
  *                 more other fields to be updated. 
  *
  * @return (bool) TRUE if update succeeds. FALSE otherwise. 
- *-------------------------------------------------------------------------------------*/
-function UpdateApprovedAbsenceBookingDate($fields)
-{
-	//--------------------------------------------------------------------------------
-	// Validate Input parameters
-	//--------------------------------------------------------------------------------
-	$inputIsValid = TRUE;
-	$validID = false;
-	$countOfFields = 0;
-	
-	foreach ($fields as $key=>$value)
-	{
-		if ($key == APPR_ABS_BOOK_DATE_ID)
-		{
-			$record = RetrieveApprovedAbsenceBookingDateByID($value);
-			if ($record <> NULL)
-			{
-				$validID = true;
-				$countOfFields++;
-			}
-		}
-		else if ($key == APPR_ABS_BOOK_DATE_DATE_ID)
-		{
-			$countOfFields++;
+ * ------------------------------------------------------------------------------------- */
 
-			$record = RetrieveDateByID($value);
-			if ( $record == NULL )
-			{
-				error_log ("Invalid APPR_ABS_BOOK_DATE_DATE_ID passed to ".
-				           "UpdateApprovedAbsenceBookingDate. Value=".$value);
-				$inputIsValid = FALSE;
-			}
-		}	
-		else if ($key == APPR_ABS_BOOK_DATE_ABS_BOOK_ID)
-		{
-			$countOfFields++;
+function UpdateApprovedAbsenceBookingDate($fields) {
+    //--------------------------------------------------------------------------------
+    // Validate Input parameters
+    //--------------------------------------------------------------------------------
+    $inputIsValid = TRUE;
+    $validID = false;
+    $countOfFields = 0;
 
-			$record = RetrieveApprovedAbsenceBookingByID($value);
-			if ( $record == NULL )
-			{
-				error_log ("Invalid APPR_ABS_BOOKING_ID passed to ".
-				           "UpdateApprovedAbsenceBookingDate. Value=".$value);
-				$inputIsValid = FALSE;
-			}
-		}
-		else
-		{
-			error_log ("Invalid field passed to UpdateApprovedAbsenceBookingDate.".
-						" $key=".$key);
-			$inputIsValid = FALSE;
-		}
-	}
-	
-	if (!$validID)
-	{
-		error_log ("No valid ID supplied in call to UpdateApprovedAbsenceBookingDate.");
-		$inputIsValid = FALSE;
-	}
-	
-	if ($countOfFields < 2)
-	{
-		error_log ("Insufficent fields supplied in call to UpdateApprovedAbsenceBookingDate.");
-		$inputIsValid = FALSE;
-	}
-	
-	//--------------------------------------------------------------------------------
-	// Only attempt to update a record in the database if the input parameters are ok.
-	//--------------------------------------------------------------------------------
-	$success = false;
-	
-	if ($inputIsValid)
-	{
-    	$success = performSQLUpdate(APPROVED_ABSENCE_BOOKING_DATE,
-        	                        APPR_ABS_BOOK_DATE_ID,$fields); 
+    foreach ($fields as $key => $value) {
+        if ($key == APPR_ABS_BOOK_DATE_ID) {
+            $record = RetrieveApprovedAbsenceBookingDateByID($value);
+            if ($record <> NULL) {
+                $validID = true;
+                $countOfFields++;
+            }
+        } else if ($key == APPR_ABS_BOOK_DATE_DATE_ID) {
+            $countOfFields++;
+
+            $record = RetrieveDateByID($value);
+            if ($record == NULL) {
+                error_log("Invalid APPR_ABS_BOOK_DATE_DATE_ID passed to " .
+                        "UpdateApprovedAbsenceBookingDate. Value=" . $value);
+                $inputIsValid = FALSE;
+            }
+        } else if ($key == APPR_ABS_BOOK_DATE_ABS_BOOK_ID) {
+            $countOfFields++;
+
+            $record = RetrieveApprovedAbsenceBookingByID($value);
+            if ($record == NULL) {
+                error_log("Invalid APPR_ABS_BOOKING_ID passed to " .
+                        "UpdateApprovedAbsenceBookingDate. Value=" . $value);
+                $inputIsValid = FALSE;
+            }
+        } else {
+            error_log("Invalid field passed to UpdateApprovedAbsenceBookingDate." .
+                    " $key=" . $key);
+            $inputIsValid = FALSE;
+        }
     }
-    return $success;	
+
+    if (!$validID) {
+        error_log("No valid ID supplied in call to UpdateApprovedAbsenceBookingDate.");
+        $inputIsValid = FALSE;
+    }
+
+    if ($countOfFields < 2) {
+        error_log("Insufficent fields supplied in call to UpdateApprovedAbsenceBookingDate.");
+        $inputIsValid = FALSE;
+    }
+
+    //--------------------------------------------------------------------------------
+    // Only attempt to update a record in the database if the input parameters are ok.
+    //--------------------------------------------------------------------------------
+    $success = false;
+
+    if ($inputIsValid) {
+        $success = performSQLUpdate(APPROVED_ABSENCE_BOOKING_DATE, APPR_ABS_BOOK_DATE_ID, $fields);
+    }
+    return $success;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function DeleteApprovedAbsenceBookingDate
  *
  * This function constructs the SQL statement required to delete a row in 
@@ -332,19 +297,15 @@ function UpdateApprovedAbsenceBookingDate($fields)
  *              the   APPR_ABS_BOOK_DATE_ID value of the record you wish to delete.
  *
  * @return (int) count of rows deleted. 0 means delete was unsuccessful. 
- *-------------------------------------------------------------------------------------*/
-function DeleteApprovedAbsenceBookingDate($ID)
-{
-	$result = 0;
-	$record = RetrieveApprovedAbsenceBookingDateByID($ID);
-	
-	if ($record <> NULL)
-	{
-		DeleteApprovedAbsenceBooking($record[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
-	
-	    $sql ="DELETE FROM approvedAbsenceBookingDate WHERE approvedAbsenceBookingDateID=".$ID.";";
-    
-    	$result = performSQL($sql);
+ * ------------------------------------------------------------------------------------- */
+
+function DeleteApprovedAbsenceBookingDate($ID) {
+    $result = 0;
+    $record = RetrieveApprovedAbsenceBookingDateByID($ID);
+
+    if ($record <> NULL) {
+        $sql = "DELETE FROM approvedAbsenceBookingDate WHERE approvedAbsenceBookingDateID=" . $ID . ";";
+        $result = performSQL($sql);
     }
     return $result;
 }

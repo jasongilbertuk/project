@@ -1,7 +1,7 @@
 <?php
 
-ini_set('display_startup_errors',1);
-ini_set('display_errors',1);
+ini_set('display_startup_errors', 1);
+ini_set('display_errors', 1);
 error_reporting(-1);
 
 include 'databaseFunctions.php';
@@ -25,14 +25,12 @@ include 'TestApprovedAbsenceBookingDateTable.php';
 include 'TestDateTable.php';
 include 'TestPublicHolidayTable.php';
 
-function createNewDatabase(&$connection)
-{
-	if ($connection)
-	{
-		mysqli_close($connection);  
-	}
-	
-	$connection = connectToSql("localhost","root","root");
+function createNewDatabase(&$connection) {
+    if ($connection) {
+        mysqli_close($connection);
+    }
+
+    $connection = connectToSql("localhost", "root", "root");
 
     dropDB($connection);
     createDB($connection);
@@ -48,18 +46,16 @@ function createNewDatabase(&$connection)
     createMainVacationRequestTable($connection);
 }
 
-
-function testTables($connection)
-{
-	testCompanyRoleTable($connection);
-	testEmployeeTable($connection);
-	testMainVacationRequestTable($connection);
-	testAbsenceTypeTable($connection);
-	testAdHocAbsenceRequestTable($connection);
-	testDateTable($connection);
-	testPublicHolidayTable($connection);
-	testApprovedAbsenceBookingTable($connection);
-	testApprovedAbsenceBookingDateTable($connection);
+function testTables($connection) {
+    testCompanyRoleTable($connection);
+    testEmployeeTable($connection);
+    testMainVacationRequestTable($connection);
+    testAbsenceTypeTable($connection);
+    testAdHocAbsenceRequestTable($connection);
+    testDateTable($connection);
+    testPublicHolidayTable($connection);
+    testApprovedAbsenceBookingTable($connection);
+    testApprovedAbsenceBookingDateTable($connection);
 }
 
 $connection = NULL;
@@ -67,7 +63,7 @@ createNewDatabase($connection);
 
 testTables($connection);
 
-mysqli_close($connection);  
+mysqli_close($connection);
 $connection = NULL;
 ?>
 

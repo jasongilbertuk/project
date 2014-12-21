@@ -31,9 +31,6 @@ function testDateTable()
     
     $approvedAbsenceBookingDate = CreateApprovedAbsenceBookingDate($date2[DATE_TABLE_DATE_ID],
                                                               $approvedAbsenceBooking[APPR_ABS_BOOKING_ID]);
-    echo "!!!!!";
-    print_r($approvedAbsenceBookingDate);
-    echo "!!!!!";
     
     
    $employees = RetrieveEmployees();
@@ -46,27 +43,7 @@ function testDateTable()
    $publicHolidays = RetrievePublicHolidays();
    $approveAbsenceBookingDates = RetrieveApprovedAbsenceBookingDates();
    
-   echo "<br/>EMPLOYEES<br/>";
-   print_r($employees);
-   echo "<br/>ABSENCE TYPES<br/>";
-   print_r($absenceTypes);
-   echo "<br/>AD HOC ABSENCE REQUESTS<br/>";
-   print_r($AdHocAbsenceRequests);
-   echo "<br/>APPROVED ABSENCE BOOKINGS<br/>";
-   print_r($ApprovedAbsenceBookings);
-   echo "<br/>MAIN VACATION REQUESTS<br/>";
-   print_r($MainVacationRequests);
-   echo "<br/>COMPANY ROLES<br/>";
-   print_r($companyRoles);
-   echo "<br/>DATES<br/>";
-   print_r($dates);
-   echo "<br/>PUBLIC HOLIDAYS<br/>";
-   print_r($publicHolidays);
-   echo "<br/>APPROVED ABSENCE BOOKING DATES<br/>";
-   print_r($approveAbsenceBookingDates);
-
    DeleteEmployee($employee[EMP_ID]); 
-	echo "<br/><br/>Employee Deleted<br/><br/>";
 
    $employees = RetrieveEmployees();
    $absenceTypes = RetrieveAbsenceTypes();
@@ -78,25 +55,6 @@ function testDateTable()
    $publicHolidays = RetrievePublicHolidays();
    $approveAbsenceBookingDates = RetrieveApprovedAbsenceBookingDates();
    
-   echo "<br/>EMPLOYEES<br/>";
-   print_r($employees);
-   echo "<br/>ABSENCE TYPES<br/>";
-   print_r($absenceTypes);
-   echo "<br/>AD HOC ABSENCE REQUESTS<br/>";
-   print_r($AdHocAbsenceRequests);
-   echo "<br/>APPROVED ABSENCE BOOKINGS<br/>";
-   print_r($ApprovedAbsenceBookings);
-   echo "<br/>MAIN VACATION REQUESTS<br/>";
-   print_r($MainVacationRequests);
-   echo "<br/>COMPANY ROLES<br/>";
-   print_r($companyRoles);
-   echo "<br/>DATES<br/>";
-   print_r($dates);
-   echo "<br/>PUBLIC HOLIDAYS<br/>";
-   print_r($publicHolidays);
-   echo "<br/>APPROVED ABSENCE BOOKING DATES<br/>";
-   print_r($approveAbsenceBookingDates);
-    
     
 }
 

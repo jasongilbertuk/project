@@ -1,29 +1,29 @@
 <?php
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * CONSTANTS
  *
  * These constants should be used when refering to the table and the fields within its
  * records.
- *-------------------------------------------------------------------------------------*/
-define ("ADHOC_ABSENCE_REQUEST_TABLE",      "adHocAbsenceRequestTable");
-define ("AD_HOC_REQ_ID",                    "adHocAbsenceRequestID");
-define ("AD_HOC_EMP_ID",                    "employeeID");
-define ("AD_HOC_START",                     "startDate");
-define ("AD_HOC_END",                       "endDate");
-define ("AD_HOC_ABSENCE_TYPE_ID",           "absenceTypeID");
+ * ------------------------------------------------------------------------------------- */
+define("ADHOC_ABSENCE_REQUEST_TABLE", "adHocAbsenceRequestTable");
+define("AD_HOC_REQ_ID", "adHocAbsenceRequestID");
+define("AD_HOC_EMP_ID", "employeeID");
+define("AD_HOC_START", "startDate");
+define("AD_HOC_END", "endDate");
+define("AD_HOC_ABSENCE_TYPE_ID", "absenceTypeID");
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function CreateAdHocAbsenceRequestTable
  *
  * This function creates the SQL statement needed to construct the table
  * in the database.
  *
  * @return (bool)  True if table is created successfully, false otherwise.
- *-------------------------------------------------------------------------------------*/
- function CreateAdHocAbsenceRequestTable()
-{
-    $sql="CREATE TABLE IF NOT EXISTS `mydb`.`adHocAbsenceRequestTable` (
+ * ------------------------------------------------------------------------------------- */
+
+function CreateAdHocAbsenceRequestTable() {
+    $sql = "CREATE TABLE IF NOT EXISTS `mydb`.`adHocAbsenceRequestTable` (
   		 `adHocAbsenceRequestID` INT NOT NULL AUTO_INCREMENT,
   		 `employeeID` INT NOT NULL,
   		 `startDate` DATE NOT NULL,
@@ -42,11 +42,11 @@ define ("AD_HOC_ABSENCE_TYPE_ID",           "absenceTypeID");
     	  REFERENCES `mydb`.`EmployeeTable` (`employeeID`)
     	  ON DELETE NO ACTION
     	  ON UPDATE NO ACTION);";
-    
+
     performSQL($sql);
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function CreateAdHocAbsenceRequest
  *
  * This function creates a new AdHocAbsenceRequest record in the AdHocAbsenceRequestTable.
@@ -58,74 +58,65 @@ define ("AD_HOC_ABSENCE_TYPE_ID",           "absenceTypeID");
  *
  * @return (array) If successful, an array is returned where each key represents a field
  *                 in the record. If unsuccessful, the return will be NULL.
- *-------------------------------------------------------------------------------------*/
-function CreateAdHocAbsenceRequest($employeeID,
-                                   $startDate,
-                                   $endDate,
-                                   $absenceTypeID)
-{
-	$absenceRequest = NULL;
-	//--------------------------------------------------------------------------------
-	// Validate Input parameters
-	//--------------------------------------------------------------------------------
-	$inputIsValid = TRUE;
+ * ------------------------------------------------------------------------------------- */
 
-	$record = RetrieveEmployeeByID($employeeID);
-	
-	if ( $record == NULL )
-	{
-		error_log ("employeeID passed to CreateAdHocAbsenceRequest does not exist in ".
-		           "the database. ID=".$employeeID);
-		$inputIsValid = FALSE;
-	}
-	
- 	if ( ! isValidDate($startDate))
-	{
-		error_log ("Invalid start date passed to CreateAdHocAbsenceRequest. date=".
-					$startDate);
-		$inputIsValid = FALSE;
-	}
+function CreateAdHocAbsenceRequest($employeeID, $startDate, $endDate, $absenceTypeID) {
+    $request = NULL;
+    //--------------------------------------------------------------------------------
+    // Validate Input parameters
+    //--------------------------------------------------------------------------------
+    $inputIsValid = TRUE;
 
- 	if ( ! isValidDate($endDate))
-	{
-		error_log ("Invalid end date passed to CreateAdHocAbsenceRequest. date=".
-					$endDate);
-		$inputIsValid = FALSE;
-	}
- 	
- 	//ensure absenceType exists in the database.
- 	$record = RetrieveAbsenceTypeByID($absenceTypeID); 
+    $record = RetrieveEmployeeByID($employeeID);
 
-	if ( $record == NULL )
-	{
-		error_log ("absenceType passed to CreateAdHocAbsenceRequest does not exist in ".
-		           "the database. ID=".$absenceTypeID);
-		$inputIsValid = FALSE;
-	}
+    if ($record == NULL) {
+        error_log("employeeID passed to CreateAdHocAbsenceRequest does not exist in " .
+                "the database. ID=" . $employeeID);
+        $inputIsValid = FALSE;
+    }
 
-	//--------------------------------------------------------------------------------
-	// Only attempt to insert a record in the database if the input parameters are ok.
-	//--------------------------------------------------------------------------------
-	if ($inputIsValid)
-	{
-		$request[AD_HOC_REQ_ID]             = NULL;
-		$request[AD_HOC_EMP_ID]             = $employeeID;
-		$request[AD_HOC_START]              = $startDate;
-		$request[AD_HOC_END]                = $endDate;
-		$request[AD_HOC_ABSENCE_TYPE_ID]    = $absenceTypeID;
-	
-		$success = sqlInsertAdHocAbsenceRequest($request);
-	
-		if (! $success )
-		{
-			error_log ("Failed to create Ad Hoc Absence Request.");
-			$request = NULL;
-		}
-	}
-	return $request;   
+    if (!isValidDate($startDate)) {
+        error_log("Invalid start date passed to CreateAdHocAbsenceRequest. date=" .
+                $startDate);
+        $inputIsValid = FALSE;
+    }
+
+    if (!isValidDate($endDate)) {
+        error_log("Invalid end date passed to CreateAdHocAbsenceRequest. date=" .
+                $endDate);
+        $inputIsValid = FALSE;
+    }
+
+    //ensure absenceType exists in the database.
+    $record = RetrieveAbsenceTypeByID($absenceTypeID);
+
+    if ($record == NULL) {
+        error_log("absenceType passed to CreateAdHocAbsenceRequest does not exist in " .
+                "the database. ID=" . $absenceTypeID);
+        $inputIsValid = FALSE;
+    }
+
+    //--------------------------------------------------------------------------------
+    // Only attempt to insert a record in the database if the input parameters are ok.
+    //--------------------------------------------------------------------------------
+    if ($inputIsValid) {
+        $request[AD_HOC_REQ_ID] = NULL;
+        $request[AD_HOC_EMP_ID] = $employeeID;
+        $request[AD_HOC_START] = $startDate;
+        $request[AD_HOC_END] = $endDate;
+        $request[AD_HOC_ABSENCE_TYPE_ID] = $absenceTypeID;
+
+        $success = sqlInsertAdHocAbsenceRequest($request);
+
+        if (!$success) {
+            error_log("Failed to create Ad Hoc Absence Request.");
+            $request = NULL;
+        }
+    }
+    return $request;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function sqlInsertAdHocAbsenceRequest
  *
  * This function constructs the SQL statement required to insert a new record
@@ -134,22 +125,22 @@ function CreateAdHocAbsenceRequest($employeeID,
  * &$adHocAbsenceRequest (array) Array containing all of the fields required for the record.
  *
  * @return (bool) TRUE if insert into database was successful, false otherwise.
- *		   
+ * 		   
  * Note: If successful then the AD_HOC_REQ_ID entry in the array
- *	     passed by the caller will be set to the ID of the record in the database. 
- *-------------------------------------------------------------------------------------*/
- function sqlInsertAdHocAbsenceRequest (&$adHocAbsenceRequest)
-{
-    $sql="INSERT INTO adHocAbsenceRequestTable (employeeID,startDate,endDate,absenceTypeID) "
-            . "VALUES ('".$adHocAbsenceRequest[AD_HOC_EMP_ID].
-            "','".$adHocAbsenceRequest[AD_HOC_START]."','".
-            $adHocAbsenceRequest[AD_HOC_END].
-            "','".$adHocAbsenceRequest[AD_HOC_ABSENCE_TYPE_ID]."');";
+ * 	     passed by the caller will be set to the ID of the record in the database. 
+ * ------------------------------------------------------------------------------------- */
+
+function sqlInsertAdHocAbsenceRequest(&$adHocAbsenceRequest) {
+    $sql = "INSERT INTO adHocAbsenceRequestTable (employeeID,startDate,endDate,absenceTypeID) "
+            . "VALUES ('" . $adHocAbsenceRequest[AD_HOC_EMP_ID] .
+            "','" . $adHocAbsenceRequest[AD_HOC_START] . "','" .
+            $adHocAbsenceRequest[AD_HOC_END] .
+            "','" . $adHocAbsenceRequest[AD_HOC_ABSENCE_TYPE_ID] . "');";
     $adHocAbsenceRequest[AD_HOC_REQ_ID] = performSQLInsert($sql);
     return $adHocAbsenceRequest[AD_HOC_REQ_ID] <> 0;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function RetrieveAdHocAbsenceRequestByID
  *
  * This function uses the ID supplied as a parameter to construct an SQL select statement
@@ -160,23 +151,22 @@ function CreateAdHocAbsenceRequest($employeeID,
  *
  * @return (array) array of key value pairs representing the fields in the record, or 
  *                 NULL if no record exists with the id supplied.
- *-------------------------------------------------------------------------------------*/
-function RetrieveAdHocAbsenceRequestByID($id)
-{
-	$filter[AD_HOC_REQ_ID] = $id;
-	$resultArray = performSQLSelect(ADHOC_ABSENCE_REQUEST_TABLE,$filter);
-	
-	$result = NULL;
-	
-	if (count($resultArray) == 1)      //Check to see if record was found.
-	{
-		$result = $resultArray[0];
-	}
+ * ------------------------------------------------------------------------------------- */
 
-	return $result;
+function RetrieveAdHocAbsenceRequestByID($id) {
+    $filter[AD_HOC_REQ_ID] = $id;
+    $resultArray = performSQLSelect(ADHOC_ABSENCE_REQUEST_TABLE, $filter);
+
+    $result = NULL;
+
+    if (count($resultArray) == 1) {      //Check to see if record was found.
+        $result = $resultArray[0];
+    }
+
+    return $result;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function RetrieveAdHocAbsenceRequests
  *
  * This function constructs the SQL statement required to query the AdHocAbsenceRequest
@@ -189,85 +179,65 @@ function RetrieveAdHocAbsenceRequestByID($id)
  *
  * @return (array) If successful, an array of arrays, where each element corresponds to 
  *                 a row from the query. If a failure occurs, return will be NULL. 
- *-------------------------------------------------------------------------------------*/
- function RetrieveAdHocAbsenceRequests($filter=NULL)     
-{
-	$inputIsValid = TRUE;
+ * ------------------------------------------------------------------------------------- */
 
-	//--------------------------------------------------------------------------------
-	// Validate Input parameters
-	//--------------------------------------------------------------------------------
-	if ( $filter <> NULL )
-	{
-		foreach ($filter as $key=>$value)
-		{
-			if (strcmp($key,AD_HOC_REQ_ID) == 0)
-			{
-				if (! is_numeric($value))
-				{
-					error_log ("Invalid AdHocRequestID of ".$value.
-								" passed to RetrieveAdHocAbsenceRequests.");
-					$inputIsValid = FALSE;
-				}
+function RetrieveAdHocAbsenceRequests($filter = NULL) {
+    $inputIsValid = TRUE;
 
-			}
-			else if (strcmp($key,AD_HOC_EMP_ID) == 0)
-			{
-				if (!is_numeric($value))
-				{
-					error_log ("InvalidAD_HOC_EMP_ID of ".$value.
-								" passed to RetrieveAdHocAbsenceRequests.");
-					$inputIsValid = FALSE;
-				}
-			}
-			else if (strcmp($key,AD_HOC_START) == 0)
-			{
-				if (! isValidDate($value))
-				{
-					error_log ("Invalid AD_HOC_START of ".$value.
-								" passed to RetrieveAdHocAbsenceRequests.");
-					$inputIsValid = FALSE;
-				}
-			}
-			else if (strcmp($key,AD_HOC_END) == 0)
-			{
-				if (! isValidDate($value))
-				{
-					error_log ("Invalid AD_HOC_END of ".$value.
-								" passed to RetrieveAdHocAbsenceRequests.");
-					$inputIsValid = FALSE;
-				}
-			}
-			else if (strcmp($key,AD_HOC_ABSENCE_TYPE_ID) == 0)
-			{
-				if (!is_numeric($value))
-				{
-					error_log ("Invalid AD_HOC_ABSENCE_TYPE_ID of ".$value.
-								" passed to RetrieveAdHocAbsenceRequests.");
-					$inputIsValid = FALSE;
-				}
-			}
-			else
-			{
-				error_log ("Unknown Filter ".$key." passed to RetrieveAdHocAbsenceRequests.");
-				$inputIsValid = FALSE;
-			}
-		}
-	}
-	
-	//--------------------------------------------------------------------------------
-	// Only attempt to perform query in the database if the input parameters are ok.
-	//--------------------------------------------------------------------------------
-	$result = NULL;
-	if ($inputIsValid)
-	{
-		$result = performSQLSelect(ADHOC_ABSENCE_REQUEST_TABLE,$filter);
-	}
-	
-	return $result;
+    //--------------------------------------------------------------------------------
+    // Validate Input parameters
+    //--------------------------------------------------------------------------------
+    if ($filter <> NULL) {
+        foreach ($filter as $key => $value) {
+            if (strcmp($key, AD_HOC_REQ_ID) == 0) {
+                if (!is_numeric($value)) {
+                    error_log("Invalid AdHocRequestID of " . $value .
+                            " passed to RetrieveAdHocAbsenceRequests.");
+                    $inputIsValid = FALSE;
+                }
+            } else if (strcmp($key, AD_HOC_EMP_ID) == 0) {
+                if (!is_numeric($value)) {
+                    error_log("InvalidAD_HOC_EMP_ID of " . $value .
+                            " passed to RetrieveAdHocAbsenceRequests.");
+                    $inputIsValid = FALSE;
+                }
+            } else if (strcmp($key, AD_HOC_START) == 0) {
+                if (!isValidDate($value)) {
+                    error_log("Invalid AD_HOC_START of " . $value .
+                            " passed to RetrieveAdHocAbsenceRequests.");
+                    $inputIsValid = FALSE;
+                }
+            } else if (strcmp($key, AD_HOC_END) == 0) {
+                if (!isValidDate($value)) {
+                    error_log("Invalid AD_HOC_END of " . $value .
+                            " passed to RetrieveAdHocAbsenceRequests.");
+                    $inputIsValid = FALSE;
+                }
+            } else if (strcmp($key, AD_HOC_ABSENCE_TYPE_ID) == 0) {
+                if (!is_numeric($value)) {
+                    error_log("Invalid AD_HOC_ABSENCE_TYPE_ID of " . $value .
+                            " passed to RetrieveAdHocAbsenceRequests.");
+                    $inputIsValid = FALSE;
+                }
+            } else {
+                error_log("Unknown Filter " . $key . " passed to RetrieveAdHocAbsenceRequests.");
+                $inputIsValid = FALSE;
+            }
+        }
+    }
+
+    //--------------------------------------------------------------------------------
+    // Only attempt to perform query in the database if the input parameters are ok.
+    //--------------------------------------------------------------------------------
+    $result = NULL;
+    if ($inputIsValid) {
+        $result = performSQLSelect(ADHOC_ABSENCE_REQUEST_TABLE, $filter);
+    }
+
+    return $result;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function UpdateAdHocAbsenceRequest
  *
  * This function constructs the SQL statement required to update a row in 
@@ -279,107 +249,86 @@ function RetrieveAdHocAbsenceRequestByID($id)
  *                 fields to be updated. 
  *
  * @return (bool) TRUE if update succeeds. FALSE otherwise. 
- *-------------------------------------------------------------------------------------*/
- function UpdateAdHocAbsenceRequest ($fields)
-{
-	//--------------------------------------------------------------------------------
-	// Validate Input parameters
-	//--------------------------------------------------------------------------------
-	$inputIsValid = TRUE;
-	$validID = false;
-	$countOfFields = 0;
-	
-	foreach ($fields as $key=>$value)
-	{
-		if ($key == AD_HOC_REQ_ID)
-		{
-			$record = RetrieveAbsenceTypeByID($value);
-			if ($record <> NULL)
-			{
-				$validID = true;
-				$countOfFields++;
-			}
-		}
-		else if ($key == AD_HOC_EMP_ID)
-		{
-			$countOfFields++;
+ * ------------------------------------------------------------------------------------- */
 
-			$record = RetrieveEmployeeByID($value);
-			if ( $record == NULL )
-			{
-				error_log ("Invalid AD_HOC_EMP_ID passed to UpdateAdHocAbsenceRequest.".
-						   " Value=".$value);
-				$inputIsValid = FALSE;
-			}
-		}	
-		else if ($key == AD_HOC_START)
-		{
-			$countOfFields++;
+function UpdateAdHocAbsenceRequest($fields) {
+    //--------------------------------------------------------------------------------
+    // Validate Input parameters
+    //--------------------------------------------------------------------------------
+    $inputIsValid = TRUE;
+    $validID = false;
+    $countOfFields = 0;
 
-			if ( ! isValidDate($value) )
-			{
-				error_log ("Invalid AD_HOC_START passed to UpdateAdHocAbsenceRequest.".
-						   " Value=".$value);
-				$inputIsValid = FALSE;
-			}
-		}
-		else if ($key == AD_HOC_END)
-		{
-			$countOfFields++;
+    foreach ($fields as $key => $value) {
+        if ($key == AD_HOC_REQ_ID) {
+            $record = RetrieveAbsenceTypeByID($value);
+            if ($record <> NULL) {
+                $validID = true;
+                $countOfFields++;
+            }
+        } else if ($key == AD_HOC_EMP_ID) {
+            $countOfFields++;
 
-			if ( ! isValidDate($value) )
-			{
-				error_log ("Invalid AD_HOC_END passed to UpdateAdHocAbsenceRequest.".
-						   " Value=".$value);
-				$inputIsValid = FALSE;
-			}
-		}
-		else if ($key == AD_HOC_ABSENCE_TYPE_ID)
-		{
-			$countOfFields++;
+            $record = RetrieveEmployeeByID($value);
+            if ($record == NULL) {
+                error_log("Invalid AD_HOC_EMP_ID passed to UpdateAdHocAbsenceRequest." .
+                        " Value=" . $value);
+                $inputIsValid = FALSE;
+            }
+        } else if ($key == AD_HOC_START) {
+            $countOfFields++;
 
-			$record = RetrieveAbsenceTypeByID($value);
-			if ($record == NULL)
-			{
-				error_log ("Invalid  AD_HOC_ABSENCE_TYPE_ID passed to ".
-						   "UpdateAdHocAbsenceRequest. Value=".$value);
-				$inputIsValid = FALSE;
-			}
-		}
-		else
-		{
-			error_log ("Invalid field passed to UpdateAdHocAbsenceRequest. $key=".$key);
-			$inputIsValid = FALSE;
-		}
-	}
-	
-	if (!$validID)
-	{
-		error_log ("No valid ID supplied in call to UpdateAbsenceType.");
-		$inputIsValid = FALSE;
-	}
-	
-	if ($countOfFields < 2)
-	{
-		error_log ("Insufficent fields supplied in call to UpdateAbsenceType.");
-		$inputIsValid = FALSE;
-	}
-	
-	//--------------------------------------------------------------------------------
-	// Only attempt to update a record in the database if the input parameters are ok.
-	//--------------------------------------------------------------------------------
-	$success = false;
-	
-	if ($inputIsValid)
-	{
-		$success = performSQLUpdate(ADHOC_ABSENCE_REQUEST_TABLE,
-        	                    AD_HOC_REQ_ID,$fields); 	
+            if (!isValidDate($value)) {
+                error_log("Invalid AD_HOC_START passed to UpdateAdHocAbsenceRequest." .
+                        " Value=" . $value);
+                $inputIsValid = FALSE;
+            }
+        } else if ($key == AD_HOC_END) {
+            $countOfFields++;
+
+            if (!isValidDate($value)) {
+                error_log("Invalid AD_HOC_END passed to UpdateAdHocAbsenceRequest." .
+                        " Value=" . $value);
+                $inputIsValid = FALSE;
+            }
+        } else if ($key == AD_HOC_ABSENCE_TYPE_ID) {
+            $countOfFields++;
+
+            $record = RetrieveAbsenceTypeByID($value);
+            if ($record == NULL) {
+                error_log("Invalid  AD_HOC_ABSENCE_TYPE_ID passed to " .
+                        "UpdateAdHocAbsenceRequest. Value=" . $value);
+                $inputIsValid = FALSE;
+            }
+        } else {
+            error_log("Invalid field passed to UpdateAdHocAbsenceRequest. $key=" . $key);
+            $inputIsValid = FALSE;
+        }
     }
-    
+
+    if (!$validID) {
+        error_log("No valid ID supplied in call to UpdateAbsenceType.");
+        $inputIsValid = FALSE;
+    }
+
+    if ($countOfFields < 2) {
+        error_log("Insufficent fields supplied in call to UpdateAbsenceType.");
+        $inputIsValid = FALSE;
+    }
+
+    //--------------------------------------------------------------------------------
+    // Only attempt to update a record in the database if the input parameters are ok.
+    //--------------------------------------------------------------------------------
+    $success = false;
+
+    if ($inputIsValid) {
+        $success = performSQLUpdate(ADHOC_ABSENCE_REQUEST_TABLE, AD_HOC_REQ_ID, $fields);
+    }
+
     return $success;
 }
 
-/*--------------------------------------------------------------------------------------
+/* --------------------------------------------------------------------------------------
  * Function DeleteAdHocAbsenceRequest
  *
  * This function constructs the SQL statement required to delete a row in 
@@ -389,12 +338,11 @@ function RetrieveAdHocAbsenceRequestByID($id)
  *              the AD_HOC_REQ_ID value of the record you wish to delete.
  *
  * @return (int) count of rows deleted. 0 means delete was unsuccessful. 
- *-------------------------------------------------------------------------------------*/
- function DeleteAdHocAbsenceRequest($ID)
-{
-    $sql ="DELETE FROM adHocAbsenceRequestTable WHERE adHocAbsenceRequestID=".$ID.";";
+ * ------------------------------------------------------------------------------------- */
+
+function DeleteAdHocAbsenceRequest($ID) {
+    $sql = "DELETE FROM adHocAbsenceRequestTable WHERE adHocAbsenceRequestID=" . $ID . ";";
     return performSQL($sql);
 }
-
 ?>
 

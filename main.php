@@ -1,5 +1,5 @@
 <?php
-echo "Hello";
+
 //ini_set('display_startup_errors',1);
 //ini_set('display_errors',1);
 //error_reporting(-1);
@@ -25,9 +25,11 @@ include 'TestApprovedAbsenceBookingDateTable.php';
 include 'TestDateTable.php';
 include 'TestPublicHolidayTable.php';
 
-function CreateNewDatabase()
-{
-    DropDB();
+function CreateNewDatabase($destroyExistingDB=false) {
+    if ($destroyExistingDB)
+    {
+        DropDB();
+    }
     CreateDB();
     UseDB();
     CreateDateTable();
@@ -41,30 +43,24 @@ function CreateNewDatabase()
     CreateMainVacationRequestTable();
 }
 
-
-function testTables()
-{
-/*	testCompanyRoleTable();
-	testEmployeeTable();
-	testMainVacationRequestTable();
-	testAbsenceTypeTable();
-	testAdHocAbsenceRequestTable();
-*/	testDateTable();
-/*	testPublicHolidayTable();
-	testApprovedAbsenceBookingTable();
-	testApprovedAbsenceBookingDateTable();
-
- 
- */
+function testTables() {
+    testCompanyRoleTable();
+    testEmployeeTable();
+    testMainVacationRequestTable();
+    testAbsenceTypeTable();
+    testAdHocAbsenceRequestTable();
+    testDateTable();
+    testPublicHolidayTable();
+    testApprovedAbsenceBookingTable();
+    testApprovedAbsenceBookingDateTable();
 }
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-$connection = connectToSql("localhost","root","root");
-
-createNewDatabase();
+$connection = connectToSql("localhost", "root", "root");
+createNewDatabase(true);
 testTables();
 
-mysqli_close($connection);  
+mysqli_close($connection);
 ?>
 
