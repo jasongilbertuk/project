@@ -45,7 +45,6 @@ function CreateDate($dateParam,
                     $publicHolidayID)
         
 {   
-
 	$date = NULL;
 	//--------------------------------------------------------------------------------
 	// Validate Input parameters

@@ -213,7 +213,7 @@ function RetrieveAdHocAbsenceRequestByID($id)
 			}
 			else if (strcmp($key,AD_HOC_EMP_ID) == 0)
 			{
-				if ($value == NULL or $value == "")
+				if (!is_numeric($value))
 				{
 					error_log ("InvalidAD_HOC_EMP_ID of ".$value.
 								" passed to RetrieveAdHocAbsenceRequests.");
@@ -240,7 +240,7 @@ function RetrieveAdHocAbsenceRequestByID($id)
 			}
 			else if (strcmp($key,AD_HOC_ABSENCE_TYPE_ID) == 0)
 			{
-				if ($value == NULL or $value == "")
+				if (!is_numeric($value))
 				{
 					error_log ("Invalid AD_HOC_ABSENCE_TYPE_ID of ".$value.
 								" passed to RetrieveAdHocAbsenceRequests.");

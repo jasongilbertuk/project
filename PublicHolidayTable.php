@@ -55,15 +55,9 @@ define ("PUB_HOL_DATE_ID",                  "dateID");
 	// Validate Input parameters
 	//--------------------------------------------------------------------------------
 	$inputIsValid = TRUE;
-	if ( $nameOfPublicHoliday == NULL )
+	if ( isNullOrEmptyString($nameOfPublicHoliday) )
 	{
-		error_log ("Invalid NULL name passed to CreatePublicHoliday.");
-		$inputIsValid = FALSE;
-	}
-
-	if ( $nameOfPublicHoliday == "" )
-	{
-		error_log ("Invalid empty name passed to CreatePublicHoliday.");
+		error_log ("Invalid name passed to CreatePublicHoliday.");
 		$inputIsValid = FALSE;
 	}
 
@@ -207,10 +201,9 @@ function RetrievePublicHolidayByID($id)
 			}
 			else if (strcmp($key,PUB_HOL_NAME) == 0)
 			{
-				if ($value == NULL or $value == "")
+				if (isNullOrEmptyString($value))
 				{
-					error_log ("Invalid PUB_HOL_NAME of ".$value.
-								" passed to RetrievePublicHolidays.");
+					error_log ("Invalid PUB_HOL_NAME passed to RetrievePublicHolidays.");
 					$inputIsValid = FALSE;
 				}
 			}
@@ -279,7 +272,7 @@ function UpdatePublicHoliday($fields)
 		{
 			$countOfFields++;
 
-			if ( $value == NULL OR $value="" )
+			if ( isNullOrEmptyString($value))
 			{
 				error_log ("Invalid PUB_HOL_NAME passed to UpdatePublicHoliday.");
 				$inputIsValid = FALSE;
@@ -343,9 +336,20 @@ function UpdatePublicHoliday($fields)
  *-------------------------------------------------------------------------------------*/
  function DeletePublicHoliday($ID)
 {
-	//TODO Update Date record.
-    $sql ="DELETE FROM publicHolidayTable WHERE publicHolidayID=".$ID.";";
-    return performSQL($sql);
+	$result = 0;
+	$record = RetrievePublicHolidayByID($ID);
+	
+	if ($record <> NULL)
+	{
+		$date = RetrieveDateByID($record[PUB_HOL_DATE_ID]);
+		$date[DATE_TABLE_PUBLIC_HOL_ID] = NULL;
+		UpdateDate($date);
+		
+		$sql ="DELETE FROM publicHolidayTable WHERE publicHolidayID=".$ID.";";
+    	$result = performSQL($sql);
+    }
+    
+    return $result;
 }
 
 ?>

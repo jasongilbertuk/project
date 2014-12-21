@@ -447,9 +447,22 @@ function UpdateMainVacactionRequest($fields)
  *-------------------------------------------------------------------------------------*/
 function DeleteMainVacationRequest($ID)
 {
-	//TODO Update employee record.
-    $sql ="DELETE FROM mainVacationRequestTable WHERE mainVacationRequestID=".$ID.";";
-    return performSQL($sql);
+	$result = 0;
+	$record = RetrieveMainVacationRequestByID($ID);
+	
+	if ($record <> NULL)
+	{	
+		$employee = RetrieveEmployeeByID($recrod[MAIN_VACATION_EMP_ID]);
+		if ($employee)
+		{
+			$employee[EMP_MAIN_VACATION_REQ_ID] = NULL;
+			UpdateEmployee($employee);
+		}
+		
+		$sql ="DELETE FROM mainVacationRequestTable WHERE mainVacationRequestID=".$ID.";";
+    	$result = performSQL($sql);
+    }
+    return $result;
 }
 
 ?>

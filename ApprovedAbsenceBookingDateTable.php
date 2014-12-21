@@ -335,9 +335,18 @@ function UpdateApprovedAbsenceBookingDate($fields)
  *-------------------------------------------------------------------------------------*/
 function DeleteApprovedAbsenceBookingDate($ID)
 {
-    $sql ="DELETE FROM approvedAbsenceBookingDate WHERE approvedAbsenceBookingDateID=".$ID.";";
+	$result = 0;
+	$record = RetrieveApprovedAbsenceBookingDateByID($ID);
+	
+	if ($record <> NULL)
+	{
+		DeleteApprovedAbsenceBooking($record[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
+	
+	    $sql ="DELETE FROM approvedAbsenceBookingDate WHERE approvedAbsenceBookingDateID=".$ID.";";
     
-    return performSQL($sql);
+    	$result = performSQL($sql);
+    }
+    return $result;
 }
 
 ?>

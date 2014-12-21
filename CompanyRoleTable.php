@@ -56,9 +56,9 @@ function CreateCompanyRole($roleName,
 		$inputIsValid = FALSE;
 	}
 	
- 	if ( $roleName == "" )
+ 	if ( isNullOrEmptyString($roleName))
 	{
-		error_log ("Invalid empty name passed to CreateCompanyRole.");
+		error_log ("Invalid roleName passed to CreateCompanyRole.");
 		$inputIsValid = FALSE;
 	}
  	
@@ -172,7 +172,7 @@ function RetrieveCompanyRoles($filter=NULL)
 			}
 			else if (strcmp($key,COMP_ROLE_NAME) == 0)
 			{
-				if ($value == NULL or $value == "")
+				if (isNullOrEmptyString($value))
 				{
 					error_log ("Invalid COMP_ROLE_NAME of ".$value.
 								" passed to RetrieveCompanyRoles.");
@@ -244,7 +244,7 @@ function UpdateCompanyRole($fields)
 		{
 			$countOfFields++;
 
-			if ( $value == NULL OR $value="" )
+			if ( isNullOrEmptyString($value) )
 			{
 				error_log ("Invalid COMP_ROLE_NAME passed to UpdateCompanyRole.");
 				$inputIsValid = FALSE;
@@ -305,8 +305,22 @@ function UpdateCompanyRole($fields)
  *-------------------------------------------------------------------------------------*/
 function DeleteCompanyRole($ID)
 {
-    $sql ="DELETE FROM companyroletable WHERE companyRoleID=".$ID.";";
-    return performSQL($sql);
+	$result = 0;
+	$record = RetrieveCompanyRoleByID($ID);
+	if ($record <> NULL)
+	{
+		$filter[EMP_COMPANY_ROLE] = $ID;
+		$employees = RetrieveEmployees($filter);
+		
+		foreach ($employees as $employee)
+		{
+			DeleteEmployee($employee[EMP_ID]);
+		}
+		
+    	$sql ="DELETE FROM companyroletable WHERE companyRoleID=".$ID.";";
+    	$result = performSQL($sql);
+    }
+    return $result;
 }
 
 ?>

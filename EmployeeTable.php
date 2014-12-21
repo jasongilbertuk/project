@@ -78,15 +78,9 @@ function CreateEmployee($employeeName,
 	//--------------------------------------------------------------------------------
 	$inputIsValid = TRUE;
 
-	if ( $employeeName == NULL )
+	if ( isNullOrEmptyString($employeeName))
 	{
-		error_log ("Invalid NULL employeeName passed to CreateEmployee.");
-		$inputIsValid = FALSE;
-	}
-	
- 	if ( $employeeName == "" )
-	{
-		error_log ("Invalid empty employeeName passed to CreateEmployee.");
+		error_log ("Invalid employeeName passed to CreateEmployee.");
 		$inputIsValid = FALSE;
 	}
 	
@@ -98,7 +92,7 @@ function CreateEmployee($employeeName,
 	
 	//Todo add password length and format check.
 	//Todo MD5 encode password.
-	if ( $password == "" OR $password==NULL )
+	if ( isNullOrEmptyString($password) )
 	{
 		error_log ("Invalid password passed to CreateEmployee.");
 		$inputIsValid = FALSE;
@@ -250,16 +244,15 @@ function RetrieveEmployees($filter=NULL)
 			}
 			else if (strcmp($key,EMP_NAME) == 0)
 			{
-				if ($value == "" OR $value == NULL)
+				if (isNullOrEmptyString($value))
 				{
-					error_log ("Invalid EMP_NAME of ".$value.
-								" passed to RetrieveEmployees.");
+					error_log ("Invalid EMP_NAME passed to RetrieveEmployees.");
 					$inputIsValid = FALSE;
 				}
 			}
 			else if (strcmp($key,EMP_EMAIL) == 0)
 			{
-				if ($value == "" OR $value == NULL)
+				if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL))
 				{
 					error_log ("Invalid EMP_EMAIL of ".$value.
 								" passed to RetrieveEmployees.");
@@ -268,10 +261,9 @@ function RetrieveEmployees($filter=NULL)
 			}
 			else if (strcmp($key,EMP_PASSWORD) == 0)
 			{
-				if ($value == "" OR $value == NULL)
+				if (isNullOrEmptyString($value))
 				{
-					error_log ("Invalid EMP_PASSWORD of ".$value.
-								" passed to RetrieveEmployees.");
+					error_log ("Invalid EMP_PASSWORD passed to RetrieveEmployees.");
 					$inputIsValid = FALSE;
 				}
 			}
@@ -367,7 +359,7 @@ function UpdateEmployee ($fields)
 		{
 			$countOfFields++;
 
-			if ( $value=="" OR $value==NULL)
+			if ( isNullOrEmptyString($value))
 			{
 				error_log ("Invalid EMP_NAME passed to UpdateEmployee.");
 				$inputIsValid = FALSE;
