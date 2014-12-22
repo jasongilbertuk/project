@@ -1,5 +1,21 @@
 <?php
 
+include 'AdHocRequestTable.php';
+include 'CompanyRoleTable.php';
+include 'EmployeeTable.php';
+include 'MainVacationRequestTable.php';
+include 'AbsenceTypeTable.php';
+include 'ApprovedAbsenceBookingTable.php';
+include 'ApprovedAbsenceBookingDateTable.php';
+include 'DateTable.php';
+include 'PublicHolidayTable.php';
+
+$connection = connectToSql("localhost", "root", "root");
+CreateNewDatabase(false);
+    
+
+
+
 function isValidDate($date) {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d && $d->format('Y-m-d') == $date;
@@ -132,5 +148,25 @@ function CreateDB() {
             "DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;";
     performSQL($sql);
 }
+
+function CreateNewDatabase($destroyExistingDB=false) {
+    if ($destroyExistingDB)
+    {
+        DropDB();
+    }
+    CreateDB();
+    UseDB();
+    CreateDateTable();
+    CreatePublicHolidayTable();
+    CreateAbsenceTypeTable();
+    CreateCompanyRoleTable();
+    CreateEmployeeTable();
+    CreateApprovedAbsenceBookingTable();
+    CreateApprovedAbsenceDateTable();
+    CreateAdHocAbsenceRequestTable();
+    CreateMainVacationRequestTable();
+}
+
+
 
 ?>

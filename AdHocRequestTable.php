@@ -345,4 +345,3 @@ function DeleteAdHocAbsenceRequest($ID) {
     return performSQL($sql);
 }
 ?>
-

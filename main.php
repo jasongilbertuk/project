@@ -25,23 +25,7 @@ include 'TestApprovedAbsenceBookingDateTable.php';
 include 'TestDateTable.php';
 include 'TestPublicHolidayTable.php';
 
-function CreateNewDatabase($destroyExistingDB=false) {
-    if ($destroyExistingDB)
-    {
-        DropDB();
-    }
-    CreateDB();
-    UseDB();
-    CreateDateTable();
-    CreatePublicHolidayTable();
-    CreateAbsenceTypeTable();
-    CreateCompanyRoleTable();
-    CreateEmployeeTable();
-    CreateApprovedAbsenceBookingTable();
-    CreateApprovedAbsenceDateTable();
-    CreateAdHocAbsenceRequestTable();
-    CreateMainVacationRequestTable();
-}
+
 
 function testTables() {
     testCompanyRoleTable();
