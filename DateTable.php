@@ -129,7 +129,6 @@ function sqlInsertDate(&$date) {
 function RetrieveDateByID($id) {
     $filter[DATE_TABLE_DATE_ID] = $id;
     $resultArray = performSQLSelect(DATE_TABLE, $filter);
-
     $result = NULL;
 
     if (count($resultArray) == 1) {      //Check to see if record was found.
@@ -288,15 +287,17 @@ function DeleteDate($ID) {
         $filter[APPR_ABS_BOOK_DATE_DATE_ID] = $date[DATE_TABLE_DATE_ID];
         $approvedAbsenceBookingDates = RetrieveApprovedAbsenceBookingDates($filter);
 
-        if ($approvedAbsenceBookingsDates <> NULL) {
+        if ($approvedAbsenceBookingDates <> NULL) {
             foreach ($approvedAbsenceBookingDates as $value) {
                 DeleteApprovedAbsenceBooking($value[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
             }
         }
 
-        if ($filter[DATE_TABLE_PUBLIC_HOL_ID] <> NULL) {
-            DeletePublicHoliday($filter[DATE_TABLE_PUBLIC_HOL_ID]);
+        if ($date[DATE_TABLE_PUBLIC_HOL_ID] <> NULL) 
+        {
+            DeletePublicHoliday($date[DATE_TABLE_PUBLIC_HOL_ID]);
         }
+  
         $sql = "DELETE FROM dateTable WHERE dateID=" . $ID . ";";
         $result = performSQL($sql);
     }

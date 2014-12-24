@@ -23,6 +23,7 @@ if (isset($_POST["delete"])) {
     </head>
  
     <body>
+            <a href="index.php">Back to Homepage</a>
 
         <form method="post">
             <label for="roleName">Company Role Name</label>
@@ -36,7 +37,8 @@ if (isset($_POST["delete"])) {
             <output for="minStaff" id="staffNumber">1</output>
             <br/>
             <input type="submit" name="submit" id="submit" value="Add Role"/> 
-
+            
+            
             <script>
                 function updateMinStaff(level)
                 {

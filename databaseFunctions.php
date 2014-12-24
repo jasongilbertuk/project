@@ -82,7 +82,7 @@ function performSQLSelect($tableName, $filter) {
 
     $sql = "SELECT * FROM " . $tableName;
 
-    if ($filter != NULL) {
+    if ($filter <> NULL) {
         $sql = $sql . " WHERE ";
 
         foreach ($filter as $key => $value) {
@@ -91,7 +91,6 @@ function performSQLSelect($tableName, $filter) {
 
         $sql = $sql . implode(" AND ", $whereClause);
     }
-
     $result = mysqli_query($conn, $sql);
     if (!$result) {
         printCallstackAndDie();

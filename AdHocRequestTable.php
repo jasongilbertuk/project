@@ -183,7 +183,6 @@ function RetrieveAdHocAbsenceRequestByID($id) {
 
 function RetrieveAdHocAbsenceRequests($filter = NULL) {
     $inputIsValid = TRUE;
-
     //--------------------------------------------------------------------------------
     // Validate Input parameters
     //--------------------------------------------------------------------------------
@@ -258,10 +257,9 @@ function UpdateAdHocAbsenceRequest($fields) {
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
-
     foreach ($fields as $key => $value) {
         if ($key == AD_HOC_REQ_ID) {
-            $record = RetrieveAbsenceTypeByID($value);
+            $record = RetrieveAdHocAbsenceRequestByID($value);
             if ($record <> NULL) {
                 $validID = true;
                 $countOfFields++;

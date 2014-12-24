@@ -57,27 +57,16 @@ function CreateAbsenceType($absenceTypeName, $usesAnnualLeave, $canBeDenied) {
         $inputIsValid = FALSE;
     }
 
-    if (!is_bool($usesAnnualLeave)) {
+    if ($usesAnnualLeave<>0 AND $usesAnnualLeave<>1) {
         error_log("Invalid usesAnnualLeave parameter passed to CreateAbsenceType.");
         $inputIsValid = FALSE;
     }
 
-    if (!is_bool($canBeDenied)) {
+    if ($canBeDenied<>0 AND $canBeDenied<>1) {
         error_log("Invalid canBeDenied parameter passed to CreateAbsenceType.");
         $inputIsValid = FALSE;
     }
 
-    if ($usesAnnualLeave == false) {
-        $usesAnnualLeave = 0;
-    } else {
-        $usesAnnualLeave = 1;
-    }
-
-    if ($canBeDenied == false) {
-        $canBeDenied = 0;
-    } else {
-        $canBeDenied = 1;
-    }
     //--------------------------------------------------------------------------------
     // Only attempt to insert a record in the database if the input parameters are ok.
     //--------------------------------------------------------------------------------
@@ -87,7 +76,7 @@ function CreateAbsenceType($absenceTypeName, $usesAnnualLeave, $canBeDenied) {
         $absenceType[ABS_TYPE_NAME] = $absenceTypeName;
         $absenceType[ABS_TYPE_USES_LEAVE] = $usesAnnualLeave;
         $absenceType[ABS_TYPE_CAN_BE_DENIED] = $canBeDenied;
-
+        
         $success = sqlInsertAbsenceType($absenceType);
         if (!$success) {
             error_log("Failed to create absence type.");
@@ -186,13 +175,13 @@ function RetrieveAbsenceTypes($filter = NULL) {
                     $inputIsValid = FALSE;
                 }
             } else if (strcmp($key, ABS_TYPE_USES_LEAVE) == 0) {
-                if (!is_bool($value)) {
+                if ($value<>0 AND $value<>1) {
                     error_log("Invalid ABS_TYPE_USES_LEAVE of " . $value .
                             " passed to RetrieveAbsenceTypes.");
                     $inputIsValid = FALSE;
                 }
             } else if (strcmp($key, ABS_TYPE_CAN_BE_DENIED) == 0) {
-                if (!is_bool($value)) {
+                if ($value<>0 AND $value<>1) {
                     error_log("Invalid ABS_TYPE_CAN BE DENIED of " . $value .
                             " passed to RetrieveAbsenceTypes.");
                     $inputIsValid = FALSE;
@@ -254,15 +243,14 @@ function UpdateAbsenceType($fields) {
             }
         } else if ($key == ABS_TYPE_USES_LEAVE) {
             $countOfFields++;
-
-            if (!is_bool($value)) {
+            if ($value<>0 AND $value<>1) {
                 error_log("Invalid ABS_TYPE_USES_LEAVE passed to UpdateAbsenceType.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == ABS_TYPE_CAN_BE_DENIED) {
             $countOfFields++;
 
-            if (!is_bool($value)) {
+            if ($value<>0 AND $value<>1) {
                 error_log("Invalid ABS_TYPE_CAN_BE_DENIED passed to UpdateAbsenceType.");
                 $inputIsValid = FALSE;
             }
@@ -288,6 +276,7 @@ function UpdateAbsenceType($fields) {
     $success = false;
 
     if ($inputIsValid) {
+        
         $success = performSQLUpdate(ABSENCE_TYPE_TABLE, ABS_TYPE_ID, $fields);
     }
 

@@ -123,10 +123,10 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
             // need to deltete it.
             //-------------------------------------------------------------------------
             if ($employee[EMP_MAIN_VACATION_REQ_ID] <> NULL) {
-                $count = DeleteMainVacationRequest($employee[MP_MAIN_VACATION_REQ_ID]);
+                $count = DeleteMainVacationRequest($employee[EMP_MAIN_VACATION_REQ_ID]);
                 if ($count == 0) {
                     error_log("Failed to delete main vacation request. ID=" .
-                            $employee[MP_MAIN_VACATION_REQ_ID]);
+                            $employee[EMP_MAIN_VACATION_REQ_ID]);
                 }
             }
 
