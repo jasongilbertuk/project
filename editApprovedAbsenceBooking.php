@@ -12,13 +12,10 @@ if (isset($_POST["cancel"])) {
 }
 
 if (isset($_POST["update"])) {
-    $request[APPR_ABS_BOOKING_ID]    =   $_GET["ID"];
-    $request[APPR_ABS_EMPLOYEE_ID]   =   $_POST["employeeID"];
-    $request[APPR_ABS_START_DATE]    =   $_POST["startDate"];
-    $request[APPR_ABS_END_DATE]      =   $_POST["endDate"];
-    $request[APPR_ABS_ABS_TYPE_ID]   =   $_POST["absenceType"];
-    UpdateApprovedAbsenceBooking($request);
-
+    DeleteApprovedAbsenceBooking($_GET["ID"]);
+    CreateApprovedAbsenceBooking($_POST["employeeID"], 
+            $_POST["startDate"],$_POST["endDate"],$_POST["absenceType"]);
+    
     $url = "Location:adminApprovedAbsenceBookings.php";   
     header($url);
 }

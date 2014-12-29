@@ -25,6 +25,11 @@
         <br/>
         <a href="adminPublicHolidays.php">Admin Public Holidays</a>
         <br/>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        <a href="administerVacation.php">Admin Vacation</a>
         
     </body>
 </html>

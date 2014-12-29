@@ -102,6 +102,7 @@ if (isset($_POST["delete"]))
                         <th>Date Joined</th>
                         <th>Annual Leave Entitlement</th>
                         <th>Company Role</th>
+                        <th>Main Vacation Request ID</th>
                         <th>Amend</th>
                         <th>Delete</th>
                     </tr>
@@ -121,6 +122,7 @@ if (isset($_POST["delete"]))
                             <td><?php echo $employee[EMP_DATEJOINED]; ?></td>
                             <td><?php echo $employee[EMP_LEAVE_ENTITLEMENT]; ?></td>
                             <td><?php echo $role[COMP_ROLE_NAME]; ?></td>
+                            <td><?php echo $employee[EMP_MAIN_VACATION_REQ_ID];?></td>
                             <td> <button type="submit" name="amend"  value="<?php echo $employee[EMP_ID]; ?>">Amend</button></td>
                             <td> <button type="submit" name="delete"  value="<?php echo $employee[EMP_ID]; ?>">Delete</button></td>
                         </tr>

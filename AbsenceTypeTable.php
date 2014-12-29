@@ -12,6 +12,8 @@ define("ABS_TYPE_NAME", "absenceTypeName");
 define("ABS_TYPE_USES_LEAVE", "usesAnnualLeave");
 define("ABS_TYPE_CAN_BE_DENIED", "canBeDenied");
 
+define("ANNUAL_LEAVE", "Annual leave");
+
 /* --------------------------------------------------------------------------------------
  * Function CreateAbsenceTypeTable
  *
@@ -28,8 +30,19 @@ function CreateAbsenceTypeTable() {
          `usesAnnualLeave` TINYINT(1) NOT NULL,
          `canBeDenied` TINYINT(1) NOT NULL,
          PRIMARY KEY (`absenceTypeID`));";
-
-    return performSQL($sql);
+    
+    $success = performSQL($sql);
+    
+    if ($success)
+    {
+        //Check to see if the table is empty
+        if (GetAbsenceTypeCount() == 0)
+        {
+            //Table is empty. Create some default absence types.
+            CreateAbsenceType(ANNUAL_LEAVE,TRUE,TRUE);
+        }
+        
+    }
 }
 
 /* --------------------------------------------------------------------------------------
@@ -326,6 +339,30 @@ function DeleteAbsenceType($ID) {
         $result = performSQLDelete($sql);
     }
     return $result;
+}
+
+
+/* --------------------------------------------------------------------------------------
+ * Function GetAbsenceTypeCount
+ *
+ * This function gets a count of absence type records in the table.
+ *
+ * @return (int) count of rows in the table
+ * ------------------------------------------------------------------------------------- */
+
+function GetAbsenceTypeCount() 
+{
+    $conn = $GLOBALS["connection"];
+
+    $sql = "SELECT COUNT(*) FROM ".ABSENCE_TYPE_TABLE;
+   
+    $result = mysqli_query($conn, $sql);
+    if (!$result) {
+        printCallstackAndDie();
+    }
+    $count = mysqli_num_rows($result);
+     
+   return $count;
 }
 
 ?>

@@ -427,4 +427,39 @@ function DeleteEmployee($ID) {
     return $result;
 }
 
+
+/* --------------------------------------------------------------------------------------
+ * Function GetEmployeeCount
+ *
+ * This function gets a count of employee records which match a given filter.
+ *
+ * $filter(array) array of key value pairs representing the fields of the record
+ *                that should be filtered into the count.
+ *
+ * @return (int) count of rows that match this filter. 
+ * ------------------------------------------------------------------------------------- */
+
+function GetEmployeeCount(&$totalEmployees,&$employeesWithNoMainVacation) 
+{
+    $conn = $GLOBALS["connection"];
+
+    $sql = "SELECT COUNT(*) FROM ".EMPLOYEE_TABLE;
+   
+    $result = mysqli_query($conn, $sql);
+    if (!$result) {
+        printCallstackAndDie();
+    }
+    $data = mysqli_fetch_array($result);
+    $totalEmployees = $data[0];  
+     
+     
+    $sql = "SELECT COUNT(*) FROM ".EMPLOYEE_TABLE." WHERE mainVacationRequestID IS NULL";
+   
+    $result = mysqli_query($conn, $sql);
+    if (!$result) {
+        printCallstackAndDie();
+    }
+    $data = mysqli_fetch_array($result);
+    $employeesWithNoMainVacation = $data[0];  
+}
 ?>

@@ -115,6 +115,26 @@ function CreateApprovedAbsenceBooking($employeeID, $absenceStartDate, $absenceEn
             error_log("Failed to create Approved Absence Booking.");
             $booking = NULL;
         }
+
+        // Set timezone
+        date_default_timezone_set('UTC');
+ 
+        // Start date
+        $date = $absenceStartDate;
+        // End date
+ 
+        while (strtotime($date) <= strtotime($absenceEndDate)) {
+            $filter[DATE_TABLE_DATE] = $date;
+            $dateRecord = RetrieveDates($filter);
+            if (count($dateRecord) == 1)
+            {
+                $result = CreateApprovedAbsenceBookingDate($dateRecord[0][DATE_TABLE_DATE_ID],
+                                                            $booking[APPR_ABS_BOOKING_ID]);
+            }
+            
+            $date = date ("Y-m-d", strtotime("+1 day", strtotime($date)));
+        }
+
     }
 
     return $booking;
