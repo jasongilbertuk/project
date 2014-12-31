@@ -15,6 +15,8 @@ define("EMP_DATEJOINED", "dateJoinedTheCompany");
 define("EMP_LEAVE_ENTITLEMENT", "annualLeaveEntitlement");
 define("EMP_MAIN_VACATION_REQ_ID", "mainVacationRequestID");
 define("EMP_COMPANY_ROLE", "companyRole_companyRoleID");
+define("EMP_ADMIN_PERM","adminPermissions");
+define("EMP_MANAGER_PERM","managerPermissions");
 
 /* --------------------------------------------------------------------------------------
  * Function CreateEmployeeTable
@@ -30,11 +32,13 @@ function CreateEmployeeTable() {
          `employeeID` INT NOT NULL AUTO_INCREMENT,
          `employeeName` VARCHAR(50) NOT NULL,
          `emailAddress` VARCHAR(50) NOT NULL,
-         `password` VARCHAR(20) NOT NULL,
+         `password` VARCHAR(64) NOT NULL,
          `dateJoinedTheCompany` DATE NOT NULL,
          `annualLeaveEntitlement` INT(1) NOT NULL,
          `mainVacationRequestID` INT NULL,
          `companyRole_companyRoleID` INT NOT NULL,
+         `adminPermissions` TINYINT(1) NOT NULL,
+         `managerPermissions` TINYINT(1) NOT NULL,
          PRIMARY KEY (`employeeID`),
          INDEX `fk_Employee_companyRole1_idx` (`companyRole_companyRoleID` ASC),
          CONSTRAINT `fk_Employee_companyRole1`
@@ -65,7 +69,7 @@ function CreateEmployeeTable() {
  *                 in the record. If unsuccessful, the return will be NULL.
  * ------------------------------------------------------------------------------------- */
 
-function CreateEmployee($employeeName, $emailAddress, $password, $dateJoinedTheCompany, $annualLeaveEntitlement, $mainVacationRequestID, $companyRoleID) {
+function CreateEmployee($employeeName, $emailAddress, $password, $dateJoinedTheCompany, $annualLeaveEntitlement, $mainVacationRequestID, $companyRoleID, $isAdministrator = 0, $isManager =0) {
     $employee = NULL;
     //--------------------------------------------------------------------------------
     // Validate Input parameters
@@ -123,11 +127,16 @@ function CreateEmployee($employeeName, $emailAddress, $password, $dateJoinedTheC
         $employee[EMP_ID] = NULL;
         $employee[EMP_NAME] = $employeeName;
         $employee[EMP_EMAIL] = $emailAddress;
-        $employee[EMP_PASSWORD] = $password;
+        
+        $encryptedPassword = md5(md5($emailAddress).$password);
+        
+        $employee[EMP_PASSWORD] = $encryptedPassword;
         $employee[EMP_DATEJOINED] = $dateJoinedTheCompany;
         $employee[EMP_LEAVE_ENTITLEMENT] = $annualLeaveEntitlement;
         $employee[EMP_MAIN_VACATION_REQ_ID] = $mainVacationRequestID;
         $employee[EMP_COMPANY_ROLE] = $companyRoleID;
+        $employee[EMP_ADMIN_PERM] = $isAdministrator;
+        $employee[EMP_MANAGER_PERM] = $isManager;
 
         $success = sqlInsertEmployee($employee);
         if (!$success) {
@@ -154,11 +163,12 @@ function CreateEmployee($employeeName, $emailAddress, $password, $dateJoinedTheC
 
 function sqlInsertEmployee(&$employee) {
     $sql = "INSERT INTO EmployeeTable (employeeName,emailAddress,password," .
-            "annualLeaveEntitlement,dateJoinedTheCompany,companyRole_companyRoleID) " .
+            "annualLeaveEntitlement,dateJoinedTheCompany,companyRole_companyRoleID,adminPermissions,managerPermissions) " .
             "VALUES ('" . $employee[EMP_NAME] . "','" . $employee[EMP_EMAIL] . "','"
             . $employee[EMP_PASSWORD] . "','" . $employee[EMP_LEAVE_ENTITLEMENT] .
-            "','" . $employee[EMP_DATEJOINED] . "','" . $employee[EMP_COMPANY_ROLE] . "');";
+            "','" . $employee[EMP_DATEJOINED] . "','" . $employee[EMP_COMPANY_ROLE] ."','".$employee[EMP_ADMIN_PERM]."','".$employee[EMP_MANAGER_PERM]."');";
 
+    echo $sql;
     $employee[EMP_ID] = performSQLInsert($sql);
     return $employee[EMP_ID] <> 0;
 }
@@ -223,7 +233,7 @@ function RetrieveEmployees($filter = NULL) {
                     $inputIsValid = FALSE;
                 }
             } else if (strcmp($key, EMP_EMAIL) == 0) {
-                if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+                if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
                     error_log("Invalid EMP_EMAIL of " . $value .
                             " passed to RetrieveEmployees.");
                     $inputIsValid = FALSE;
@@ -296,6 +306,7 @@ function UpdateEmployee($fields) {
     $validID = false;
     $countOfFields = 0;
 
+    
     foreach ($fields as $key => $value) {
         if ($key == EMP_ID) {
             $record = RetrieveEmployeeByID($value);
@@ -314,13 +325,13 @@ function UpdateEmployee($fields) {
             $countOfFields++;
 
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                error_log("Invalid email address passed to UpdateEmployee.");
+                 error_log("Invalid email address passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == EMP_PASSWORD) {
             $countOfFields++;
 
-            if ($value == "" OR $value == NULL) {
+            if ($value == "" OR $value == NULL) { 
                 error_log("Invalid EMP_PASSWORD passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
@@ -328,6 +339,7 @@ function UpdateEmployee($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                               
                 error_log("Invalid EMP_DATEJOINED passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
@@ -335,26 +347,45 @@ function UpdateEmployee($fields) {
             $countOfFields++;
 
             if (!is_numeric($value)) {
+                               
                 error_log("Invalid EMP_LEAVE_ENTITLEMENT passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == EMP_MAIN_VACATION_REQ_ID) {
-            $record = RetrieveMainVacationRequestByID($value);
+            if ($value <> NULL)
+            {
+                $record = RetrieveMainVacationRequestByID($value);
 
-            if ($record == NULL) {
-                error_log("Invalid EMP_MAIN_VACATION_REQ_ID passed to UpdateEmployee.");
-                $inputIsValid = FALSE;
-            }
+                if ($record == NULL) {
+                               
+                    error_log("Invalid EMP_MAIN_VACATION_REQ_ID passed to UpdateEmployee.");
+                    $inputIsValid = FALSE;
+                    
+                }
+            }    
         } else if ($key == EMP_COMPANY_ROLE) {
             $countOfFields++;
 
             $record = RetrieveCompanyRoleByID($value);
 
             if ($record == NULL) {
+                               
                 error_log("Invalid EMP_COMPANY_ROLE passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
-        } else {
+        } else if($key == EMP_ADMIN_PERM)
+        {
+                       $countOfFields++;
+     
+            //todo
+        } else if($key == EMP_MANAGER_PERM)
+        {
+                       $countOfFields++;
+     
+            //todo
+        }
+        else {
+                          
             error_log("Invalid field passed to UpdateEmployee. $key=" . $key);
             $inputIsValid = FALSE;
         }
@@ -462,4 +493,8 @@ function GetEmployeeCount(&$totalEmployees,&$employeesWithNoMainVacation)
     $data = mysqli_fetch_array($result);
     $employeesWithNoMainVacation = $data[0];  
 }
+
+
+
+
 ?>

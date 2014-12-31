@@ -1,5 +1,13 @@
 <?php
+include 'sessionmanagement.php';
 include 'databaseFunctions.php';
+
+if (!$isAdministrator)
+{
+   header('Location: index.php');
+   exit();
+}
+
 
 if (isset($_POST["submit"])) 
 {
@@ -9,7 +17,8 @@ if (isset($_POST["submit"]))
                                $_POST["dateJoin"], 
                                $_POST["annualLeave"],
                                NULL,
-                               $_POST["companyRole"]);
+                               $_POST["companyRole"],
+                               1,0); //todo
 }
 
 if (isset($_POST["amend"])) {   
@@ -96,6 +105,7 @@ if (isset($_POST["delete"]))
             <table>
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Password</th>
@@ -103,6 +113,8 @@ if (isset($_POST["delete"]))
                         <th>Annual Leave Entitlement</th>
                         <th>Company Role</th>
                         <th>Main Vacation Request ID</th>
+                        <th>Is Administrator</th>
+                        <th>Is Manager</th>
                         <th>Amend</th>
                         <th>Delete</th>
                     </tr>
@@ -116,6 +128,7 @@ if (isset($_POST["delete"]))
                             $role = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
                             ?>
                         <tr>
+                            <td><?php echo $employee[EMP_ID]; ?></td>
                             <td><?php echo $employee[EMP_NAME]; ?></td>
                             <td><?php echo $employee[EMP_EMAIL]; ?></td>
                             <td><?php echo $employee[EMP_PASSWORD]; ?></td>
@@ -123,6 +136,8 @@ if (isset($_POST["delete"]))
                             <td><?php echo $employee[EMP_LEAVE_ENTITLEMENT]; ?></td>
                             <td><?php echo $role[COMP_ROLE_NAME]; ?></td>
                             <td><?php echo $employee[EMP_MAIN_VACATION_REQ_ID];?></td>
+                            <td><?php echo $employee[EMP_ADMIN_PERM];?></td>
+                            <td><?php echo $employee[EMP_MANAGER_PERM];?></td>
                             <td> <button type="submit" name="amend"  value="<?php echo $employee[EMP_ID]; ?>">Amend</button></td>
                             <td> <button type="submit" name="delete"  value="<?php echo $employee[EMP_ID]; ?>">Delete</button></td>
                         </tr>

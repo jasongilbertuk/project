@@ -1,5 +1,12 @@
 <?php
+include 'sessionmanagement.php';
 include 'databaseFunctions.php';
+
+if (!$isAdministrator)
+{
+   header('Location: index.php');
+   exit();
+}
 
 if (isset($_POST["submit"])) 
 {
@@ -12,7 +19,7 @@ if (isset($_POST["submit"]))
 
 
 if (isset($_POST["amend"])) {   
-    $url = "Location:editMainRequest.php?ID=".$_POST["amend"];   
+    $url = "Location:editMainRequest.php?ID=".$_POST["amend"]."&back=adminMainVacationRequests.php";   
     header($url);
 }
 

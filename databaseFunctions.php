@@ -1,5 +1,6 @@
 <?php
 
+
 include 'AdHocRequestTable.php';
 include 'CompanyRoleTable.php';
 include 'EmployeeTable.php';
@@ -9,6 +10,7 @@ include 'ApprovedAbsenceBookingTable.php';
 include 'ApprovedAbsenceBookingDateTable.php';
 include 'DateTable.php';
 include 'PublicHolidayTable.php';
+include 'KeyAlgorithms.php';
 
 $connection = connectToSql("localhost", "root", "root");
 CreateNewDatabase(false);
@@ -122,7 +124,6 @@ function performSQLUpdate($tableName, $idFieldName, $fields) {
         $sql = $sql . implode(",", $updateClause);
     }
     $sql = $sql . " WHERE " . $idFieldName . "='" . $fields[$idFieldName] . "';";
-
     $result = mysqli_query($conn, $sql);
     if (!$result) {
         echo mysqli_error($conn);

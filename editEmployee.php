@@ -18,6 +18,25 @@ if (isset($_POST["update"])) {
     $employee[EMP_DATEJOINED] =   $_POST["dateJoin"];
     $employee[EMP_LEAVE_ENTITLEMENT]       =   $_POST["annualLeave"];
     $employee[EMP_COMPANY_ROLE]       =   $_POST["companyRole"];
+    
+    $employee[EMP_ADMIN_PERM] = '0';
+    if (isset($_POST['isAdmin']))
+    {
+        if ($_POST["isAdmin"] == 'on')
+        {
+         $employee[EMP_ADMIN_PERM] = '1';
+        }
+    }
+    
+    $employee[EMP_MANAGER_PERM] = '0';
+    if (isset($_POST['isManager']))
+    {
+        if ($_POST["isManager"] == 'on')
+        {
+             $employee[EMP_MANAGER_PERM] = '1';
+        }
+    }
+
     UpdateEmployee($employee);
 
     $url = "Location:adminEmployeeTable.php";   
@@ -65,6 +84,9 @@ if (isset($_POST["update"])) {
             <output for="minStaff" id="Leave"><?php echo $employee[EMP_LEAVE_ENTITLEMENT]; ?></output>
             
             <br/>
+           
+            
+            
             
             <label for="companyRole">Company Role</label>
             <?php  
@@ -90,7 +112,16 @@ if (isset($_POST["update"])) {
             echo '</select>';
             ?>
             <br/>
-            <br/>
+             <label for="isAdmin"> Is Administrator</label>
+            <input type="checkbox" name="isAdmin" id="isAdmin" 
+                   <?php if ($employee[EMP_ADMIN_PERM] == 1) echo "checked"; ?>/>
+            
+            <br /> <label for="dateJoin"> Date Joined</label>
+             <label for="isManager"> Is Manager</label>
+            <input type="checkbox" name="isManager" id="isManager" 
+                   <?php if ($employee[EMP_MANAGER_PERM] == 1) echo "checked"; ?>/>
+            
+            <br /><br/>
             
             <input type="submit" name="update" id="submit" value="Edit Employee"/>
             <input type="submit" name="cancel" id="cancel" value="Cancel Changes"/>

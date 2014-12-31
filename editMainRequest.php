@@ -1,27 +1,44 @@
 <?php
+include 'sessionmanagement.php';
 include 'databaseFunctions.php';
+
+$returnURL = "index.php";
+if (isset($_GET["back"]))
+{
+    $returnURL = $_GET["back"];
+}
+
 
 if ($_GET["ID"] <> NULL)
 {
     $record = RetrieveMainVacationRequestByID($_GET["ID"]);
+    
+    if (!$isAdministrator)
+    {
+        if ($record[MAIN_VACATION_EMP_ID] <> $userID)
+        {
+            header('Location: index.php');
+            exit();
+        }
+    }
+    $employee = RetrieveEmployeeByID($record[MAIN_VACATION_EMP_ID]);
+
 }
 
 if (isset($_POST["cancel"])) {   
-    $url = "Location:adminMainVacationRequests.php";   
-    header($url);
+    header("Location:".$returnURL);
 }
 
 if (isset($_POST["update"])) {
     $record[MAIN_VACATION_REQ_ID]       =   $_GET["ID"];
-    $record[MAIN_VACATION_EMP_ID]       =   $_POST["empID"];
+    $record[MAIN_VACATION_EMP_ID]       =   $employee[EMP_ID];
     $record[MAIN_VACATION_1ST_START]    =   $_POST["firstChoiceStart"];
     $record[MAIN_VACATION_1ST_END]      =   $_POST["firstChoiceEnd"];
     $record[MAIN_VACATION_2ND_START]    =   $_POST["secondChoiceStart"];
     $record[MAIN_VACATION_2ND_END]      =   $_POST["secondChoiceEnd"];
     UpdateMainVacactionRequest($record);
 
-    $url = "Location:adminMainVacationRequests.php";   
-    header($url);
+    header("Location:".$returnURL);
 }
 
 if (isset($_POST["delete"])) {
@@ -43,11 +60,9 @@ if (isset($_POST["delete"])) {
         <form method="post">
            <label for="empName">Employee</label>
                <?php  
-    
-                $employee = RetrieveEmployeeByID($record[MAIN_VACATION_EMP_ID]);
                 if ($employee <> NULL)
                 {
-                  echo '<input type="text" name="empID" id="empID" readonly value="'.$employee[EMP_NAME].'"/>';
+                  echo '<input type="text" name="empName" id="empName" readonly value="'.$employee[EMP_NAME].'"/>';
                 }
                ?> 
             <br />

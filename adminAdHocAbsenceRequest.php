@@ -1,5 +1,13 @@
 <?php
+include 'sessionmanagement.php';
 include 'databasefunctions.php';
+
+if (!$isAdministrator)
+{
+   header('Location: index.php');
+   exit();
+}
+
 
 if (isset($_POST["submit"])) 
 {
@@ -10,7 +18,7 @@ if (isset($_POST["submit"]))
 }
 
 if (isset($_POST["amend"])) {   
-    $url = "Location:editAdHocAbsenceRequest.php?ID=".$_POST["amend"];   
+    $url = "Location:editAdHocAbsenceRequest.php?ID=".$_POST["amend"]."&back=adminAdHocAbsenceRequest.php";   
     header($url);
 }
 
@@ -71,6 +79,7 @@ if (isset($_POST["delete"]))
                         echo '<option value="'.$absenceType[ABS_TYPE_ID].'">'.$absenceType[ABS_TYPE_NAME].'</option>';
                     }
                 }
+
             
                 
             echo '</select>';

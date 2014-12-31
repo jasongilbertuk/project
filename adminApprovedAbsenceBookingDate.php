@@ -1,5 +1,13 @@
 <?php
+include 'sessionmanagement.php';
 include 'databaseFunctions.php';
+
+if (!$isAdministrator)
+{
+   header('Location: index.php');
+   exit();
+}
+
 ?>
 
 <!DOCTYPE html>

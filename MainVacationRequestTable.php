@@ -99,6 +99,19 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
                 " value=" . $secondChoiceEndDate);
         $inputIsValid = FALSE;
     }
+    
+    if (strtotime($firstChoiceEndDate) < strtotime($firstChoiceStartDate)) 
+    {
+        error_log("First Choice End Date is before First Choice Start Date.");
+        $inputIsValid = FALSE;
+    }
+    
+    if (strtotime($secondChoiceEndDate) < strtotime($secondChoiceStartDate)) 
+    {
+        error_log("Second Choice End Date is before Second Choice Start Date.");
+        $inputIsValid = FALSE;
+    }
+    
 
     //--------------------------------------------------------------------------------
     // Only attempt to insert a record in the database if the input parameters are ok.
@@ -293,7 +306,7 @@ function UpdateMainVacactionRequest($fields) {
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
-
+    
     foreach ($fields as $key => $value) {
         if ($key == MAIN_VACATION_REQ_ID) {
             $record = RetrieveMainVacationRequestByID($value);

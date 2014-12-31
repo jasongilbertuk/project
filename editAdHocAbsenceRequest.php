@@ -1,26 +1,33 @@
 <?php
 include 'databaseFunctions.php';
 
+$returnURL = "index.php";
+if (isset($_GET["back"]))
+{
+    $returnURL = $_GET["back"];
+}
+
 if ($_GET["ID"] <> NULL)
 {
     $request = RetrieveAdHocAbsenceRequestByID($_GET["ID"]);
+    $employee = RetrieveEmployeeByID($request[AD_HOC_EMP_ID]);
 }
 
 if (isset($_POST["cancel"])) {   
-    $url = "Location:adminAdHocAbsenCeRequest.php";   
-    header($url);
+    
+    header("location:".$returnURL);
+    exit;
 }
 
 if (isset($_POST["update"])) {
     $request[AD_HOC_REQ_ID]          =  $_GET["ID"];
-    $request[AD_HOC_EMP_ID]          =   $_POST["employeeID"];
     $request[AD_HOC_START]           =   $_POST["startDate"];
     $request[AD_HOC_END]             =   $_POST["endDate"];
     $request[AD_HOC_ABSENCE_TYPE_ID] =   $_POST["absenceType"];
     UpdateAdHocAbsenceRequest($request);
 
-    $url = "Location:adminAdHocAbsenceRequest.php";   
-    header($url);
+    header("location:".$returnURL);
+    exit;
 }
 
 ?>
@@ -36,27 +43,7 @@ if (isset($_POST["update"])) {
 
         <form method="post">
             <label for="employeeName">Employee Name</label>
-            <?php  
-    
-                $employees = RetrieveEmployees();
-                if ($employees <> NULL)
-                {
-                    echo '<select name="employeeID">';
-                    foreach ($employees as $employee)
-                    if ($employee[EMP_ID]== $request[AD_HOC_EMP_ID])
-                    {
-                        echo '<option selected="selected" value="'.$employee[EMP_ID].'">'.$employee[EMP_NAME].'</option>';
-                    }
-                    else    
-                    {
-                        echo '<option value="'.$employee[EMP_ID].'">'.$employee[EMP_NAME].'</option>';
-                    }
-                }
-                
-            echo '</select>';
-            
-            ?>
-            
+            <input type="text" readonly value="<?php echo $employee[EMP_NAME]; ?>"/>
             <br />
             
             <label for="startDate">Start Date</label>
@@ -84,7 +71,6 @@ if (isset($_POST["update"])) {
                         echo '<option value="'.$absenceType[ABS_TYPE_ID].'">'.$absenceType[ABS_TYPE_NAME].'</option>';
                     }
                 }
-            
                 
             echo '</select>';
             ?>
