@@ -77,7 +77,7 @@ function CalculateAnnualLeaveRequired($startDate,$endDate,$absenceType)
            
     
     //Q.Does the absence type supplied use annual leave?
-    if ($absenceType[ABS_USES_LEAVE] == TRUE)
+    if ($absenceType[ABS_TYPE_USES_LEAVE] == TRUE)
     {
         //Y.We need to calulate the leave required. First convert dates supplied
         //  into times.
@@ -154,7 +154,7 @@ function CalculateAnnualLeaveRequired($startDate,$endDate,$absenceType)
  *
  * @return (int) Number of days taken by the employee. 
  * -------------------------------------------------------------------------- */
-function CalculateRemaininAnnualLeave($employeeID)
+function CalculateRemainingAnnualLeave($employeeID)
 {
     //Assume no leave is remaining. Will increment this in the function.
     $annualLeaveRemaining = 0;
@@ -234,46 +234,50 @@ function HasSufficentAnnualLeave($employeeID,$startDate,$endDate,$absenceTypeID)
  * -------------------------------------------------------------------------- */
 function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
 {
-	$sufficentStaffInRole = TRUE;
+    $sufficentStaffInRole = TRUE;
 	
-	$employee = RetrieveEmployeeByID($employeeID);
-	$employeeRole = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
+    $employee = RetrieveEmployeeByID($employeeID);
+    $employeeRole = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
 
-	$minimumStaffingLevel = $employeeRole[COMP_ROLE_MIN_STAFF];
+    $minimumStaffingLevel = $employeeRole[COMP_ROLE_MIN_STAFF];
+    echo "Min Staff = $minimumStaffingLevel";
 	
-	$filter[EMP_COMPANY_ROLE] = $employee[EMP_COMPANY_ROLE];
+    $filter[EMP_COMPANY_ROLE] = $employee[EMP_COMPANY_ROLE];
     $employeesInRole = RetrieveEmployees($filter);
      
     $numEmployeesInRole = count($employeesInRole);
 
-	$tempDate = strtotime($startDate);
+    $tempDate = strtotime($startDate);
     $endTime = strtotime($endDate);
 
-	$underMinimumStaffing = FALSE;
+    $underMinimumStaffing = FALSE;
 	
-	while ($tempDate <= $endTime AND underMinimumStaffing == FALSE)
-	{
-		$tempStaffingLevel = $numEmployeesInRole;
-		$strDate = date('Y-m-d', $tempDate); // 2010-05-01, 2010-05-02, etc
+    while ($tempDate <= $endTime AND $underMinimumStaffing == FALSE)
+    {
+        $tempStaffingLevel = $numEmployeesInRole;
+	$strDate = date('Y-m-d', $tempDate); // 2010-05-01, 2010-05-02, etc
 	    
-	    unset($filter);
+	unset($filter);
     	$filter[DATE_TABLE_DATE] = $strDate;
     	$dateRecords = RetrieveDates($filter);
 	
-		$dateID = $dateRecords[0][DATE_TABLE_DATE_ID];
+        $dateID = $dateRecords[0][DATE_TABLE_DATE_ID];
         
         unset($filter);
     	$filter[APPR_ABS_BOOK_DATE_DATE_ID] = $dateID;
         $bookingsForDate = RetrieveApprovedAbsenceBookingDates($filter);
         
-        foreach ($bookingsForDate as $bookingDate)
+        if ($bookingsForDate <> NULL)
         {
-        	$absenceBooking = RetrieveApprovedAbsenceBookingByID($bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
-        	$staffMember = RetrieveEmployeeByID($absenceBooking[[APPR_ABS_EMPLOYEE_ID]);
-            
-            if ($employee[EMP_COMPANY_ROLE] == $staffMember[EMP_COMPANY_ROLE])
+            foreach ($bookingsForDate as $bookingDate)
             {
-            	$tempStaffingLevel = $tempStaffingLevel - 1;
+            	$absenceBooking = RetrieveApprovedAbsenceBookingByID($bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
+        	$staffMember = RetrieveEmployeeByID($absenceBooking[APPR_ABS_EMPLOYEE_ID]);
+            
+                if ($employee[EMP_COMPANY_ROLE] == $staffMember[EMP_COMPANY_ROLE])
+                {
+                    $tempStaffingLevel = $tempStaffingLevel - 1;
+                }
             }
         }
         
@@ -285,8 +289,8 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
         
 		//move temp date onto the next day. Note tempdate is in seconds.
         $tempDate = $tempDate + + 86400; //86400 = 60 seconds * 60 minutes * 24 hours.
-	}
-	return $sufficentStaffInRole;
+    }
+    return $sufficentStaffInRole;
 }	
 
 
@@ -314,7 +318,7 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
 	}
 	else
 	{
-		if (SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
+		if (SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate))
 		{
          	//todo Create new entry in Approved Absence Booking Date Table
             //todo Remove entry from AdHoc Request Table

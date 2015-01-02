@@ -38,9 +38,11 @@ include "sessionmanagement.php";
         <?php } ?>
         
         
+        <?php if ($isManager) { ?>
         <h2>Office Manager  Functions</h2>
         <a href="administerVacation.php">An office manager function</a>
         <br/>
+        <?php } ?>
         
         <h2>All Staff Functions</h2>
         <a href="employeeMainVacationRequest.php">Main Vacation Request</a>

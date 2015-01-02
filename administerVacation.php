@@ -116,7 +116,6 @@ if (isset($_POST["processmainrequests"]))
            $secondChoiceEndDate     = $row[MAIN_VACATION_2ND_END];
            $annualLeaveEntitlement  = $row[EMP_LEAVE_ENTITLEMENT];
            
-           
            $filter[ABS_TYPE_NAME] = "Annual Leave";
            $absenceTypes = RetrieveAbsenceTypes($filter);
            
@@ -138,12 +137,16 @@ if (isset($_POST["processmainrequests"]))
                 
            
            $firstChoiceAvailable    = SufficentStaffInRoleToGrantRequest($employeeID,
-           																 $firstChoiceStartDate,
-           																 $firstChoiceEndDate);
+                                                                         $firstChoiceStartDate,
+                                                                         $firstChoiceEndDate);
 
            $secondChoiceAvailable   = SufficentStaffInRoleToGrantRequest($employeeID,
-           																 $secondChoiceStartDate,
-           																 $secondChoiceEndDate);
+           								 $secondChoiceStartDate,
+           								 $secondChoiceEndDate);
+
+           echo "firstChoiceAvailable = $firstChoiceAvailable";
+           echo "secondChoiceAvailable = $secondChoiceAvailable";
+           
            $enoughDaysForFirstChoice = ($daysRemaining >= $leaveFor1stChoice);
            $enoughDaysForSecondChoice = ($daysRemaining >= $leaveFor2ndChoice);
            

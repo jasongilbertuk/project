@@ -65,7 +65,7 @@ $bookings = RetrieveApprovedAbsenceBookings($filter);
         echo "Is Admin         : " . $employee[EMP_ADMIN_PERM] . "<br/>";
         echo "Is Manager       : " . $employee[EMP_MANAGER_PERM] . "<br/>";
         echo "<br/>";
-        echo "Annual Leave Aleady Booked:".CalculateEmployeeLeaveTaken($employee[EMP_ID]);
+        echo "Annual leave remaining:".CalculateRemainingAnnualLeave($employee[EMP_ID]);
         ?>        
 
         <h2>Approved Bookings</h2>
