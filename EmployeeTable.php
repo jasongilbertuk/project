@@ -168,7 +168,6 @@ function sqlInsertEmployee(&$employee) {
             . $employee[EMP_PASSWORD] . "','" . $employee[EMP_LEAVE_ENTITLEMENT] .
             "','" . $employee[EMP_DATEJOINED] . "','" . $employee[EMP_COMPANY_ROLE] ."','".$employee[EMP_ADMIN_PERM]."','".$employee[EMP_MANAGER_PERM]."');";
 
-    echo $sql;
     $employee[EMP_ID] = performSQLInsert($sql);
     return $employee[EMP_ID] <> 0;
 }

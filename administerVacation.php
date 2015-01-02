@@ -7,87 +7,6 @@ if (!$isAdministrator)
    header('Location: index.php');
    exit();
 }
-
-
-
- Function IsBookable($employeeID,$startDate,$endDate)
- {
-     $leaveApproved = TRUE;
-     
-     $employee = RetrieveEmployeeByID($employeeID);
-     echo "<br/>EmployeeID = $employeeID Employee Name = ".$employee[EMP_NAME];
-     $role = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
-     echo "<br/>Role = ".$role[COMP_ROLE_NAME];
-     $minimumLevel = $role[COMP_ROLE_MIN_STAFF];
-     echo "<br/>Minimum Staffing Level for Role = $minimumLevel";
-     $filter[EMP_COMPANY_ROLE] = $employee[EMP_COMPANY_ROLE];
-     $employeesInRole = RetrieveEmployees($filter);
-     foreach ($employeesInRole as $employeeInRole)
-     {
-        echo "<br/>Also in same role is ".$employeeInRole[EMP_NAME];
-         
-     }
-     
-     
-     $totalEmployeesInRole = count($employeesInRole);
-     echo "<br/>Total Employees in Role = $totalEmployeesInRole";
-         
-    $startTime = strtotime($startDate);
-    $endTime = strtotime($endDate);
-
-    // Loop between timestamps, 24 hours at a time
-    for ($i = $startTime; $i <= $endTime; $i = $i + 86400) 
-    {
-        $thisDate = date('Y-m-d', $i); // 2010-05-01, 2010-05-02, etc
-        echo "<br/>Checking for date = $thisDate";
-        $staffInOffice = $totalEmployeesInRole;
-        
-        if (!isPublicHoliday($thisDate) AND !isWeekend($thisDate))
-        {
-            unset($filter);
-            $filter[DATE_TABLE_DATE] = $thisDate;
-            $dateRecords = RetrieveDates($filter);
-            if ($dateRecords <> NULL)
-            {
-                unset($filter);
-                $filter[APPR_ABS_BOOK_DATE_DATE_ID] = $dateRecords[0][DATE_TABLE_DATE_ID];
-                $absenceBookingDates = RetrieveApprovedAbsenceBookingDates($filter);
-                if ($absenceBookingDates <> NULL)
-                {
-                    $count = count($absenceBookingDates);
-                    echo "<br/>Checking existing absence bookings for $thisDate. There are $count";
-                    foreach ($absenceBookingDates as $absenceBookingDate)
-                    {
-                        $absenceBooking = RetrieveApprovedAbsenceBookingByID($absenceBookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
-                        $staffMember = RetrieveEmployeeByID($absenceBooking[APPR_ABS_EMPLOYEE_ID]);
-                        if ($staffMember[EMP_COMPANY_ROLE]==$employee[EMP_COMPANY_ROLE])
-                        {
-                            echo "<br/>This day is also being taken by ".$staffMember[EMP_NAME];
-                            $staffInOffice = $staffInOffice - 1;
-                        }
-                    }
-                    
-                    echo "<br/>Staff in office on this day = $staffInOffice";
-                    
-                    if ($staffInOffice <= $minimumLevel)
-                    {
-                        echo "<br/>Approving this would mean being below the minimum staffing level";
-                        $leaveApproved = FALSE;
-                        break;
-                    }
-                }
-            }
-        }
-        else
-        {
-            echo "<br/>skipped this day as its a public holiday or weekend";
-
-        }
-    }
-
-     return $leaveApproved;
- }
- 
  
  function TurnMainVacationRequestIntoApprovedBooking($mainVacationRequestID,$choiceNumberToApprove)
  {
@@ -189,7 +108,6 @@ if (isset($_POST["processmainrequests"]))
         
         while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC))
         {
-            echo "<br/><br/>";
            $mainVacationRequestID   = $row[MAIN_VACATION_REQ_ID];
            $employeeID              = $row[MAIN_VACATION_EMP_ID];
            $firstChoiceStartDate    = $row[MAIN_VACATION_1ST_START];
@@ -208,7 +126,7 @@ if (isset($_POST["processmainrequests"]))
                $absenceType = $absenceTypes[0];
            }
             
-           $annualLeaveAlreadyBooked  = CalculateEmployeeLeaveTaken($employeeID);
+           $daysRemaining  = CalculateRemainingAnnualLeave($employeeID);
            
            $leaveFor1stChoice = CalculateAnnualLeaveRequired($firstChoiceStartDate,
                                                              $firstChoiceEndDate,
@@ -219,52 +137,29 @@ if (isset($_POST["processmainrequests"]))
                                                              $absenceType);
                 
            
-           echo "<br/>FIRST CHOICE CHECK";
-           $firstChoiceAvailable    = IsBookable($employeeID,$firstChoiceStartDate,$firstChoiceEndDate);
-           echo "<br/>SECOND CHOICE CHECK";
-           $secondChoiceAvailable   = IsBookable($employeeID,$secondChoiceStartDate,$secondChoiceEndDate);
-           echo "<br/>------------------------";
-           
-           $daysRemaining = $annualLeaveEntitlement - $annualLeaveAlreadyBooked;
-           echo "<br/>Days Remaining for Employee = $daysRemaining";
+           $firstChoiceAvailable    = SufficentStaffInRoleToGrantRequest($employeeID,
+           																 $firstChoiceStartDate,
+           																 $firstChoiceEndDate);
+
+           $secondChoiceAvailable   = SufficentStaffInRoleToGrantRequest($employeeID,
+           																 $secondChoiceStartDate,
+           																 $secondChoiceEndDate);
            $enoughDaysForFirstChoice = ($daysRemaining >= $leaveFor1stChoice);
-           if ($enoughDaysForFirstChoice)
-           {
-               echo "<br/>Employee has enough Days for their first choice";
-           }
-           else
-           {
-               echo "<br/>Employee does not have enough Days for their first choice";
-           }
-          
            $enoughDaysForSecondChoice = ($daysRemaining >= $leaveFor2ndChoice);
-           if ($enoughDaysForFirstChoice)
-           {
-               echo "<br/>Employee has enough Days for their second choice";
-           }
-           else
-           {
-               echo "<br/>Employee does not have enough Days for their second choice";
-           }
-                   
            
            if ($firstChoiceAvailable AND $enoughDaysForFirstChoice)
            {
-               echo "<br/>First Choice has been granted";
-               
                SendMainVacationEmail($mainVacationRequestID,TRUE,FALSE);
                TurnMainVacationRequestIntoApprovedBooking($mainVacationRequestID,1);
            }
            else if ($secondChoiceAvailable AND $enoughDaysForSecondChoice)
            {
-               echo "<br/>Second Choice would have been granted";
                SendMainVacationEmail($mainVacationRequestID,FALSE,TRUE);
                TurnMainVacationRequestIntoApprovedBooking($mainVacationRequestID,2);
 
            }
            else 
            {
-               echo "<br/>Neither Choice would have been granted";
                SendMainVacationEmail($mainVacationRequestID,FALSE,FALSE);
            }
         }

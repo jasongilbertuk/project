@@ -149,6 +149,16 @@ function CreateDB() {
     performSQL($sql);
 }
 
+function CreateAdministratorAccount()
+{
+	$employees = RetrieveEmployees();
+	if (count($employees) == 0)
+	{
+		CreateCompanyRole("Cashier",2);
+		CreateEmployee("Sam Gilbert","samgilbertuk@hotmail.com","zaq12wsx","2014-11-01",20, NULL, 1,1,1);	
+	}
+}
+
 function CreateNewDatabase($destroyExistingDB=false) {
     if ($destroyExistingDB)
     {
@@ -165,6 +175,8 @@ function CreateNewDatabase($destroyExistingDB=false) {
     CreateApprovedAbsenceDateTable();
     CreateAdHocAbsenceRequestTable();
     CreateMainVacationRequestTable();
+    CreateAdministratorAccount();
+    
 }
 
 
