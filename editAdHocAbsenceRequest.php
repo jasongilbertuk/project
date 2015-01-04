@@ -36,31 +36,63 @@ if (isset($_POST["update"])) {
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Admin Company Roles</title>
+        <title>Admin Ad Hoc Absence Requests</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     </head>
- 
     <body>
-
-        <form method="post">
+        <?php include 'navbar.php'; ?>
+        
+        
+        <form method="post" class="signUp">
+            <div class="row">
+            <div class="col-md-4 col-md-offset-4 text-center"> 
+                <h1> Edit Ad Hoc Request </h1>
             <label for="employeeName">Employee Name</label>
-            <input type="text" readonly value="<?php echo $employee[EMP_NAME]; ?>"/>
+
+            <?php  
+    
+                $employees = RetrieveEmployees();
+                if ($employees <> NULL)
+                {
+                    echo '<select class="form-control" name="employeeID">';
+                    foreach ($employees as $employee)
+                    if ($employee[EMP_ID]== $request[AD_HOC_EMP_ID])
+                    {
+                        echo '<option selected="selected" value="'.$employee[EMP_ID].'">'.$employee[EMP_NAME].'</option>';
+                    }
+                    else    
+                    {
+                        echo '<option value="'.$employee[EMP_ID].'">'.$employee[EMP_NAME].'</option>';
+                    }
+                }    
+            echo '</select>';
+            ?>
             <br />
             
-            <label for="startDate">Start Date</label>
-            <input type="date" name="startDate" id="startDate" value="<?php echo $request[AD_HOC_START]?>"/> 
-
-            <br/>    
-
-            <label for="endDate">End Date</label>
-            <input type="date" name="endDate" id="endDate" value="<?php echo $request[AD_HOC_END]?>"/>
-            <br/>                
+            <div class="input-group" for="startDate">
+		<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>	
+  		<input type="date" class="form-control" name="startDate" id="startDate" 
+                       value="<?php echo $request[AD_HOC_START]?>">
+            </div>
+  
             
+            <div class="input-group" for="endDate">
+		<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>	
+  		<input type="date" class="form-control" name="endDate" id="endDate" 
+                       value="<?php echo $request[AD_HOC_END]?>">   
+            </div>
+                
+            <br/>                
+            <p class="text-center">
             <label for="absenceType">Absence Type</label>
             <?php  
                 $absenceTypes = RetrieveAbsenceTypes();
                 if ($absenceTypes <> NULL)
                 {
-                    echo '<select name="absenceType">';
+                    echo '<select class="form-control" name="absenceType">';
                     foreach ($absenceTypes as $absenceType)
                     if ($absenceType[ABS_TYPE_ID]== $request[AD_HOC_ABSENCE_TYPE_ID])
                         {
@@ -71,13 +103,15 @@ if (isset($_POST["update"])) {
                         echo '<option value="'.$absenceType[ABS_TYPE_ID].'">'.$absenceType[ABS_TYPE_NAME].'</option>';
                     }
                 }
+            
                 
             echo '</select>';
             ?>
+            </p>
             <br />
             
-            <input type="submit" name="update" id="submit" value="Edit Request"/>
-            <input type="submit" name="cancel" id="cancel" value="Cancel"/>
+            <input class="btn btn-success btn-block" type="submit" name="update" id="submit" value="Edit Request"/>
+            <input class="btn btn-danger btn-block" type="submit" name="cancel" id="cancel" value="Cancel"/>
         </form>
     </body>
 </html>

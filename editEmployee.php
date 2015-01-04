@@ -49,33 +49,41 @@ if (isset($_POST["update"])) {
     <head>
         <meta charset="UTF-8">
         <title>Admin Employees</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
         
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     </head>
  
     <body>
-        <form method="post">
-            <label for="empName"> Employee Name </label>
-            <input type="text" name="empName" id="empName" placeholder="Name"
-                   value="<?php echo $employee[EMP_NAME]; ?>"/>
-            
-            <br />
-            
-            <label for="eMail"> Email </label>
-            <input type="text" name="eMail" id="eMail" placeholder="E-Mail"
-                   value="<?php echo $employee[EMP_EMAIL]; ?>"/>
-            
-            <br />
-            
-            <label for="password">Password</label>
-            <input type="text" name="password" id="password" placeholder="Password"
-                   value="<?php echo $employee[EMP_PASSWORD]; ?>"/>
-            
-            <br />
-            
-            <label for="dateJoin"> Date Joined</label>
-            <input type="date" name="dateJoin" id="dateJoin" 
-                   value="<?php echo $employee[EMP_DATEJOINED]; ?>"/>
-            
+        <?php include 'navbar.php'; ?>
+        
+        <form class="signUp"method="post">
+            <div class="row">
+            <div class="col-md-4 col-md-offset-4 text-center">
+            <h1> Edit Employee </h1>
+                
+            <div class="input-group" for="empName">
+                <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
+                <input type="text" class="form-control" placeholder="Name" name="empName" id="empName" value="<?php echo $employee[EMP_NAME]; ?>">
+            </div>
+
+            <div class="input-group" for="eMail">
+                <span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
+                <input type="text" class="form-control" placeholder="Email" name="eMail" id="eMail" value="<?php echo $employee[EMP_EMAIL]; ?>">
+            </div>
+
+            <div class="input-group" for="password">
+                <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
+                <input type="text" class="form-control" placeholder="Password" name="password" id="password" value="<?php echo $employee[EMP_PASSWORD]; ?>">
+            </div>
+
+            <div class="input-group" for=dateJoin">
+                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                <input type="date" class="form-control" name="dateJoin" id="dateJoin" placeholder="Date Joined" value="<?php echo $employee[EMP_DATEJOINED]; ?>">
+            </div>
+                
             <br />
             
             <label for="annualLeave">Annual Leave Entitlement</label>
@@ -83,10 +91,7 @@ if (isset($_POST["update"])) {
                    step="1" oninput="updateAnnualLeave(value)"  id="annualLeave" /> 
             <output for="minStaff" id="Leave"><?php echo $employee[EMP_LEAVE_ENTITLEMENT]; ?></output>
             
-            <br/>
-           
-            
-            
+            <br />
             
             <label for="companyRole">Company Role</label>
             <?php  
@@ -94,12 +99,12 @@ if (isset($_POST["update"])) {
                 $roles = RetrieveCompanyRoles();
                 if ($roles <> NULL)
                 {
-                    echo '<select name="companyRole">';
+                    echo '<select class="form-control" name="companyRole">';
                     foreach ($roles as $role)
                     {
                         if ($role[COMP_ROLE_ID]== $employee[EMP_COMPANY_ROLE])
                         {
-                            echo '<option selected="selected" value="'.$role[COMP_ROLE_ID].'">'.$role[COMP_ROLE_NAME].'</option>';
+                            echo '<option  selected="selected" value="'.$role[COMP_ROLE_ID].'">'.$role[COMP_ROLE_NAME].'</option>';
                         
                         }
                         else 
@@ -111,20 +116,21 @@ if (isset($_POST["update"])) {
                 
             echo '</select>';
             ?>
+
             <br/>
-             <label for="isAdmin"> Is Administrator</label>
+            
+            <label for="isAdmin"> Is Administrator</label>
             <input type="checkbox" name="isAdmin" id="isAdmin" 
                    <?php if ($employee[EMP_ADMIN_PERM] == 1) echo "checked"; ?>/>
             
-            <br /> <label for="dateJoin"> Date Joined</label>
-             <label for="isManager"> Is Manager</label>
+            <label for="isManager"> Is Manager</label>
             <input type="checkbox" name="isManager" id="isManager" 
                    <?php if ($employee[EMP_MANAGER_PERM] == 1) echo "checked"; ?>/>
             
             <br /><br/>
             
-            <input type="submit" name="update" id="submit" value="Edit Employee"/>
-            <input type="submit" name="cancel" id="cancel" value="Cancel Changes"/>
+            <input class="btn btn-success btn-block" type="submit" name="update" id="submit" value="Edit Employee"/>
+            <input class="btn btn-danger btn-block" type="submit" name="cancel" id="cancel" value="Cancel Changes"/>
 
             <script>
                 function updateAnnualLeave(level)
@@ -132,7 +138,11 @@ if (isset($_POST["update"])) {
                     document.querySelector('#Leave').value = level;
                 }
             </script>
+            </div>
+            </div>
         </form>
+        
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
     </body>
 </html>
-        

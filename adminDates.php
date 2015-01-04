@@ -7,40 +7,6 @@ if (!$isAdministrator)
    header('Location: index.php');
    exit();
 }
-
-if (isset($_POST["clear"])) {
-    echo "clear";
-    $sql = "DELETE * FROM dateTable;";
-    performSQLDelete($sql);
-}
-  
-
-if (isset($_POST["submit"])) {
-    $year = $_POST["year"];
-        
-    // Set timezone
-    date_default_timezone_set('UTC');
- 
-    // Start date
-    $date = $year.'-01-01';
-    // End date
-    $end_date = $year.'-12-31';
- 
-    while (strtotime($date) <= strtotime($end_date)) 
-    {
-        CreateDate($date,NULL);
-        $date = date ("Y-m-d", strtotime("+1 day", strtotime($date)));
-    }
-}
-
-if (isset($_POST["amend"])) {   
-    $url = "Location:editdates.php?ID=".$_POST["amend"];   
-    header($url);
-}
-
-if (isset($_POST["delete"])) {
-    DeleteDate($_POST["delete"]);
-}
 ?>
 
 <!DOCTYPE html>
@@ -48,31 +14,29 @@ if (isset($_POST["delete"])) {
     <head>
         <meta charset="UTF-8">
         <title>Admin Dates</title>
+         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+         <link rel="stylesheet" href="style.css">
+
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     </head>
  
     <body>
-            <a href="index.php">Back to Homepage</a>
-
-        <form method="post">
-            <label for="year">Year</label>
-            <input type="number" name="year" id="year" min="2014" max="2100"/> 
-            <br />
-               
-            <input type="submit" name="submit" id="submit" value="Create Year in Database"/> 
-            <input type="submit" name="clear" id="clear" value="Delete All Dates Table Records"/> 
-        </form>
-
+        <?php include 'navbar.php'; ?>
+        
         <div id="table">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2 text-center">
             <form method="post">
-            <table>
+            <table class="table table-hover table-bordered">
+                <br/> <br/> <br/>
                 <thead>
                     <tr>
+                <h1> Current Dates </h1>
                         <th>Date ID</th>
                         <th>Date</th>
                         <th>Public Holiday ID</th>
                         <th>Public Holiday Name</th>
-                        <th>Amend</th>
-                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -98,18 +62,13 @@ if (isset($_POST["delete"])) {
                             ?>
                             
                             <td><?php echo  $publicHolidayName;?></td>
-                            
-                            <td> <button type="submit" name="amend"  value="<?php echo $date[DATE_TABLE_DATE_ID]; ?>">Amend</button></td>
-                            <td> <button type="submit" name="delete"  value="<?php echo $date[DATE_TABLE_DATE_ID]; ?>">Delete</button></td>
                         </tr>
                         <?php }} ?>
                 </tbody>
             </table>
             </form>
+                </div>
+            </div>
         </div>
-
-
-
     </body>
-
 </html>

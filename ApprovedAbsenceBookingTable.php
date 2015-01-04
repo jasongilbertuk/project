@@ -124,14 +124,16 @@ function CreateApprovedAbsenceBooking($employeeID, $absenceStartDate, $absenceEn
         // End date
  
         while (strtotime($date) <= strtotime($absenceEndDate)) {
-            $filter[DATE_TABLE_DATE] = $date;
-            $dateRecord = RetrieveDates($filter);
-            if (count($dateRecord) == 1)
+            $dateID = RetrieveDateIDByDate($date);
+            if ($dateID <> NULL)
             {
-                $result = CreateApprovedAbsenceBookingDate($dateRecord[0][DATE_TABLE_DATE_ID],
-                                                            $booking[APPR_ABS_BOOKING_ID]);
+                $result = CreateApprovedAbsenceBookingDate($dateID,
+                                            $booking[APPR_ABS_BOOKING_ID]);
             }
-            
+            else 
+            {
+                error_log("Unable to find date record. Date=".$date);
+            }
             $date = date ("Y-m-d", strtotime("+1 day", strtotime($date)));
         }
 

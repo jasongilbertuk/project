@@ -66,15 +66,16 @@ function isWeekend($date)
  *
  * $startDate (string) string date in the form YYYY-MM-DD.
  * $endDate   (string) string date in the form YYYY-MM-DD.
- * $absenceType (array) array of key value pairs from the absence type record.
+ * $absenceTypeID (int)  key of the absence type record.
  * @return (int)  Number of days annual leave required for this period. Will be
  *                zero if no leave is required.
  * -------------------------------------------------------------------------- */
-function CalculateAnnualLeaveRequired($startDate,$endDate,$absenceType)
+function CalculateAnnualLeaveRequired($startDate,$endDate,$absenceTypeID)
 {
     //Assume no leave is required. Will increment this in the function.
     $annualLeaveRequired = 0;
-           
+    
+    $absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
     
     //Q.Does the absence type supplied use annual leave?
     if ($absenceType[ABS_TYPE_USES_LEAVE] == TRUE)
@@ -103,46 +104,6 @@ function CalculateAnnualLeaveRequired($startDate,$endDate,$absenceType)
     }
     return $annualLeaveRequired;
 }
-
-
-/* ----------------------------------------------------------------------------
- * Function CalculateEmployeeLeaveTaken
- *
- * This function calculates the number of days annual leave that has been 
- * approved for the employee.
- *
- * $employeeID(int) ID of the employee to calculate this for.
- *
- * @return (int) Number of days taken by the employee. 
- * -------------------------------------------------------------------------- */
-/*TODO DELETE THIS function CalculateEmployeeLeaveTaken($employeeID)
-{
-    $conn = $GLOBALS["connection"];
-    $return = NULL;
-    $sql = "SELECT COUNT(DateTable.date) FROM DateTable ".
-            "WHERE DateTable.publicHolidayID IS NULL ".
-            "AND DateTable.dateID IN (SELECT ".
-            "ApprovedAbsenceBookingDate.dateID FROM approvedAbsenceBookingDate ".
-            "WHERE approvedAbsenceBookingDate.approvedAbsenceBookingID IN ".
-            "(Select ApprovedAbsenceBookingID FROM approvedAbsenceBookingTable ".
-            "JOIN absenceTypeTable WHERE ".
-            "approvedAbsenceBookingTable.absenceTypeID = absenceTypeTable.absenceTypeID".
-            " AND approvedAbsenceBookingTable.employeeID = ".$employeeID.
-            " AND absenceTypeTable.usesAnnualLeave = 1)) AND DAYOFWEEK(DateTable.date)<>1".
-            " AND DAYOFWEEK(DateTable.date)<>7 ;";
-                       
-    $result = mysqli_query($conn, $sql);
-    if (!$result) 
-    {
-        error_log("PerformSQL failed. Sql = $sql");
-    }
-    else
-    {
-        $data= mysqli_fetch_array($result);
-        $return = $data[0];
-    }
-    return $return;
-}*/
 
 /* ----------------------------------------------------------------------------
  * Function CalculateRemainingAnnualLeave
@@ -240,7 +201,6 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
     $employeeRole = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
 
     $minimumStaffingLevel = $employeeRole[COMP_ROLE_MIN_STAFF];
-    echo "Min Staff = $minimumStaffingLevel";
 	
     $filter[EMP_COMPANY_ROLE] = $employee[EMP_COMPANY_ROLE];
     $employeesInRole = RetrieveEmployees($filter);
@@ -307,36 +267,36 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
  * @return (bool) TRUE means the booking was approved.
  *                FALSE means the booking was denied. 
  * -------------------------------------------------------------------------- */
- function ProcessAbsenceRequest($employeeID,$startDate,$endDate,$absenceTypeID)
+function ProcessAbsenceRequest($employeeID, $startDate, $endDate, $absenceTypeID)
 {
-	$bookingApproved = TRUE;
-	if (HasSufficentAnnualLeave($employeeID,$startDate,$endDate,$absenceTypeID) == FALSE)
-	{
-		//todo sendEmailToEmployee( “Request Denied. Insufficient annual leave remaining.”)
+    $bookingApproved = TRUE;
+    if (HasSufficentAnnualLeave($employeeID, $startDate, $endDate, $absenceTypeID) == FALSE)
+    {
+        //todo sendEmailToEmployee( “Request Denied. Insufficient annual leave remaining.”)
         //todo Remove entry from AdHoc Request Table
-        $bookingApproved = FALSE; 
-	}
-	else
-	{
-		if (SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate))
-		{
-         	//todo Create new entry in Approved Absence Booking Date Table
+        $bookingApproved = FALSE;
+    }
+    else
+    {
+        if (SufficentStaffInRoleToGrantRequest($employeeID, $startDate, $endDate))
+        {
+            //todo Create new entry in Approved Absence Booking Date Table
             //todo Remove entry from AdHoc Request Table
-		    //todo sendEmailToEmployee( “Request Approved.”)
+            //todo sendEmailToEmployee( “Request Approved.”)    
             $bookingApproved = TRUE;
-		}
-		else
-		{
-			$absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
-			if ($absenceType[ABS_TYPE_CAN_BE_DENIED])
-			{
-				$bookingApproved = FALSE;
-				//todo sendEmailToEmployee( “Request Denied. Request would leave role below minimum staffing level.”)
+        }
+        else
+        {
+            $absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
+            if ($absenceType[ABS_TYPE_CAN_BE_DENIED])
+            {
+                $bookingApproved = FALSE;
+                //todo sendEmailToEmployee( “Request Denied. Request would leave role below minimum staffing level.”)
                 //todo Remove entry from AdHoc Request Table
             }
             else
-            {                   
-            	//todo sendEmailToManager(“Warning: below minimum staffing levels.”)
+            {
+                //todo sendEmailToManager(“Warning: below minimum staffing levels.”)
                 //todo sendEmailToEmployee( “Request Approved.”)
                 //todo Create new entry in Approved Absence Booking Date Table
                 //todo Create new entry in Approved Absence Booking Table
@@ -344,17 +304,6 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
             }
         }
     }
-           
     return $bookingApproved;
 }
-
-
-
-
-
-
-
-
-
-
 ?>

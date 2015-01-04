@@ -304,4 +304,39 @@ function DeleteDate($ID) {
     return $result;
 }
 
+
+/* --------------------------------------------------------------------------------------
+ * Function RetrievDateIDFromDate
+ *
+ * This function takes a string representing a date and returns the id of the date
+ * record in the database which matches this date.
+ * *
+ * $date (string) Date in the form YYYY-MM-DD.
+ * @return (int) If successful, this number is the key of the record in the databse
+ *               which is for the date supplied. If a failure occurs, will be NULL. 
+ * ------------------------------------------------------------------------------------- */
+
+function RetrieveDateIDByDate($date) 
+{
+    $result = NULL;
+    
+    $filter[DATE_TABLE_DATE] = $date;
+    $records = RetrieveDates($filter);
+    
+    if (count($records) == 1)
+    {
+        $result = $records[0][DATE_TABLE_DATE_ID];
+    }
+    else 
+    {
+        print_r($records);
+        echo "<br/><br/><br/>";
+        error_log("Multiple Date table entries found for date=".$date);
+    }
+    return $result;
+}
+
+
+
+
 ?>

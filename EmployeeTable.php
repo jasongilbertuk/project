@@ -87,7 +87,6 @@ function CreateEmployee($employeeName, $emailAddress, $password, $dateJoinedTheC
     }
 
     //Todo add password length and format check.
-    //Todo MD5 encode password.
     if (isNullOrEmptyString($password)) {
         error_log("Invalid password passed to CreateEmployee.");
         $inputIsValid = FALSE;

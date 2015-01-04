@@ -1,3 +1,18 @@
+<?php
+    include 'databaseFunctions.php';
+    if(isset($_POST['drop']))
+    {
+        DropDB();
+    }
+    
+    if(isset($_POST['fill']))
+    {
+        $destroyExistingDatabase = TRUE;
+        $PopulateDatabaseWithTestData = TRUE;
+        CreateNewDatabase($destroyExistingDatabase,$PopulateDatabaseWithTestData);
+    }
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -8,10 +23,9 @@
     <body>
 
         <form method="post">
-            <label for="usesLeave">Uses Annual Leave</label>
-            <input type="checkbox" name="usesLeave" unchecked=""
-                  id="usesLeave" /> 
-          </form>
+             <input type="submit" name="drop" id="drop" value="Drop"/>
+             <input type="submit" name="fill" id="fill" value="Fill"/>
+        </form>
 
     </body>
 

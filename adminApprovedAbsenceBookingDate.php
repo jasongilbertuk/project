@@ -15,14 +15,22 @@ if (!$isAdministrator)
     <head>
         <meta charset="UTF-8">
         <title>Admin Approved Absence Booking Dates</title>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="style.css">
+
+      	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     </head>
  
     <body>
-            <a href="index.php">Back to Homepage</a>
+        <?php include 'navbar.php'; ?>
 
         <div id="table">
             <form method="post">
-            <table>
+            <div class="row">
+            <div class="col-md-8 col-md-offset-2 text-center">
+                <h1> Approved Absence Booking Dates </h1>
+            <table class="table table-hover table-bordered">
                 <thead>
                     <tr>
                         <th>Record ID</th>
@@ -44,6 +52,8 @@ if (!$isAdministrator)
                         <?php }} ?>
                 </tbody>
             </table>
+            </div>
+            </div>   
             </form>
         </div>
 
