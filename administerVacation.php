@@ -7,84 +7,6 @@ if (!$isAdministrator)
    header('Location: index.php');
    exit();
 }
- 
- function TurnMainVacationRequestIntoApprovedBooking($mainVacationRequestID,$choiceNumberToApprove)
- {
-    $request  = RetrieveMainVacationRequestByID($mainVacationRequestID);
-    if ($choiceNumberToApprove == 1)
-    {
-        $startDate = $request[MAIN_VACATION_1ST_START];
-        $endDate   = $request[MAIN_VACATION_1ST_END];
-    }
-    else
-    {
-        $startDate = $request[MAIN_VACATION_2ND_START];
-        $endDate   = $request[MAIN_VACATION_2ND_END];
-    }
-    $filter[ABS_TYPE_NAME] = ANNUAL_LEAVE;
-    $absenceTypes = RetrieveAbsenceTypes($filter);
-    
-    if (count($absenceTypes) <> 1)
-    {
-        echo "ERROR";
-    }
-    $absenceType = $absenceTypes[0];
-    
-    $success = CreateApprovedAbsenceBooking($request[MAIN_VACATION_EMP_ID],
-                                            $startDate,
-                                            $endDate,
-                                            $absenceType[ABS_TYPE_ID]);
-    
-    if ($success)
-    {
-        DeleteMainVacationRequest($mainVacationRequestID);
-    }
-    
- }
- 
- 
- 
- 
-function SendMainVacationEmail($mainVacationRequestID,$approved1stChoice,$approved2ndChoice)
-{
-    
-    $mainVacationRequest = RetrieveMainVacationRequestByID($mainVacationRequestID);
-    $employee = RetrieveEmployeeByID($mainVacationRequest[MAIN_VACATION_EMP_ID]);
-    
-    $email = $employee[EMP_EMAIL];
- 
-    $subject = "Your Main Vacation Request";
-    $msg = "Your requested a first choice of ".$mainVacationRequest[MAIN_VACATION_1ST_START]. 
-               " to ".$mainVacationRequest[MAIN_VACATION_1ST_END]. 
-               " and a second choice of ".$mainVacationRequest[MAIN_VACATION_2ND_START]. 
-               " to ".$mainVacationRequest[MAIN_VACATION_2ND_END];
-    
-    if ($approved1stChoice)
-    {
-        $msg = $msg."\n. Your FIRST CHOICE has been approved.";
-    }
-    else if ($approved2ndChoice) 
-    {
-        $msg = $msg."\n. Your SECOND CHOICE has been approved.";
-    }
-    else
-    {
-        $msg = $msg."\n. NEITHER OF THESE PERIODS ARE AVAILABLE. PLEASE SUBMIT A NEW MAIN VACATION REQUEST.";
- 
-    }
-  
-    $result = mail($email,$subject,$msg);
-    if ($result)
-    {
-        //todo
-    }
-    else 
-    {
-         //todo
-    }
-}
-
- 
 
 $totalEmployees = 0;
 $employeesWithNoMainVacation = 0;
@@ -92,78 +14,12 @@ $result = GetEmployeeCount($totalEmployees,$employeesWithNoMainVacation);
 
 if (isset($_POST["processmainrequests"])) 
 {
-    $conn = $GLOBALS["connection"];
-    
-    $sql = "SELECT * FROM mainVacationRequestTable JOIN EmployeeTable ".
-           "WHERE mainVacationRequestTable.EmployeeID = EmployeeTable.EmployeeID ".
-           "ORDER BY EmployeeTable.dateJoinedTheCompany;";
-    
-    $result = mysqli_query($conn, $sql);
-    if (!$result) {
-        error_log("PerformSQL failed. Sql = $sql");
-    }
-    else {
-        
-        while ($row = mysqli_fetch_array($result, MYSQLI_ASSOC))
-        {
-           $mainVacationRequestID   = $row[MAIN_VACATION_REQ_ID];
-           $employeeID              = $row[MAIN_VACATION_EMP_ID];
-           $firstChoiceStartDate    = $row[MAIN_VACATION_1ST_START];
-           $firstChoiceEndDate      = $row[MAIN_VACATION_1ST_END];
-           $secondChoiceStartDate   = $row[MAIN_VACATION_2ND_START];
-           $secondChoiceEndDate     = $row[MAIN_VACATION_2ND_END];
-           $annualLeaveEntitlement  = $row[EMP_LEAVE_ENTITLEMENT];
-           
-           $filter[ABS_TYPE_NAME] = "Annual Leave";
-           $absenceTypes = RetrieveAbsenceTypes($filter);
-           
-           $absenceType = NULL;
-           if (count($absenceTypes)== 1)
-           {
-               $absenceType = $absenceTypes[0];
-           }
-            
-            $daysRemaining  = CalculateRemainingAnnualLeave($employeeID);
-           
-           $leaveFor1stChoice = CalculateAnnualLeaveRequired($firstChoiceStartDate,
-                                                             $firstChoiceEndDate,
-                                                             $absenceType[ABS_TYPE_ID]);
-           
-           $leaveFor2ndChoice = CalculateAnnualLeaveRequired($secondChoiceStartDate,
-                                                             $secondChoiceEndDate,
-                                                             $absenceType[ABS_TYPE_ID]);
-                
-           
-           $firstChoiceAvailable    = SufficentStaffInRoleToGrantRequest($employeeID,
-                                                                         $firstChoiceStartDate,
-                                                                         $firstChoiceEndDate);
+	processMainVacationRequests();
+}
 
-           $secondChoiceAvailable   = SufficentStaffInRoleToGrantRequest($employeeID,
-           								 $secondChoiceStartDate,
-           								 $secondChoiceEndDate);
-
-           
-           $enoughDaysForFirstChoice = ($daysRemaining >= $leaveFor1stChoice);
-           $enoughDaysForSecondChoice = ($daysRemaining >= $leaveFor2ndChoice);
-           
-           if ($firstChoiceAvailable AND $enoughDaysForFirstChoice)
-           {
-               SendMainVacationEmail($mainVacationRequestID,TRUE,FALSE);
-               TurnMainVacationRequestIntoApprovedBooking($mainVacationRequestID,1);
-           }
-           else if ($secondChoiceAvailable AND $enoughDaysForSecondChoice)
-           {
-               SendMainVacationEmail($mainVacationRequestID,FALSE,TRUE);
-               TurnMainVacationRequestIntoApprovedBooking($mainVacationRequestID,2);
-
-           }
-           else 
-           {
-               SendMainVacationEmail($mainVacationRequestID,FALSE,FALSE);
-           }
-        }
-        
-    }
+if (isset($_POST["processadhocrequests"])) 
+{
+	processAdHocRequests();
 }
 
 if (isset($_POST["approve1st"])) {   
@@ -178,9 +34,7 @@ if (isset($_POST["reject"]))
 {
     $ID = $_POST["reject"];
     DeleteMainVacationRequest($ID);
-
 }
-
 
 if (isset($_POST["approveadhoc"])) {   
     $ID = $_POST["approveadhoc"];
@@ -206,7 +60,6 @@ if (isset($_POST["rejectadhoc"]))
 {
     $ID = $_POST["reject"];
     DeleteAdHocAbsenceRequest($ID);
-
 }
 
 
@@ -243,6 +96,7 @@ if (isset($_POST["rejectadhoc"]))
 
                         
             <input class="btn btn-success btn-block" type="submit" name="processmainrequests" id="submit" value="Process Main Requests"/>
+            <input class="btn btn-success btn-block" type="submit" name="processadhocrequests" id="submit" value="Process Ad Hoc Requests"/>
             </div>
             </div>
         </form>

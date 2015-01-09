@@ -18,6 +18,56 @@ define("EMP_COMPANY_ROLE", "companyRole_companyRoleID");
 define("EMP_ADMIN_PERM","adminPermissions");
 define("EMP_MANAGER_PERM","managerPermissions");
 
+
+/* -----------------------------------------------------------------------------
+ * Function IsValidPassword
+ *
+ * This function checks the supplied password string to determine whether it
+ * conforms to the following password rules.
+ * 
+ * 1. Must be a minimum of 6 characters in length.
+ * 2. Must contain one numeric character.
+ * 3. Must contain at least one lower case character.
+ * 4. Must contain at least one upper case character.
+ *
+ * $password (string) the password to check.
+ * @return (array)  Array of errors. If array is empty (count(array)==0) then no
+ *                  errors occured. Otherwise, each element of the array contains
+ *                  a description of the error(s).
+ * -------------------------------------------------------------------------- */
+function isValidPassword($password)
+{
+	//Empty error array for the errors if any
+	$error = array();
+	
+	//1. Must be a minimum of 6 characters in length.
+	if( strlen($password) < 6 ) 
+	{
+		$error[] = 'Password need to have at least 6 characters!';
+	}
+ 
+	//2. Must contain one numeric character.
+ 	if( !preg_match("#[0-9]+#", $password) ) 
+ 	{
+		$error[] = 'Password must include at least one number!';
+	}
+ 
+	//3. Must contain at least one lower case character.
+ 	if( !preg_match("#[a-z]+#", $password) ) 
+ 	{
+		$error[] = 'Password must include at least one lowercase letter!';
+	}
+ 
+	//4. Must contain at least one upper case character.
+ 	if( !preg_match("#[A-Z]+#", $password) ) 
+ 	{
+		$error[] = 'Password must include at least one uppercase letter!';
+	}
+ 
+	return $error;
+}
+
+
 /* --------------------------------------------------------------------------------------
  * Function CreateEmployeeTable
  *
@@ -86,9 +136,14 @@ function CreateEmployee($employeeName, $emailAddress, $password, $dateJoinedTheC
         $inputIsValid = FALSE;
     }
 
-    //Todo add password length and format check.
-    if (isNullOrEmptyString($password)) {
-        error_log("Invalid password passed to CreateEmployee.");
+	$errorArray = isValidPassword($password);
+	
+    if (count($errorArray) <> 0) 
+    {
+    	foreach ($errorArray as $key=>$value)
+    	{
+        	error_log($value);
+        }
         $inputIsValid = FALSE;
     }
 
@@ -373,14 +428,10 @@ function UpdateEmployee($fields) {
             }
         } else if($key == EMP_ADMIN_PERM)
         {
-                       $countOfFields++;
-     
-            //todo
+        	$countOfFields++;
         } else if($key == EMP_MANAGER_PERM)
         {
-                       $countOfFields++;
-     
-            //todo
+        	$countOfFields++;
         }
         else {
                           

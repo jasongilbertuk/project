@@ -305,6 +305,23 @@ function DeleteDate($ID) {
 }
 
 
+function RetrieveDateRecordByDate($date)
+{
+	$result = NULL;
+	
+	$filter[DATE_TABLE_DATE] = $date;
+	$records = RetrieveDates($filter);
+	
+	if (count($records) == 1)
+	{
+		$result = $records[0];
+	}
+	
+	return $result;
+}
+
+
+
 /* --------------------------------------------------------------------------------------
  * Function RetrievDateIDFromDate
  *
@@ -320,19 +337,13 @@ function RetrieveDateIDByDate($date)
 {
     $result = NULL;
     
-    $filter[DATE_TABLE_DATE] = $date;
-    $records = RetrieveDates($filter);
+    $record = RetrieveDateRecordByDate($date);
     
-    if (count($records) == 1)
+    if ($record)
     {
-        $result = $records[0][DATE_TABLE_DATE_ID];
+        $result = $record[DATE_TABLE_DATE_ID];
     }
-    else 
-    {
-        print_r($records);
-        echo "<br/><br/><br/>";
-        error_log("Multiple Date table entries found for date=".$date);
-    }
+
     return $result;
 }
 

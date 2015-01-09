@@ -6,7 +6,7 @@ function testEmployeeTable()
 	$role = CreateCompanyRole("Cashier",8);
  	$employee = CreateEmployee( "Jason Gilbert",
         	                   "jasongilbertuk@hotmail.com",
-            	               "zaq12wsx",
+            	               "Zaq12wsx",
                 	           "1990-11-28",
                     	       25,
                         	   NULL,
@@ -14,7 +14,7 @@ function testEmployeeTable()
   
   	$employee2 = CreateEmployee( "Sam Gilbert",
         	                   "samgilbertuk@hotmail.com",
-            	               "zaq12wsx",
+            	               "Zaq12wsx",
                 	           "1990-11-28",
                     	       25,
                         	   NULL,

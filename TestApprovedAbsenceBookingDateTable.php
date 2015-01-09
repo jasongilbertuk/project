@@ -5,7 +5,7 @@ function testApprovedAbsenceBookingDateTable() {
     if ($date) {
         $role = CreateCompanyRole("Cashier", 8);
 
-        $employee = CreateEmployee("Jason Gilbert", "jasongilbertuk@hotmail.com", "zaq12wsx", "1990-11-28", 25, NULL, $role[COMP_ROLE_ID]);
+        $employee = CreateEmployee("Jason Gilbert", "jasongilbertuk@hotmail.com", "Zaq12wsx", "1990-11-28", 25, NULL, $role[COMP_ROLE_ID]);
 
         $absenceType = CreateAbsenceType("Sick Leave", "0", "0");
 

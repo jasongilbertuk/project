@@ -3,7 +3,7 @@
 function testAdHocAbsenceRequestTable() {
     $role = CreateCompanyRole("Cashier", 8);
 
-    $employee = CreateEmployee("Sam Gilbert", "samgilbertuk@hotmail.com", "zaq12wsx", "1990-11-28", 25, NULL, $role[COMP_ROLE_ID]);
+    $employee = CreateEmployee("Sam Gilbert", "samgilbertuk@hotmail.com", "Zaq12wsx", "1990-11-28", 25, NULL, $role[COMP_ROLE_ID]);
 
     $absenceType = CreateAbsenceType("Sick Leave", "0", "0");
 

@@ -10,6 +10,7 @@ include 'ApprovedAbsenceBookingTable.php';
 include 'ApprovedAbsenceBookingDateTable.php';
 include 'DateTable.php';
 include 'PublicHolidayTable.php';
+include 'MailFunctions.php';
 include 'KeyAlgorithms.php';
 
 $connection = connectToSql("localhost", "root", "root");
@@ -158,7 +159,7 @@ function CreateDefaultRecordsIfRequired() {
         //Userguide should instruct system admin to delte this account as
         //soon as real employees accounts have been created.
         $role = CreateCompanyRole("Admin", 0);
-        CreateEmployee("admin", "admin@admin.com", "admin", "2015-01-01", 20, NULL, $role[COMP_ROLE_ID], 1, 1);
+        CreateEmployee("admin", "admin@admin.com", "Admin1", "2015-01-01", 20, NULL, $role[COMP_ROLE_ID], 1, 1);
     }
     
     $dates = RetrieveDates();
@@ -203,24 +204,24 @@ function CreateNewDatabase($destroyExistingDB = false, $createWithTestData = fal
         $customerAdvisor = CreateCompanyRole("Customer Advisor", 2);
         $manager = CreateCompanyRole("Manager", 1);
 
-        $steveBrookstein = CreateEmployee("Steve Brookstein", "stevebrookstein@test.com", "zaq12wsx", "2005-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
+        $steveBrookstein = CreateEmployee("Steve Brookstein", "stevebrookstein@test.com", "Zaq12wsx", "2005-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
 
-        $shayneWard = CreateEmployee("Shane Ward", "shaneWard@test.com", "zaq12wsx", "2006-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
+        $shayneWard = CreateEmployee("Shane Ward", "shaneWard@test.com", "Zaq12wsx", "2006-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
 
-        $leonaLewis = CreateEmployee("Leona Lewis", "leonalewis@test.com", "zaq12wsx", "2007-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
+        $leonaLewis = CreateEmployee("Leona Lewis", "leonalewis@test.com", "Zaq12wsx", "2007-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
 
-        $leonJackson = CreateEmployee("Leon Jackson", "leonjackson@test.com", "zaq12wsx", "2008-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
+        $leonJackson = CreateEmployee("Leon Jackson", "leonjackson@test.com", "Zaq12wsx", "2008-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
 
-        $alexandraBurke = CreateEmployee("Alexandra Burke", "alexburke@test.com", "zaq12wsx", "2009-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
+        $alexandraBurke = CreateEmployee("Alexandra Burke", "alexburke@test.com", "Zaq12wsx", "2009-01-01", 20, NULL, $cashier[COMP_ROLE_ID], 0, 0);
 
-        $joeMcElderry = CreateEmployee("Joe McElderry", "JoeMcElderry@test.com", "zaq12wsx", "2010-01-01", 20, NULL, $customerAdvisor[COMP_ROLE_ID], 0, 0);
+        $joeMcElderry = CreateEmployee("Joe McElderry", "JoeMcElderry@test.com", "Zaq12wsx", "2010-01-01", 20, NULL, $customerAdvisor[COMP_ROLE_ID], 0, 0);
 
-        $mattCardle = CreateEmployee("Matt Cardle", "mattCardle@test.com", "zaq12wsx", "2011-01-01", 20, NULL, $customerAdvisor[COMP_ROLE_ID], 0, 0);
-        $jamesArthur = CreateEmployee("James Arthur", "jamesarthur@test.com", "zaq12wsx", "2012-01-01", 20, NULL, $customerAdvisor[COMP_ROLE_ID], 0, 0);
+        $mattCardle = CreateEmployee("Matt Cardle", "mattCardle@test.com", "Zaq12wsx", "2011-01-01", 20, NULL, $customerAdvisor[COMP_ROLE_ID], 0, 0);
+        $jamesArthur = CreateEmployee("James Arthur", "jamesarthur@test.com", "Zaq12wsx", "2012-01-01", 20, NULL, $customerAdvisor[COMP_ROLE_ID], 0, 0);
 
-        $samBailey = CreateEmployee("Sam Bailey", "sambailey@test.com", "zaq12wsx", "2013-01-01", 20, NULL, $customerAdvisor[COMP_ROLE_ID], 0, 0);
+        $samBailey = CreateEmployee("Sam Bailey", "sambailey@test.com", "Zaq12wsx", "2013-01-01", 20, NULL, $customerAdvisor[COMP_ROLE_ID], 0, 0);
 
-        $benHaenow = CreateEmployee("Ben Haenow", "benHaenow@test.com", "zaq12wsx", "2014-01-01", 20, NULL, $manager[COMP_ROLE_ID], 0, 1);
+        $benHaenow = CreateEmployee("Ben Haenow", "benHaenow@test.com", "Zaq12wsx", "2014-01-01", 20, NULL, $manager[COMP_ROLE_ID], 0, 1);
 
 
         $dates = RetrieveDates();

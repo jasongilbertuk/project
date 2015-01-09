@@ -365,4 +365,19 @@ function GetAbsenceTypeCount()
    return $count;
 }
 
+
+function GetAnnualLeaveAbsenceTypeID() 
+{
+	$filter[ABS_TYPE_NAME] = "Annual Leave";
+    $absenceTypes = RetrieveAbsenceTypes($filter);
+           
+    $absenceTypeID = NULL;
+    if (count($absenceTypes)== 1)
+    {
+    	$absenceTypeID = $absenceTypes[0][ABS_TYPE_ID];
+	}
+	
+	return $absenceTypeID;
+}
+
 ?>

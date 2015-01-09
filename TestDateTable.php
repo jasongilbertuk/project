@@ -6,7 +6,7 @@ function testDateTable()
 	$role = CreateCompanyRole("Cashier",8);
   	$employee = CreateEmployee( "Jason Gilbert",
         	                   "jasongilbertuk@hotmail.com",
-              	                   "zaq12wsx",
+              	                   "Zaq12wsx",
                 	           "1990-11-28",
                     	           25,
                         	   NULL,
