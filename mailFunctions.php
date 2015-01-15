@@ -13,16 +13,16 @@
  * -------------------------------------------------------------------------- */
  function SendApprovedEmail($employeeID,$startDate,$endDate)
 {
-	$employee 	= RetrieveEmployeeByID($employeeID);
-	$to 		= $employee[EMP_EMAIL];
-	$from		= "admin@absencetrackingsystem.com";
-	
-	$subject 	= "ABSENCE REQUEST APPROVED";
-	$message 	= "Your request for absence between the dates of ".
-				  "$startDate and $endDate has been approved.";
+    $employee 	= RetrieveEmployeeByID($employeeID);
+    $to 	= $employee[EMP_EMAIL];
+    $from	= "admin@absencetrackingsystem.com";
+    
+    $subject 	= "ABSENCE REQUEST APPROVED";
+    $message 	= "Your request for absence between the dates of ".
+                  "$startDate and $endDate has been approved.";
 				  
-	$result = mail($to,$subject,$message);
-	return $result;
+    $result = mail($to,$subject,$message);
+    return $result;
 }
 
 
@@ -40,17 +40,16 @@
  * -------------------------------------------------------------------------- */
  function SendDeniedEmail($employeeID,$startDate,$endDate,$reason)
 {
-	$employee 	= RetrieveEmployeeByID($employeeID);
-	$to 		= $employee[EMP_EMAIL];
-	$from		= "admin@absencetrackingsystem.com";
+    $employee 	= RetrieveEmployeeByID($employeeID);
+    $to 	= $employee[EMP_EMAIL];
+    $from	= "admin@absencetrackingsystem.com";
 	
-	$subject 	= "ABSENCE REQUEST DENIED";
-	$message 	= "Unfortunatly, your request for absence between the dates of ".
-				  "$startDate and $endDate has been denied. Reason: $reason";
+    $subject 	= "ABSENCE REQUEST DENIED";
+    $message 	= "Unfortunatly, your request for absence between the dates of ".
+                   "$startDate and $endDate has been denied. Reason: $reason";
 
-	$result = mail($to,$subject,$message);
-  	return $result;
-
+    $result = mail($to,$subject,$message);
+    return $result;
 }
 
 
@@ -70,36 +69,36 @@
  * -------------------------------------------------------------------------- */
 function SendShortfallAlertToOfficeManager($employeeID,$startDate,$endDate,$absenceTypeID)
 {
-	$employee 		= RetrieveEmployeeByID($employeeID);
-	$employeeName 	= $employee[EMP_NAME];
+    $employee 	= RetrieveEmployeeByID($employeeID);
+    $employeeName 	= $employee[EMP_NAME];
 	
-	$absenceType 	= RetrieveAbsenceTypeByID($absenceTypeID);
-	$absenceName 	= $absenceType[ABS_TYPE_NAME];
+    $absenceType 	= RetrieveAbsenceTypeByID($absenceTypeID);
+    $absenceName 	= $absenceType[ABS_TYPE_NAME];
 	
-	$role 			= RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
-	$roleName		= $role[COMP_ROLE_NAME];
-	$minimumStaff	= $role[COMP_ROLE_MIN_STAFF];
+    $role 			= RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
+    $roleName		= $role[COMP_ROLE_NAME];
+    $minimumStaff	= $role[COMP_ROLE_MIN_STAFF];
 	
-	$from			= "admin@absencetrackingsystem.com";
+    $from			= "admin@absencetrackingsystem.com";
 	
-	$subject 	= "URGENT: STAFF SHORTFALL";
-	$message 	= "Between $startDate and $endDate the number of staff performing the ".
-				  "role of $roleName will be below $minimumStaff.".
-				  "This is due to $employeeName being absent with $absenceName.";
+    $subject 	= "URGENT: STAFF SHORTFALL";
+    $message 	= "Between $startDate and $endDate the number of staff performing the ".
+		  "role of $roleName will be below $minimumStaff.".
+		  "This is due to $employeeName being absent with $absenceName.";
 
 	
-	$filter[EMP_MANAGER_PERM] = 1;
-	$managers = RetrieveEmployees($filter);
+    $filter[EMP_MANAGER_PERM] = 1;
+    $managers = RetrieveEmployees($filter);
 	
-	$success = TRUE;
-	foreach ($managers as $manager)
+    $success = TRUE;
+    foreach ($managers as $manager)
+    {
+	if (! mail($manager[EMP_EMAIL],$subject,$message))
 	{
-		if (! mail($manager[EMP_EMAIL],$subject,$message))
-		{
-			$success = FALSE;
-		}
+            $success = FALSE;
 	}
-  	return $success;
+    }
+    return $success;
 }
 
 /* -----------------------------------------------------------------------------
@@ -113,15 +112,15 @@ function SendShortfallAlertToOfficeManager($employeeID,$startDate,$endDate,$abse
  * -------------------------------------------------------------------------- */
 function SendResubmitMainVacationRequest($employeeID)
 {
-	$employee 	= RetrieveEmployeeByID($employeeID);
-	$to 		= $employee[EMP_EMAIL];
-	$from		= "admin@absencetrackingsystem.com";
+    $employee 	= RetrieveEmployeeByID($employeeID);
+    $to 		= $employee[EMP_EMAIL];
+    $from		= "admin@absencetrackingsystem.com";
 	
-	$subject 	= "URGENT: NEW MAIN VACATION REQUEST NEEDED";
-	$message 	= "Unfortunatly, both of your main vacation choices are unavailable.".
-			   	  "Please submit a new Main Vacation Request with two new choices.";
+    $subject 	= "URGENT: NEW MAIN VACATION REQUEST NEEDED";
+    $message 	= "Unfortunatly, both of your main vacation choices are unavailable.".
+	   	  "Please submit a new Main Vacation Request with two new choices.";
 	
-	$result = mail($to,$subject,$message);
-  	return $result;
+    $result = mail($to,$subject,$message);
+    return $result;
 }
 ?>

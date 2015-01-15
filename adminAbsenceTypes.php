@@ -106,9 +106,5 @@ if (isset($_POST["delete"])) {
                 </table>
             </form>
         </div>
-
-
-
     </body>
-
 </html>

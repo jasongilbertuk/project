@@ -119,7 +119,11 @@ function CreateEmployeeTable() {
  *                 in the record. If unsuccessful, the return will be NULL.
  * ------------------------------------------------------------------------------------- */
 
-function CreateEmployee($employeeName, $emailAddress, $password, $dateJoinedTheCompany, $annualLeaveEntitlement, $mainVacationRequestID, $companyRoleID, $isAdministrator = 0, $isManager =0) {
+function CreateEmployee($employeeName, $emailAddress, $password, 
+                        $dateJoinedTheCompany, $annualLeaveEntitlement, 
+                        $mainVacationRequestID, $companyRoleID, 
+                        $isAdministrator = 0, $isManager =0) {
+    
     $employee = NULL;
     //--------------------------------------------------------------------------------
     // Validate Input parameters
@@ -220,7 +224,8 @@ function sqlInsertEmployee(&$employee) {
             "annualLeaveEntitlement,dateJoinedTheCompany,companyRole_companyRoleID,adminPermissions,managerPermissions) " .
             "VALUES ('" . $employee[EMP_NAME] . "','" . $employee[EMP_EMAIL] . "','"
             . $employee[EMP_PASSWORD] . "','" . $employee[EMP_LEAVE_ENTITLEMENT] .
-            "','" . $employee[EMP_DATEJOINED] . "','" . $employee[EMP_COMPANY_ROLE] ."','".$employee[EMP_ADMIN_PERM]."','".$employee[EMP_MANAGER_PERM]."');";
+            "','" . $employee[EMP_DATEJOINED] . "','" . $employee[EMP_COMPANY_ROLE] .
+            "','".$employee[EMP_ADMIN_PERM]."','".$employee[EMP_MANAGER_PERM]."');";
 
     $employee[EMP_ID] = performSQLInsert($sql);
     return $employee[EMP_ID] <> 0;
@@ -542,8 +547,5 @@ function GetEmployeeCount(&$totalEmployees,&$employeesWithNoMainVacation)
     $data = mysqli_fetch_array($result);
     $employeesWithNoMainVacation = $data[0];  
 }
-
-
-
 
 ?>

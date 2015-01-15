@@ -20,8 +20,6 @@ if ( $requestID <> NULL)
     $secondChoiceEnd     = $mainVacationRequest[MAIN_VACATION_2ND_END];
 }
 
-
-
 if (isset($_POST["submit"])) 
 {
     $request = CreateMainVactionRequest($userID, 
@@ -57,29 +55,41 @@ if (isset($_POST["submit"]))
                 <h1> Create Main Vacation Request </h1>
                 
             <div class="input-group" for="firstChoiceStart">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input type="date" class="form-control" name="firstChoiceStart" id="firstChoiceStart" placeholder="First Choice Start">
+                <span class="input-group-addon">1st Choice Start
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control" name="firstChoiceStart"
+                       id="firstChoiceStart" placeholder="First Choice Start">
             </div>
             
             <div class="input-group" for="firstChoiceEnd">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input type="date" class="form-control" name="firstChoiceEnd" id="firstChoiceEnd" placeholder="First Choice End">
+                <span class="input-group-addon">1st Choice Finish
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control" name="firstChoiceEnd" 
+                       id="firstChoiceEnd" placeholder="First Choice End">
             </div>
             
             <div class="input-group" for="secondChoiceStart">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input type="date" class="form-control" name="secondChoiceStart" id="secondChoiceStart" placeholder="Second Choice Start">
+                <span class="input-group-addon">2nd Choice Start
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control" name="secondChoiceStart"
+                       id="secondChoiceStart" placeholder="Second Choice Start">
             </div>
             
             <div class="input-group" for="secondChoiceEnd">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input type="date" class="form-control" name="secondChoiceEnd" id="secondChoiceEnd" placeholder="Second Choice End">
+                <span class="input-group-addon">2nd Choice Finish
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control" name="secondChoiceEnd" 
+                       id="secondChoiceEnd" placeholder="Second Choice End">
             </div>
-                        <br/>
-            <input class="btn btn-success btn-block" type="submit" name="submit" id="submit" value="Submit Main Vacation Request"/>
+            <br/>
+            <input class="btn btn-success btn-block" type="submit" name="submit" 
+                   id="submit" value="Submit Main Vacation Request"/>
             </div>
             </div>
         </form>
     </body>
-
 </html>

@@ -77,7 +77,5 @@ if (isset($_POST["update"])) {
             </div>
             </div>
         </form>
-
-    </body>
-
+   </body>
 </html>

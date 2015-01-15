@@ -82,45 +82,45 @@ function CalculateAnnualLeaveRequired($startDate,$endDate,$absenceTypeID)
     	//Q.Does the absence type supplied use annual leave?
     	if ($absenceType[ABS_TYPE_USES_LEAVE] == TRUE)
     	{
-        	//Y.We need to calulate the leave required. First convert dates supplied
-        	//  into times.
-        	$startTime = strtotime($startDate);
-        	$endTime = strtotime($endDate);
+            //Y.We need to calulate the leave required. First convert dates supplied
+            //  into times.
+            $startTime = strtotime($startDate);
+            $endTime = strtotime($endDate);
 
-        	// Loop between timestamps, 24 hours at a time.
-        	// Note that 86400 = 24 hours in second.
-        	for ($i = $startTime; $i <= $endTime; $i = $i + 86400) 
-        	{
-            	//Format the time into a date string
-            	$thisDate = date('Y-m-d', $i); // 2010-05-01, 2010-05-02, etc
+            // Loop between timestamps, 24 hours at a time.
+            // Note that 86400 = 24 hours in second.
+            for ($i = $startTime; $i <= $endTime; $i = $i + 86400) 
+            {
+                //Format the time into a date string
+                $thisDate = date('Y-m-d', $i); // 2010-05-01, 2010-05-02, etc
             
-            	if (!isWeekend($thisDate))
-            	{
-                	if (!isPublicHoliday($thisDate) )
-                	{
-                   		//Date is not a weekend or public holiday, so increment
-                    	$annualLeaveRequired = $annualLeaveRequired + 1;
-                	}
-            	}
-        	}
+                if (!isWeekend($thisDate))
+                {
+                    if (!isPublicHoliday($thisDate) )
+                    {
+                        //Date is not a weekend or public holiday, so increment
+                        $annualLeaveRequired = $annualLeaveRequired + 1;
+                    }
+                }
+            }
     	}
     }
     else
     {
         error_log("Unknown absence type identifier of $absenceTypeID");
-	}
+    }
     return $annualLeaveRequired;
 }
 
 /* ----------------------------------------------------------------------------
  * Function CalculateRemainingAnnualLeave
  *
- * This function calculates the number of days annual leave that has been 
- * approved for the employee.
+ * This function calculates the number of days annual leave that an employee
+ * has remaining.
  *
  * $employeeID(int) ID of the employee to calculate this for.
  *
- * @return (int) Number of days taken by the employee. 
+ * @return (int) Number of days annual leave available to the employee.
  * -------------------------------------------------------------------------- */
 function CalculateRemainingAnnualLeave($employeeID)
 {
@@ -156,7 +156,6 @@ function CalculateRemainingAnnualLeave($employeeID)
                 $annualLeaveRemaining = $annualLeaveRemaining - $leaveRequired;
             }
         }
-        
     }
     else
     {
@@ -189,7 +188,6 @@ function HasSufficentAnnualLeave($employeeID,$startDate,$endDate,$absenceTypeID)
 	$employeesAvailableLeave = CalculateRemainingAnnualLeave($employeeID);
 	
 	// then calculate how much leave is needed for the period requested.
-	$absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
 	$amountOfLeaveNeeded = CalculateAnnualLeaveRequired($startDate,$endDate,$absenceTypeID);
 	
 	// If amount of leave required is less than or equal to available leave then
@@ -217,53 +215,53 @@ function HasSufficentAnnualLeave($employeeID,$startDate,$endDate,$absenceTypeID)
  * -------------------------------------------------------------------------- */
  function CountStaffOnLeave($roleID,$date)
 {
-	//Assume no staff on leave to begin with.
-	$countOfStaffOnLeave = 0;
+    //Assume no staff on leave to begin with.
+    $countOfStaffOnLeave = 0;
 	
-	//Retrieve the date record from the database.
-	$dateRecord = RetrieveDateRecordByDate($date);
-	if ($dateRecord <> NULL)
-	{
-		//Retrieve all approved absence bookings for this date.
-		$dateID = $dateRecord[DATE_TABLE_DATE_ID];
-        $filter[APPR_ABS_BOOK_DATE_DATE_ID] = $dateID;
-    	$bookingsForDate = RetrieveApprovedAbsenceBookingDates($filter);
+    //Retrieve the date record from the database.
+    $dateRecord = RetrieveDateRecordByDate($date);
+    if ($dateRecord <> NULL)
+    {
+        //Retrieve all approved absence bookings for this date.
+            $dateID = $dateRecord[DATE_TABLE_DATE_ID];
+            $filter[APPR_ABS_BOOK_DATE_DATE_ID] = $dateID;
+            $bookingsForDate = RetrieveApprovedAbsenceBookingDates($filter);
         
-        if ($bookingsForDate <> NULL)
-    	{
+            if ($bookingsForDate <> NULL)
+            {
         	//One or more bookings exist. itterate through them.
         	foreach ($bookingsForDate as $bookingDate)
         	{
-        		//Using the absence booking record, obtain the employee record from the database
-            	$absenceBooking = RetrieveApprovedAbsenceBookingByID($bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
+                    //Using the absence booking record, obtain the employee record from the database
+                    $absenceBooking = RetrieveApprovedAbsenceBookingByID($bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
         		
-        		if ($absenceBooking <> NULL)
-        		{
-        			$staffMember = RetrieveEmployeeByID($absenceBooking[APPR_ABS_EMPLOYEE_ID]);
+                    if ($absenceBooking <> NULL)
+                    {
+                        $staffMember = RetrieveEmployeeByID($absenceBooking[APPR_ABS_EMPLOYEE_ID]);
             
-           	 		//--------------------------------------------------------------------
-           	 		// Check to see if this member of staff performs the same role as the
-           	 		// role of the employee requesting this leave. If so, add one to the
-           	 		// count of staff on leave.
-           	 		//--------------------------------------------------------------------
-           	 		if ($staffMember[EMP_COMPANY_ROLE] == $roleID)
+           	 	//--------------------------------------------------------------------
+                        // Check to see if this member of staff performs the same role as the
+                        // role of the employee requesting this leave. If so, add one to the
+                        // count of staff on leave.
+           	 	//--------------------------------------------------------------------
+           	 	if ($staffMember[EMP_COMPANY_ROLE] == $roleID)
             		{
-            			$countOfStaffOnLeavel = $countOfStaffOnLeave + 1;
+                            $countOfStaffOnLeavel = $countOfStaffOnLeave + 1;
             		}
-            	}
-            	else
-            	{
-					error_log("Unknown absence booking id of ".$bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
-            	}
+                    }
+                    else
+                    {
+                        error_log("Unknown absence booking id of ".$bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
+                    }
         	}
-    	}
-    }
-    else
-    {
-		error_log("Unknown date of $date");
-    }
+            }
+        }
+        else
+        {
+            error_log("Unknown date of $date");
+        }
     
-    return $countOfStaffOnLeave;
+        return $countOfStaffOnLeave;
 }
 
 /* ----------------------------------------------------------------------------
@@ -291,44 +289,44 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
     	$employeeRole = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
     	if ($employeeRole <> NULL)
     	{
-    		$minimumStaffingLevel = $employeeRole[COMP_ROLE_MIN_STAFF];
+            $minimumStaffingLevel = $employeeRole[COMP_ROLE_MIN_STAFF];
 	
-    		//Calculate the total number of employees in this role.
-    		$filter[EMP_COMPANY_ROLE] = $employee[EMP_COMPANY_ROLE];
-    		$employeesInRole = RetrieveEmployees($filter);
-     		$numEmployeesInRole = count($employeesInRole);
+            //Calculate the total number of employees in this role.
+            $filter[EMP_COMPANY_ROLE] = $employee[EMP_COMPANY_ROLE];
+            $employeesInRole = RetrieveEmployees($filter);
+            $numEmployeesInRole = count($employeesInRole);
 
-    		//Check staffing levels for each day in the period requested. 
-    		$tempDate = strtotime($startDate);
-    		$endTime = strtotime($endDate);
+            //Check staffing levels for each day in the period requested. 
+            $tempDate = strtotime($startDate);
+            $endTime = strtotime($endDate);
 
-    		$underMinimumStaffing = FALSE;
+            $underMinimumStaffing = FALSE;
 	
-    		while ($tempDate <= $endTime AND $underMinimumStaffing == FALSE)
-    		{
-        		$strDate = date('Y-m-d', $tempDate); // 2010-05-01, 2010-05-02, etc
+            while ($tempDate <= $endTime AND $underMinimumStaffing == FALSE)
+            {
+                $strDate = date('Y-m-d', $tempDate); // 2010-05-01, 2010-05-02, etc
 	    	
-	    		//Calculate the number of staff in this role that are on leave on this date.
-	    		$staffOnLeave = CountStaffOnLeave($employee[EMP_COMPANY_ROLE],$strDate);
+                //Calculate the number of staff in this role that are on leave on this date.
+                $staffOnLeave = CountStaffOnLeave($employee[EMP_COMPANY_ROLE],$strDate);
 	    
-        		//Q.Would granting this leave would take us below the minimum
-        		//staffing level for the role.
-        		$availableStaff = $numEmployeesInRole - $staffOnLeave;
-        		if ( $availableStaff <= $minimumStaffingLevel)
-        		{
-        			//Y.Granting the request would take us below the minimum staffing 
-        			//  level for the role. 
-        			$underMinimumStaffing = TRUE;
-        			$sufficentStaffInRole = FALSE;
-        		}
+        	//Q.Would granting this leave would take us below the minimum
+        	//staffing level for the role.
+        	$availableStaff = $numEmployeesInRole - $staffOnLeave;
+        	if ( $availableStaff <= $minimumStaffingLevel)
+        	{
+                    //Y.Granting the request would take us below the minimum staffing 
+                    //  level for the role. 
+                    $underMinimumStaffing = TRUE;
+                    $sufficentStaffInRole = FALSE;
+        	}
         
-				//move temp date onto the next day. Note tempdate is in seconds.
-        		$tempDate = $tempDate + 86400; //86400 = 60 seconds * 60 minutes * 24 hours.
-    		}
+		//move temp date onto the next day. Note tempdate is in seconds.
+        	$tempDate = $tempDate + 86400; //86400 = 60 seconds * 60 minutes * 24 hours.
+            }
     	}
     	else
     	{
-			error_log("Unknown company role identifier of ".$employee[EMP_COMPANY_ROLE]);
+            error_log("Unknown company role identifier of ".$employee[EMP_COMPANY_ROLE]);
     	}
     }
     else
@@ -355,13 +353,13 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
  * -------------------------------------------------------------------------- */
 function ProcessAbsenceRequest($employeeID,$startDate,$endDate,$absenceTypeID)
 {
-	//Assume that booking will be approved. Will be set to FALSE in function if necessary.
+    //Assume that booking will be approved. Will be set to FALSE in function if necessary.
     $bookingApproved = TRUE;
    
-	//------------------------------------------------------------------------------
-	//Check to ensure if the employee has sufficent leave available to cover the
-	//requested period.
-	//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
+    //Check to ensure if the employee has sufficent leave available to cover the
+    //requested period.
+    //------------------------------------------------------------------------------
     if (HasSufficentAnnualLeave($employeeID, $startDate, $endDate, $absenceTypeID) == FALSE)
     {
     	//Employee has insufficent leave available. Deny the request.
@@ -371,24 +369,24 @@ function ProcessAbsenceRequest($employeeID,$startDate,$endDate,$absenceTypeID)
     }
     else
     {
-		//------------------------------------------------------------------------------
-		//Check to ensure there are sufficent staff in the same role as employee
-		//working to cover the request.
-		//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+        //Check to ensure there are sufficent staff in the same role as employee
+	//working to cover the request.
+	//------------------------------------------------------------------------------
         if (SufficentStaffInRoleToGrantRequest($employeeID, $startDate, $endDate))
         {
-	    	//Sufficent staff are available, grant the request.
-        	CreateApprovedAbsenceBooking($employeeID, $startDate, $endDate, $absenceTypeID);
-        	SendApprovedEmail($employeeID,$startDate,$endDate);
+            //Sufficent staff are available, grant the request.
+            CreateApprovedAbsenceBooking($employeeID, $startDate, $endDate, $absenceTypeID);
+            SendApprovedEmail($employeeID,$startDate,$endDate);
             $bookingApproved = TRUE;
         }
         else
         {
-  			//----------------------------------------------------------------------------
-			// Granting the request would mean going below the minimum staffing level for
-			// the role. However, if the type of absence requested is not deniable, then 
-			// we have to grant the leave.
-			//----------------------------------------------------------------------------
+            //----------------------------------------------------------------------------
+            // Granting the request would mean going below the minimum staffing level for
+            // the role. However, if the type of absence requested is not deniable, then 
+            // we have to grant the leave.
+            //----------------------------------------------------------------------------
             $absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
             if ($absenceType[ABS_TYPE_CAN_BE_DENIED])
             {
@@ -404,9 +402,9 @@ function ProcessAbsenceRequest($employeeID,$startDate,$endDate,$absenceTypeID)
             	//But also inform the office manager that we will be going below the 
             	//minimum staffing level. 
             	//------------------------------------------------------------------------
- 	        	CreateApprovedAbsenceBooking($employeeID, $startDate, $endDate, $absenceTypeID);
+                CreateApprovedAbsenceBooking($employeeID, $startDate, $endDate, $absenceTypeID);
     	    	SendApprovedEmail($employeeID,$startDate,$endDate);
-				SendShortfallAlertToOfficeManager($employeeID,$startDate,$endDate,$absenceTypeID);
+		SendShortfallAlertToOfficeManager($employeeID,$startDate,$endDate,$absenceTypeID);
 
                 $bookingApproved = TRUE;
             }
@@ -427,12 +425,12 @@ function ProcessAbsenceRequest($employeeID,$startDate,$endDate,$absenceTypeID)
  * -------------------------------------------------------------------------- */
 function ProcessMainVacationRequests()
 {
-	$stoppedAtEmployeeID = NULL;
+    $stoppedAtEmployeeID = NULL;
 	
-	//-------------------------------------------------------------------------------
-	// Need to get all main vacation requests in an order based on the employees
-	// length of service, so use the bespoke SQL query below.
-	//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    // Need to get all main vacation requests in an order based on the employees
+    // length of service, so use the bespoke SQL query below.
+    //-------------------------------------------------------------------------------
     $conn = $GLOBALS["connection"];
     
     $sql = "SELECT * FROM mainVacationRequestTable JOIN EmployeeTable ".
@@ -445,48 +443,48 @@ function ProcessMainVacationRequests()
     }
     else 
     {
-		$row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-		$lastRequestGranted = TRUE;
+        $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+        $lastRequestGranted = TRUE;
 		
-		//-------------------------------------------------------------------------------
-		// Process each request in turn until either all have been processed, or we
-		// reach a request that can't be granted.
-		//-------------------------------------------------------------------------------
+	//-------------------------------------------------------------------------------
+	// Process each request in turn until either all have been processed, or we
+	// reach a request that can't be granted.
+	//-------------------------------------------------------------------------------
         while ($row and $lastRequestGranted)
         {
-			$id						 = $row[MAIN_VACATION_REQ_ID];
-			$employeeID              = $row[MAIN_VACATION_EMP_ID];
-    	    $firstChoiceStartDate    = $row[MAIN_VACATION_1ST_START];
-        	$firstChoiceEndDate      = $row[MAIN_VACATION_1ST_END];
-    		$secondChoiceStartDate   = $row[MAIN_VACATION_2ND_START];
-        	$secondChoiceEndDate     = $row[MAIN_VACATION_2ND_END];
-	        $absenceTypeID 			 = GetAnnualLeaveAbsenceTypeID();
+            $id                         = $row[MAIN_VACATION_REQ_ID];
+            $employeeID                 = $row[MAIN_VACATION_EMP_ID];
+    	    $firstChoiceStartDate       = $row[MAIN_VACATION_1ST_START];
+            $firstChoiceEndDate         = $row[MAIN_VACATION_1ST_END];
+            $secondChoiceStartDate      = $row[MAIN_VACATION_2ND_START];
+            $secondChoiceEndDate        = $row[MAIN_VACATION_2ND_END];
+            $absenceTypeID              = GetAnnualLeaveAbsenceTypeID();
 
-	        //Try and approve first choice request.
-	        if ( ProcessAbsenceRequest($employeeID,$firstChoiceStartDate,
-	        				    	   $firstChoiceEndDate,$absenceTypeID) == FALSE)
-	        {
-	        	//First choice denied. Try and approve second choice request.
-		        if ( ProcessAbsenceRequest($employeeID,$secondChoiceStartDate,
-		        				   	       $secondChoiceEndDate,$absenceTypeID) == FALSE)
-		        {
-	        		//second choice denied. Mail employee to instruct them to submit a
-	        		//new booking.
-	        		SendResubmitMainVacationRequest($employeeID);
+	    //Try and approve first choice request.
+	    if ( ProcessAbsenceRequest($employeeID,$firstChoiceStartDate,
+                                    $firstChoiceEndDate,$absenceTypeID) == FALSE)
+	    {
+                //First choice denied. Try and approve second choice request.
+		if ( ProcessAbsenceRequest($employeeID,$secondChoiceStartDate,
+                                           $secondChoiceEndDate,$absenceTypeID) == FALSE)
+		{
+                    //second choice denied. Mail employee to instruct them to submit a
+                    //new booking.
+                    SendResubmitMainVacationRequest($employeeID);
 
-	        		//set the ID of the employee who needs to resubmit, to pass back to
-	        		//the calling function.
-	        		$lastRequestGranted = FALSE;
-	        		$stoppedAtEmployeeID = $employeeID;
-	        	}
+                    //set the ID of the employee who needs to resubmit, to pass back to
+                    //the calling function.
+                    $lastRequestGranted = FALSE;
+                    $stoppedAtEmployeeID = $employeeID;
 	        }
+	    }
 	    	
-	    	//Delete the main vacation request.
-	    	DeleteMainVacationRequest($id);
-		 	$row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-  		}
+	    //Delete the main vacation request.
+	    DeleteMainVacationRequest($id);
+            $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
   	}
-  	return $stoppedAtEmployeeID;
+    }
+    return $stoppedAtEmployeeID;
 }
 
 
@@ -506,9 +504,9 @@ function ProcessAdHocRequests()
     {
     	$id 			= $request[AD_HOC_REQ_ID];
     	$employeeID		= $request[AD_HOC_EMP_ID];
-		$startDate		= $request[AD_HOC_START];
-		$endDate		= $request[AD_HOC_END];
-		$absenceTypeID  = $request[AD_HOC_ABSENCE_TYPE_ID];
+	$startDate		= $request[AD_HOC_START];
+	$endDate		= $request[AD_HOC_END];
+	$absenceTypeID  = $request[AD_HOC_ABSENCE_TYPE_ID];
 
     	ProcessAbsenceRequest($employeeID,$startDate,$endDate,$absenceTypeID);
     	DeleteAdHocAbsenceRequest($id);

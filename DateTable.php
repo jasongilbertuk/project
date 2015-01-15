@@ -304,7 +304,18 @@ function DeleteDate($ID) {
     return $result;
 }
 
-
+/* --------------------------------------------------------------------------------------
+ * Function RetrieveDateRecordByDate
+ *
+ * This function uses the date supplied to locate the corresponding date record from 
+ * the database.
+ *
+ * $date(string) string in the form YYYY-MM-DD for which the matching date table record
+ *               is needed.
+ *
+ * @return (array) array of key value pairs, representing the fields from the date record.
+ *                 Will be NULL if no matching record is found. 
+ * ------------------------------------------------------------------------------------- */
 function RetrieveDateRecordByDate($date)
 {
 	$result = NULL;
@@ -346,8 +357,4 @@ function RetrieveDateIDByDate($date)
 
     return $result;
 }
-
-
-
-
 ?>

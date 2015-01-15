@@ -8,7 +8,7 @@ if (!$isAdministrator) {
 }
 
 if (isset($_POST["submit"])) {
-    $booking = CreateApprovedAbsenceBooking($_POST["employeeid"], $_POST["startDate"], $_POST["endDate"], $_POST["absenceType"]);
+    $booking = CreateApprovedAbsenceBooking($_POST["employeeID"], $_POST["startDate"], $_POST["endDate"], $_POST["absenceType"]);
 }
 
 if (isset($_POST["amend"])) {
@@ -19,6 +19,37 @@ if (isset($_POST["amend"])) {
 if (isset($_POST["delete"])) {
     DeleteApprovedAbsenceBooking($_POST["delete"]);
 }
+
+function CreateEmployeeSelect()
+{
+    echo '<select class="form-control" name="employeeID" id="employeeID" >';
+    echo '<option value="" disabled selected>Select Employee</option>';
+
+    $employees = RetrieveEmployees();
+    if ($employees <> NULL) 
+    {
+        foreach ($employees as $employee) 
+        {
+            echo '<option value="' . $employee[EMP_ID] . '">' . $employee[EMP_NAME] . '</option>';
+        }
+    }
+    echo '</select>';
+}
+
+function CreateAbsenceTypeSelect()
+{
+    $absenceTypes = RetrieveAbsenceTypes();
+    if ($absenceTypes <> NULL) 
+    {
+        echo '<select class="form-control" name="absenceType">';
+        foreach ($absenceTypes as $absenceType) 
+        {
+            echo '<option value="' . $absenceType[ABS_TYPE_ID] . '">' . $absenceType[ABS_TYPE_NAME] . '</option>';
+        }
+    }
+    echo '</select>';
+} 
+
 ?>
 
 <!DOCTYPE html>
@@ -34,7 +65,7 @@ if (isset($_POST["delete"])) {
     </head>
 
     <body>
-<?php include 'navbar.php'; ?>
+        <?php include 'navbar.php'; ?>
 
         <form method="post" class="signUp">
             <div class="row">
@@ -43,50 +74,19 @@ if (isset($_POST["delete"])) {
 
                     <div class="input-group" for="employeeid">
                         <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                        <select class="form-control" name="employeeid" id="employeeid" >
-                            <option value="" disabled selected>Select Employee</option>
-
-<?php
-$employees = RetrieveEmployees();
-if ($employees <> NULL) {
-    foreach ($employees as $employee) {
-        echo '<option value="' . $employee[EMP_ID] . '">' . $employee[EMP_NAME] . '</option>';
-    }
-}
-?>
-                        </select>
+                        <?php CreateEmployeeSelect(); ?>
                     </div>
-
-
-
-
-
-
                     <div class="input-group" for="startDate">
                         <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>	
                         <input type="date" class="form-control" name="startDate" id="startDate" placeholder="Start Date">
                     </div>
-
-
                     <div class="input-group" for="endDate">
                         <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>	
                         <input type="date" class="form-control" name="endDate" id="endDate" placeholder="End Date">
                     </div>
-
                     <br />
                     <label for="absenceType">Absence Type</label>
-<?php
-$absenceTypes = RetrieveAbsenceTypes();
-if ($absenceTypes <> NULL) {
-    echo '<select class="form-control" name="absenceType">';
-    foreach ($absenceTypes as $absenceType) {
-        echo '<option value="' . $absenceType[ABS_TYPE_ID] . '">' . $absenceType[ABS_TYPE_NAME] . '</option>';
-    }
-}
-
-
-echo '</select>';
-?>
+                    <?php CreateAbsenceTypeSelect(); ?>
 
                     <input class="btn btn-success btn-block" type="submit" name="submit" id="submit" value="Create Absence Booking"/>
                 </div>
@@ -110,17 +110,17 @@ echo '</select>';
                                 </tr>
                             </thead>
                             <tbody>
-<?php
-$bookings = RetrieveApprovedAbsenceBookings();
+                                <?php
+                                $bookings = RetrieveApprovedAbsenceBookings();
 
-if ($bookings <> NULL) {
-    foreach ($bookings as $booking) {
-        $employeeID = $booking[APPR_ABS_EMPLOYEE_ID];
-        $employee = RetrieveEmployeeByID($employeeID);
+                                if ($bookings <> NULL) {
+                                    foreach ($bookings as $booking) {
+                                        $employeeID = $booking[APPR_ABS_EMPLOYEE_ID];
+                                        $employee = RetrieveEmployeeByID($employeeID);
 
-        $absenceTypeID = $booking[APPR_ABS_ABS_TYPE_ID];
-        $absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
-        ?>
+                                        $absenceTypeID = $booking[APPR_ABS_ABS_TYPE_ID];
+                                        $absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
+                                        ?>
                                         <tr>
                                             <td><?php echo $employee[EMP_NAME]; ?></td>
                                             <td><?php echo $booking[APPR_ABS_START_DATE]; ?></td>
@@ -130,11 +130,13 @@ if ($bookings <> NULL) {
                                             <td> <button class="btn btn-danger" type="submit" name="delete"  value="<?php echo $booking[APPR_ABS_BOOKING_ID]; ?>">Delete</button></td>
                                         </tr>
                                     <?php }
-                                } ?>
+                                }
+                                ?>
                             </tbody>
                         </table>
                     </form>
                 </div>
-
-                </body>
-                </html>
+            </div>
+        </div>
+    </body>
+</html>

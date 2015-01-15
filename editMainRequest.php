@@ -8,7 +8,6 @@ if (isset($_GET["back"]))
     $returnURL = $_GET["back"];
 }
 
-
 if ($_GET["ID"] <> NULL)
 {
     $record = RetrieveMainVacationRequestByID($_GET["ID"]);
@@ -45,7 +44,6 @@ if (isset($_POST["delete"])) {
     DeleteMainVacationRequest($_POST["delete"]);
 }
 
-
 ?>
 
 <!DOCTYPE html>
@@ -66,54 +64,65 @@ if (isset($_POST["delete"])) {
        <div class="col-md-4 col-md-offset-4 text-center">
         <form method="post" class="signUp">
             <h1> Edit Main Request </h1>
-           <div class="input-group"  for="empName">
-           <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>    
-               <?php 
+            <div class="input-group"  for="empName">
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-user"></span>
+            </span>    
+            <?php 
                 $employee = RetrieveEmployeeByID($record[MAIN_VACATION_EMP_ID]);
                 if ($employee <> NULL)
                 {
                   echo '<input type="text" class="form-control" name="empID" id="empID" readonly value="'.$employee[EMP_NAME].'"/>';
                 }
-               ?> 
+            ?> 
            </div>
            
             <div class="input-group" for="firstChoiceStart">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                <input type="date" class="form-control"  name="firstChoiceStart" id="firstChoiceStart" 
+                <span class="input-group-addon">1st Choice Start
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control"  
+                       name="firstChoiceStart" id="firstChoiceStart" 
                        value="<?php echo $record[MAIN_VACATION_1ST_START]; ?>">
             </div>
                
             
             <div class="input-group" for="firstChoiceEnd">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                <input type="date" class="form-control"  name="firstChoiceEnd" id="firstChoiceEnd" 
+                <span class="input-group-addon">1st Choice Finish
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control"  
+                       name="firstChoiceEnd" id="firstChoiceEnd" 
                        value="<?php echo $record[MAIN_VACATION_1ST_END]; ?>">
             </div>
                 
             <div class="input-group" for="secondChoiceStart">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                <input type="date" class="form-control"  name="secondChoiceStart" id="secondChoiceStart" 
+                <span class="input-group-addon">2nd Choice Start
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control"  
+                       name="secondChoiceStart" id="secondChoiceStart" 
                        value="<?php echo $record[MAIN_VACATION_2ND_START]; ?>">
             </div>
                 
             
             <div class="input-group" for="secondChoiceEnd">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                <input type="date" class="form-control"  name="secondChoiceEnd" id="secondChoicEnd" 
+                <span class="input-group-addon">2nd Choice Finish
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control"  
+                       name="secondChoiceEnd" id="secondChoicEnd" 
                        value="<?php echo $record[MAIN_VACATION_2ND_END]; ?>">
             </div>
                
             <br />
 
-            <input class="btn btn-success btn-block" type="submit" name="update" id="submit" value="Update"/> 
-            <input class="btn btn-danger btn-block" type="submit" name="cancel" id="cancel" value="Cancel"/> 
-
-            
-           
-           
+            <input class="btn btn-success btn-block" type="submit" 
+                    name="update" id="submit" value="Update"/> 
+            <input class="btn btn-danger btn-block" type="submit" 
+                    name="cancel" id="cancel" value="Cancel"/> 
         </form>
        </div> 
       </div>  
     </body>
-
 </html>

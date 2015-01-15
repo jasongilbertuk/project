@@ -19,13 +19,52 @@ if (isset($_POST["submit"]))
 
 
 if (isset($_POST["amend"])) {   
-    $url = "Location:editMainRequest.php?ID=".$_POST["amend"]."&back=adminMainVacationRequests.php";   
+    $url = "Location:editMainRequest.php?ID=".$_POST["amend"].
+           "&back=adminMainVacationRequests.php";   
     header($url);
 }
 
 if (isset($_POST["delete"])) 
 {
     DeleteMainVacationRequest($_POST["delete"]);
+}
+
+function PopulateTableBody()
+{
+    $requests = RetrieveMainVacationRequests();
+    if ($requests <> NULL)
+    {
+        foreach ($requests as $request) { 
+            $employee = RetrieveEmployeeByID($request[MAIN_VACATION_EMP_ID]);
+            echo "<tr>";
+            echo "<td>".$employee[EMP_NAME]."</td>";
+            echo "<td>".$request[MAIN_VACATION_1ST_START]."</td>";
+            echo "<td>".$request[MAIN_VACATION_1ST_END]."</td>";
+            echo "<td>".$request[MAIN_VACATION_2ND_START]."</td>";
+            echo "<td>".$request[MAIN_VACATION_2ND_END]."</td>";
+            echo '<td> <button class="btn btn-success" type="submit" '.
+                 'name="amend"  value="'.$request[MAIN_VACATION_REQ_ID].
+                 '">Amend</button></td>';
+            echo '<td> <button class="btn btn-danger" type="submit" name="delete"'.
+                 ' value="'.$request[MAIN_VACATION_REQ_ID].'">Delete</button></td>';
+            echo "</tr>";
+        }
+    } 
+}
+
+function CreateEmployeeSelect()
+{
+    echo '<select class="form-control" name="employeeID" id="employeeID" >';
+
+    $employees = RetrieveEmployees();
+    if ($employees <> NULL) 
+    {
+        foreach ($employees as $employee) 
+        {
+            echo '<option value="' . $employee[EMP_ID] . '">' . $employee[EMP_NAME] . '</option>';
+        }
+    }
+    echo '</select>';
 }
 
 ?>
@@ -50,46 +89,48 @@ if (isset($_POST["delete"]))
             <div class="col-md-4 col-md-offset-4 text-center">    
             <h1>Create Main Vacation Request</h1>
             <div class="input-group" for="empName">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                <select class="form-control" name="employeeid" id="employeeid" >
-                    <option value="" disabled selected>Select Employee</option>
-
-                <?php
-                $employees = RetrieveEmployees();
-                if ($employees <> NULL)
-                {
-                    foreach ($employees as $employee)
-                    {
-                        echo '<option value="'.$employee[EMP_ID].'">'.$employee[EMP_NAME].'</option>';
-                    }
-                }?>
-                </select>
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-user"></span>
+                </span>
+                <?php CreateEmployeeSelect(); ?>
             </div>
             
-            
             <div class="input-group" for="firstChoiceStart">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input type="date" class="form-control" name="firstChoiceStart" id="firstChoiceStart" placeholder="First Choice Start Date">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control" name="firstChoiceStart" 
+                       id="firstChoiceStart" placeholder="First Choice Start Date">
             </div>
             
             <div class="input-group" for="firstChoiceEnd">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input type="date" class="form-control" name="firstChoiceEnd" id="firstChoiceEnd" placeholder="First Choice End Date">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control" name="firstChoiceEnd" 
+                       id="firstChoiceEnd" placeholder="First Choice End Date">
             </div>
             
             <div class="input-group" for="secondChoiceStart">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input type="date" class="form-control" name="secondChoiceStart" id="secondChoiceStart" placeholder="Second Choice Start Date">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="date" class="form-control" name="secondChoiceStart" 
+                       id="secondChoiceStart" placeholder="Second Choice Start Date">
             </div>
             
             <div class="input-group" for="secondChoiceEnd">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                        <input type="date" class="form-control" name="secondChoiceEnd" id="secondChoiceEnd" placeholder="Second Choice End Date">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                  </span>
+                  <input type="date" class="form-control" name="secondChoiceEnd" 
+                         id="secondChoiceEnd" placeholder="Second Choice End Date">
             </div>
             
             <br/>
             
-            <input class="btn btn-success btn-block" type="submit" name="submit" id="submit" value="Add Main Vacation Request"/>
+            <input class="btn btn-success btn-block" type="submit" name="submit" 
+                   id="submit" value="Add Main Vacation Request"/>
             </div>
             </div>
         </form>
@@ -112,23 +153,7 @@ if (isset($_POST["delete"]))
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $requests = RetrieveMainVacationRequests();
-                    if ($requests <> NULL)
-                    {
-                        foreach ($requests as $request) { 
-                            $employee = RetrieveEmployeeByID($request[MAIN_VACATION_EMP_ID]);
-                            ?>
-                        <tr>
-                            <td><?php echo $employee[EMP_NAME]; ?></td>
-                            <td><?php echo $request[MAIN_VACATION_1ST_START]; ?></td>
-                            <td><?php echo $request[MAIN_VACATION_1ST_END]; ?></td>
-                            <td><?php echo $request[MAIN_VACATION_2ND_START]; ?></td>
-                            <td><?php echo $request[MAIN_VACATION_2ND_END]; ?></td>
-                            <td> <button class="btn btn-success" type="submit" name="amend"  value="<?php echo $request[MAIN_VACATION_REQ_ID]; ?>">Amend</button></td>
-                            <td> <button class="btn btn-danger" type="submit" name="delete"  value="<?php echo $request[MAIN_VACATION_REQ_ID]; ?>">Delete</button></td>
-                        </tr>
-                        <?php }} ?>
+                    <?php PopulateTableBody(); ?>
                 </tbody>
             </table>
             </form>

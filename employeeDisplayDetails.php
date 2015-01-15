@@ -6,7 +6,8 @@ if (isset($_POST["deleteApproved"])) {
 }
 
 if (isset($_POST["amendAdHoc"])) {   
-    $url = "Location:editAdHocAbsenceRequest.php?ID=".$_POST["amendAdHoc"]."&back=employeeDisplayDetails.php";   
+    $url = "Location:editAdHocAbsenceRequest.php?ID=".$_POST["amendAdHoc"].
+           "&back=employeeDisplayDetails.php";   
     header($url);
 }
 
@@ -17,7 +18,8 @@ if (isset($_POST["deleteAdHoc"]))
 
 
 if (isset($_POST["amendMain"])) {   
-    $url = "Location:editMainRequest.php?ID=".$_POST["amendMain"]."&back=employeeDisplayDetails.php";   
+    $url = "Location:editMainRequest.php?ID=".$_POST["amendMain"].
+           "&back=employeeDisplayDetails.php";   
     header($url);
 }
 
@@ -27,18 +29,99 @@ if (isset($_POST["deleteMain"]))
 }
 
 
+function DisplayEmployeeDetailsListItems($userID)
+{
+    $employee = RetrieveEmployeeByID($userID);
+    $companyRole = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
 
-$employee = RetrieveEmployeeByID($userID);
+    echo '<li class="list-group-item ">ID: '.
+            $employee[EMP_ID].'</li>';
+    echo '<li class="list-group-item ">Name: '.
+            $employee[EMP_NAME].'</li>';
+    echo '<li class="list-group-item ">Email: '.
+            $employee[EMP_EMAIL].'</li>';
+    echo '<li class="list-group-item ">Date Joined: '.
+            $employee[EMP_DATEJOINED].'</li>';
+    echo '<li class="list-group-item ">Company Role: '.
+            $companyRole[COMP_ROLE_NAME].'</li>';
+    echo '<li class="list-group-item ">Is Admin: '.
+            $employee[EMP_ADMIN_PERM].'</li>';
+    echo '<li class="list-group-item ">Is Manager: '.
+            $employee[EMP_MANAGER_PERM].'</li>';
+    echo '<li class="list-group-item ">Leave Entitlement: '.
+            $employee[EMP_LEAVE_ENTITLEMENT].'</li>';
+    echo '<li class="list-group-item ">Annual leave remaining:'.
+            CalculateRemainingAnnualLeave($employee[EMP_ID]).'</li>';
+}
+ 
 
-$mainVacationRequest = RetrieveMainVacationRequestByID($employee[EMP_MAIN_VACATION_REQ_ID]);
-$companyRole = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
+function DisplayApproveAbsenceRequestsTableBody($userID)
+{
+    $filter[APPR_ABS_EMPLOYEE_ID] = $userID;
+    $bookings = RetrieveApprovedAbsenceBookings($filter);
 
-$filter[AD_HOC_EMP_ID] = $userID;
-$adHocRequests = RetrieveAdHocAbsenceRequests($filter);
+    if ($bookings <> NULL) {
+        foreach ($bookings as $booking) {
+            $absenceTypeID = $booking[APPR_ABS_ABS_TYPE_ID];
+            $absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
+            echo '<tr>';
+            echo '<td>'.$booking[APPR_ABS_START_DATE].'</td>';
+            echo '<td>'.$booking[APPR_ABS_END_DATE].'</td>';
+            echo '<td>'.$absenceType[ABS_TYPE_NAME].'</td>';
+            echo '<td> <button class="btn btn-danger" type="submit" '.
+                 'name="deleteApproved"  value="'.
+                  $booking[APPR_ABS_BOOKING_ID].'">Delete</button></td>';
+            echo '</tr>';
+        }
+    } 
+}
 
-unset($filter);
-$filter[APPR_ABS_EMPLOYEE_ID] = $userID;
-$bookings = RetrieveApprovedAbsenceBookings($filter);
+function DisplayPendingAdHocRequestsTableBody($userID)
+{
+    $filter[AD_HOC_EMP_ID] = $userID;
+    $adHocRequests = RetrieveAdHocAbsenceRequests($filter);
+
+    if ($adHocRequests <> NULL) {
+        foreach ($adHocRequests as $request) {
+            $absenceTypeID = $request[AD_HOC_ABSENCE_TYPE_ID];
+            $absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
+            echo '<tr>';
+            echo '<td>'.$request[AD_HOC_START].'</td>';
+            echo '<td>'.$request[AD_HOC_END].'</td>';
+            echo '<td>'.$absenceType[ABS_TYPE_NAME].'</td>';
+            echo '<td> <button class="btn btn-success" type="submit" '.
+                 'name="amendAdHoc"  value="'.$request[AD_HOC_REQ_ID].'">Amend'.
+                 '</button></td>';
+            echo '<td> <button class="btn btn-danger" type="submit" '.
+                 'name="deleteAdHoc"  value="'.$request[AD_HOC_REQ_ID].'">Delete'.
+                 '</button></td>';
+            echo '</tr>';
+        }
+    }
+}
+  
+
+
+function DisplayMainVacationRequestTableBody($userID)
+{ 
+    $employee = RetrieveEmployeeByID($userID);
+    $mainVacationRequest = RetrieveMainVacationRequestByID($employee[EMP_MAIN_VACATION_REQ_ID]);
+    if ($mainVacationRequest <> NULL)
+    {
+        echo '<tr>';
+        echo '<td>'.$mainVacationRequest[MAIN_VACATION_1ST_START].'</td>';
+        echo '<td>'.$mainVacationRequest[MAIN_VACATION_1ST_END].'</td>';
+        echo '<td>'.$mainVacationRequest[MAIN_VACATION_2ND_START].'</td>';
+        echo '<td>'.$mainVacationRequest[MAIN_VACATION_2ND_END].'</td>';
+        echo '<td> <button class="btn btn-success" type="submit" name="amendMain"'.
+             'value="'.$mainVacationRequest[MAIN_VACATION_REQ_ID].'">Amend</button></td>';
+        echo '<td> <button class="btn btn-danger" type="submit" name="deleteMain"'.
+             'value="'.$mainVacationRequest[MAIN_VACATION_REQ_ID].'">Delete</button></td>';
+        echo '</tr>';
+    }
+ }
+ 
+
 ?>
 
 <!DOCTYPE html>
@@ -54,20 +137,12 @@ $bookings = RetrieveApprovedAbsenceBookings($filter);
     </head>
 
     <body>
-         <?php include 'navbar.php'; ?>
+        <?php include 'navbar.php'; ?>
         
         <div class="col-md-4 col-md-offset-4 text-center">
             <h1>Employee Details</h1>
             <ul class="list-group ">
-                <li class="list-group-item "><?php echo "ID: " . $employee[EMP_ID]; ?></li>
-                <li class="list-group-item "><?php echo "Name: " . $employee[EMP_NAME]; ?></li>
-                <li class="list-group-item "><?php echo "Email: " . $employee[EMP_EMAIL]; ?></li>
-                <li class="list-group-item "><?php echo "Date Joined: " . $employee[EMP_DATEJOINED]; ?></li>
-                <li class="list-group-item "><?php echo "Company Role: " . $companyRole[COMP_ROLE_NAME]; ?></li>
-                <li class="list-group-item "><?php echo "Is Admin: " . $employee[EMP_ADMIN_PERM]; ?></li>
-                <li class="list-group-item "><?php echo "Is Manager: " . $employee[EMP_MANAGER_PERM]; ?></li>
-                <li class="list-group-item "><?php echo "Leave Entitlement: " . $employee[EMP_LEAVE_ENTITLEMENT]; ?></li>
-                <li class="list-group-item "><?php echo "Annual leave remaining:".CalculateRemainingAnnualLeave($employee[EMP_ID]); ?></li>
+                <?php DisplayEmployeeDetailsListItems($userID); ?>
             </ul>
         </div>
        
@@ -84,20 +159,7 @@ $bookings = RetrieveApprovedAbsenceBookings($filter);
                 </tr>
             </thead>
             <tbody>
-                <?php
-                if ($bookings <> NULL) {
-                    foreach ($bookings as $booking) {
-                        $absenceTypeID = $booking[APPR_ABS_ABS_TYPE_ID];
-                        $absenceType = RetrieveAbsenceTypeByID($absenceTypeID);
-                        ?>
-                        <tr>
-                            <td><?php echo $booking[APPR_ABS_START_DATE]; ?></td>
-                            <td><?php echo $booking[APPR_ABS_END_DATE]; ?></td>
-                            <td><?php echo $absenceType[ABS_TYPE_NAME]; ?></td>
-                            <td> <button class="btn btn-danger" type="submit" name="deleteApproved"  value="<?php echo $booking[APPR_ABS_BOOKING_ID]; ?>">Delete</button></td>
-
-                        </tr>
-                    <?php }} ?>
+              <?php DisplayApproveAbsenceRequestsTableBody($userID); ?>
             </tbody>
         </div>
         </div>    
@@ -117,28 +179,12 @@ $bookings = RetrieveApprovedAbsenceBookings($filter);
                 </tr>
             </thead>
             <tbody>
-            <?php
-           if ($adHocRequests <> NULL) {
-    foreach ($adHocRequests as $request) {
-        $absenceTypeID = $request[AD_HOC_ABSENCE_TYPE_ID];
-        $absenceType = RetrieveAbsenceTypeByID($absenceTypeID)
-        ?>
-                        <tr>
-                            <td><?php echo $request[AD_HOC_START]; ?></td>
-                            <td><?php echo $request[AD_HOC_END]; ?></td>
-                            <td><?php echo $absenceType[ABS_TYPE_NAME]; ?></td>
-                            <td> <button class="btn btn-success" type="submit" name="amendAdHoc"  value="<?php echo $request[AD_HOC_REQ_ID]; ?>">Amend</button></td>
-                            <td> <button class="btn btn-danger" type="submit" name="deleteAdHoc"  value="<?php echo $request[AD_HOC_REQ_ID]; ?>">Delete</button></td>
- 
-                        </tr>
-    <?php }
-} ?>
+            <?php DisplayPendingAdHocRequestsTableBody($userID); ?>
             </tbody>
         </table> 
         </div>
         </div>
         </form>    
-        
         <form method="POST">
         <div class="row">
         <div class="col-md-8 col-md-offset-2 tect-center">
@@ -153,24 +199,12 @@ $bookings = RetrieveApprovedAbsenceBookings($filter);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    if ($mainVacationRequest <> NULL)
-                    {?>
-                        <tr>
-                            <td><?php echo $mainVacationRequest[MAIN_VACATION_1ST_START]; ?></td>
-                            <td><?php echo $mainVacationRequest[MAIN_VACATION_1ST_END]; ?></td>
-                            <td><?php echo $mainVacationRequest[MAIN_VACATION_2ND_START]; ?></td>
-                            <td><?php echo $mainVacationRequest[MAIN_VACATION_2ND_END]; ?></td>
-                            <td> <button class="btn btn-success" type="submit" name="amendMain"  value="<?php echo $mainVacationRequest[MAIN_VACATION_REQ_ID]; ?>">Amend</button></td>
-                            <td> <button class="btn btn-danger" type="submit" name="deleteMain"  value="<?php echo $mainVacationRequest[MAIN_VACATION_REQ_ID]; ?>">Delete</button></td>
-                        </tr>
-                        <?php } ?>
+                    <?php DisplayMainVacationRequestTableBody($userID); ?>
                 </tbody>
             </table>
         </div>
         </div>
         </form>
-
-
+      
     </body>
 </html>

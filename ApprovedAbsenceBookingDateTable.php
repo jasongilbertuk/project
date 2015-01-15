@@ -144,8 +144,10 @@ function RetrieveApprovedAbsenceBookingDateByID($id) {
     $resultArray = performSQLSelect(APPROVED_ABSENCE_BOOKING_DATE, $filter);
 
     $result = NULL;
-
-    if (count($resultArray) == 1) {      //Check to see if record was found.
+    
+//Check to see if record was found.
+    if (count($resultArray) == 1) {      
+        //Yes, record was found.
         $result = $resultArray[0];
     }
 

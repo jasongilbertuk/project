@@ -1,5 +1,8 @@
 <?php
 
+/* -----------------------------------------------------------------------------
+ * Includes
+ * -------------------------------------------------------------------------- */
 
 include 'AdHocRequestTable.php';
 include 'CompanyRoleTable.php';
@@ -13,21 +16,48 @@ include 'PublicHolidayTable.php';
 include 'MailFunctions.php';
 include 'KeyAlgorithms.php';
 
+//Create a connection to the database. This is a global variable and will 
+//be accessed via $_GLOBALS["connection"]
 $connection = connectToSql("localhost", "root", "root");
 CreateNewDatabase();
     
 
 
 
+/* -----------------------------------------------------------------------------
+ * Function IsValidDate
+ *
+ * This function checks the supplied date to determine whether or not
+ * the date is a valid date in the format YYYY-MM-DD
+ *
+ * $date (string) string date to check.
+ * @return (bool)  TRUE if date supplied is a valid date, otherwise FALSE.
+ * -------------------------------------------------------------------------- */
 function isValidDate($date) {
     $d = DateTime::createFromFormat('Y-m-d', $date);
     return $d && $d->format('Y-m-d') == $date;
 }
-
-// Function for basic field validation (present and neither empty nor only white space
-function IsNullOrEmptyString($question) {
-    return (!isset($question) || trim($question) === '');
+/* -----------------------------------------------------------------------------
+ * Function IsNULLOrEmptyString
+ *
+ * This function performs a basic check to test whether the string supplied
+ * is NULL or empty.
+ *
+ * $inputString (string) string to check.
+ * @return (bool)  TRUE if string is NULL or empty, otherwise FALSE.
+ * -------------------------------------------------------------------------- */
+function IsNullOrEmptyString($inputString) {
+    return (!isset($inputString) || trim($inputString) == '');
 }
+
+/* -----------------------------------------------------------------------------
+ * Function printCalstackAndDie
+ *
+ * This function is used in the event of a fatal error in processing, where
+ * the program is no longer able to function. The code will print out the call
+ * stack to the screen which may be helpful in debugging.
+ * @return(none)
+ * -------------------------------------------------------------------------- */
 
 function printCallstackAndDie() {
     echo "Fatal Error. Please contact your system administrator.<br/>";
@@ -41,6 +71,18 @@ function printCallstackAndDie() {
     die();
 }
 
+/* -----------------------------------------------------------------------------
+ * Function connectToSQL
+ *
+ * This function performs the processing necessary to establish a connection
+ * with the SQL database.
+ *
+ * $server (string) server that the database is on
+ * $username (string) account username for the database.
+ * $password (string) account password for the database.
+ * @return (connection) id representing the database connection, or NULL if failed
+ *                      to establish a connection.
+ * -------------------------------------------------------------------------- */
 function connectToSql($server, $username, $password) {
     $connection = mysqli_connect($server, $username, $password);
     if (!$connection) {
@@ -49,6 +91,14 @@ function connectToSql($server, $username, $password) {
     return $connection;
 }
 
+/* -----------------------------------------------------------------------------
+ * Function performSQL
+ *
+ * This function takes an SQL string and executes this query agains the database.
+ *
+ * $sql (string) SQL statement to execute
+ * @return (array)  array of rows containing the result, or NULL if the query failed.
+ * -------------------------------------------------------------------------- */
 function performSQL($sql) {
     $result = FALSE;
     $conn = $GLOBALS["connection"];
@@ -59,6 +109,15 @@ function performSQL($sql) {
     return $result;
 }
 
+/* -----------------------------------------------------------------------------
+ * Function performSQLDelete
+ *
+ * This function takes an SQL string representing a delete from the database and
+ * executes this query agains the database.
+ *
+ * $sql (string) SQL statement to execute
+ * @return (int) count of rows deleted or 0 if no rows were deleted.
+ * -------------------------------------------------------------------------- */
 function performSQLDelete($sql) {
     $deletedRows = 0;
 
@@ -71,6 +130,15 @@ function performSQLDelete($sql) {
     return $deletedRows;
 }
 
+/* -----------------------------------------------------------------------------
+ * Function performSQLInsert
+ *
+ * This function takes an SQL string representing an insert into the database and
+ * executes this query agains the database.
+ *
+ * $sql (string) SQL statement to execute
+ * @return (int)id of the record creased in the database or 0 if insert failed.
+ * -------------------------------------------------------------------------- */
 function performSQLInsert($sql) {
     $conn = $GLOBALS["connection"];
     $result = mysqli_query($conn, $sql);
@@ -80,6 +148,19 @@ function performSQLInsert($sql) {
     return mysqli_insert_id($conn);
 }
 
+/* -----------------------------------------------------------------------------
+ * Function performSQLSelect
+ *
+ * This function forms an select query on the database
+ *  and executes this query agains the database.
+ *
+ * $tableName (string) name of the database table that this query should be
+ *                     performed on
+ * $filter (array) set of key value pairs to use in the WHERE clause of the sql
+ *                 query. Note, this value can be NULL if you want to access
+ *                 all records in the table.
+ * @return (array) set of records matching the filter.
+ * -------------------------------------------------------------------------- */
 function performSQLSelect($tableName, $filter) {
     $conn = $GLOBALS["connection"];
 
@@ -106,6 +187,18 @@ function performSQLSelect($tableName, $filter) {
     return $results;
 }
 
+/* -----------------------------------------------------------------------------
+ * Function performSQLUpdate
+ *
+ * This function forms an update statement on the database
+ *  and executes this query agains the database.
+ *
+ * $tableName (string) name of the database table that this update should be
+ *                     performed on
+ * $filter (array) set of key value pairs which contains the field names and 
+ *                 values to be applied i this update.
+ * @return (bool) TRUE if the update was performed successfully, FALSE otherwise.
+ * -------------------------------------------------------------------------- */
 function performSQLUpdate($tableName, $idFieldName, $fields) {
     $conn = $GLOBALS["connection"];
     $sql = "UPDATE " . $tableName . " SET ";
@@ -133,22 +226,50 @@ function performSQLUpdate($tableName, $idFieldName, $fields) {
     return TRUE;
 }
 
+/* -----------------------------------------------------------------------------
+ * Function UseDB
+ * 
+ * Very simple function that performs the SQL necessary to use the database.
+ * @return (none) 
+ * -------------------------------------------------------------------------- */
 function UseDB() {
     $sql = "USE mydb;";
     performSQL($sql);
 }
 
+/* -----------------------------------------------------------------------------
+ * Function DropDB
+ *
+ * Very simple function that performs the SQL necessary to drop the database.
+ * @return (none) 
+ * -------------------------------------------------------------------------- */
 function DropDB() {
     $sql = "DROP DATABASE IF EXISTS `mydb`;";
     performSQL($sql);
 }
 
+/* -----------------------------------------------------------------------------
+ * Function CreateDB
+ *
+ * Very simple function that performs the SQL necessary to create the database.
+ * @return (none) 
+ * -------------------------------------------------------------------------- */
 function CreateDB() {
     $sql = "CREATE SCHEMA IF NOT EXISTS `mydb`" .
             "DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci ;";
     performSQL($sql);
 }
 
+/* -----------------------------------------------------------------------------
+ * Function CreateDefaultRecordsIfRequired
+ *
+ * This function is used to populate some of the tables in the database with 
+ * basic date required for operation. This includes creating a default account of 
+ * admin if no employees are in the database and creating the date entries in the
+ * date table, if the date table is empty.
+ *
+ * @return (none) 
+ * -------------------------------------------------------------------------- */
 function CreateDefaultRecordsIfRequired() {
     
     //Q. Are there any employees in our database?
@@ -176,6 +297,15 @@ function CreateDefaultRecordsIfRequired() {
     }
 }
 
+/* -----------------------------------------------------------------------------
+ * Function CreateNewDatabase
+ *
+ * This function creates the database and all tables within it.
+ *
+ * $destroyExistingDB(bool) ic TRUE, will destroy existing database
+ * $createWithTestData(bool) if TRUE, will populate new database with test data.
+ * @return (none) 
+ * -------------------------------------------------------------------------- */
 function CreateNewDatabase($destroyExistingDB = false, $createWithTestData = false) {
     if ($destroyExistingDB) {
         DropDB();

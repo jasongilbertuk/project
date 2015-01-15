@@ -1,4 +1,5 @@
 <?php
+include 'sessionmanagement.php';
 include 'databaseFunctions.php';
 
 $returnURL = "index.php";
@@ -11,6 +12,21 @@ if ($_GET["ID"] <> NULL)
 {
     $request = RetrieveAdHocAbsenceRequestByID($_GET["ID"]);
     $employee = RetrieveEmployeeByID($request[AD_HOC_EMP_ID]);
+    
+    if (!$isAdministrator)
+    {
+        if ($request[AD_HOC_EMP_ID] <> $userID)
+        {
+            //--------------------------------------------------------------
+            // The user is not an administrator, but is attempting to 
+            // edit an approved absence request for another user. This is
+            // not allowed, and should not happen. If it does, we redirect
+            // the user back to the index.
+            //--------------------------------------------------------------
+            header('Location: index.php');
+            exit();
+        }
+    }
 }
 
 if (isset($_POST["cancel"])) {   
@@ -30,6 +46,32 @@ if (isset($_POST["update"])) {
     exit;
 }
 
+
+
+function CreateAbsenceTypeSelect($absenceIDToSelect)
+{
+    $absenceTypes = RetrieveAbsenceTypes();
+    if ($absenceTypes <> NULL)
+    {
+        echo '<select class="form-control" name="absenceType">';
+                
+        foreach ($absenceTypes as $absenceType)
+        {
+            if ($absenceType[ABS_TYPE_ID]== $absenceIDToSelect)
+            {
+                echo '<option selected="selected" value="'.
+                        $absenceType[ABS_TYPE_ID].'">'.
+                        $absenceType[ABS_TYPE_NAME].'</option>';                       
+            }
+            else                      
+            {
+                echo '<option value="'.$absenceType[ABS_TYPE_ID].'">'.
+                        $absenceType[ABS_TYPE_NAME].'</option>';
+            }
+        }
+        echo '</select>';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -50,68 +92,48 @@ if (isset($_POST["update"])) {
             <div class="row">
             <div class="col-md-4 col-md-offset-4 text-center"> 
                 <h1> Edit Ad Hoc Request </h1>
-            <label for="employeeName">Employee Name</label>
-
-            <?php  
-    
-                $employees = RetrieveEmployees();
-                if ($employees <> NULL)
+            
+            <div class="input-group"  for="empID">
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-user"></span>
+            </span>    
+            <?php 
+                if ($employee <> NULL)
                 {
-                    echo '<select class="form-control" name="employeeID">';
-                    foreach ($employees as $employee)
-                    if ($employee[EMP_ID]== $request[AD_HOC_EMP_ID])
-                    {
-                        echo '<option selected="selected" value="'.$employee[EMP_ID].'">'.$employee[EMP_NAME].'</option>';
-                    }
-                    else    
-                    {
-                        echo '<option value="'.$employee[EMP_ID].'">'.$employee[EMP_NAME].'</option>';
-                    }
-                }    
-            echo '</select>';
-            ?>
-            <br />
+                  echo '<input type="text" class="form-control" name="empID" '.
+                       'id="empID" readonly value="'.$employee[EMP_NAME].'"/>';
+                }
+            ?> 
+           </div>
             
             <div class="input-group" for="startDate">
-		<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>	
-  		<input type="date" class="form-control" name="startDate" id="startDate" 
-                       value="<?php echo $request[AD_HOC_START]?>">
+		<span class="input-group-addon">Start&nbsp;
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>	
+  		<input type="date" class="form-control" name="startDate" 
+                       id="startDate" value="<?php echo $request[AD_HOC_START]?>">
             </div>
   
             
             <div class="input-group" for="endDate">
-		<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>	
-  		<input type="date" class="form-control" name="endDate" id="endDate" 
-                       value="<?php echo $request[AD_HOC_END]?>">   
+		<span class="input-group-addon">Finish
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>	
+  		<input type="date" class="form-control" name="endDate" 
+                       id="endDate" value="<?php echo $request[AD_HOC_END]?>">   
             </div>
                 
             <br/>                
             <p class="text-center">
             <label for="absenceType">Absence Type</label>
-            <?php  
-                $absenceTypes = RetrieveAbsenceTypes();
-                if ($absenceTypes <> NULL)
-                {
-                    echo '<select class="form-control" name="absenceType">';
-                    foreach ($absenceTypes as $absenceType)
-                    if ($absenceType[ABS_TYPE_ID]== $request[AD_HOC_ABSENCE_TYPE_ID])
-                        {
-                        echo '<option selected="selected" value="'.$absenceType[ABS_TYPE_ID].'">'.$absenceType[ABS_TYPE_NAME].'</option>';                       
-                        }
-                        else                      
-                        {
-                        echo '<option value="'.$absenceType[ABS_TYPE_ID].'">'.$absenceType[ABS_TYPE_NAME].'</option>';
-                    }
-                }
-            
-                
-            echo '</select>';
-            ?>
+            <?php CreateAbsenceTypeSelect($request[AD_HOC_ABSENCE_TYPE_ID]); ?> 
             </p>
             <br />
             
-            <input class="btn btn-success btn-block" type="submit" name="update" id="submit" value="Edit Request"/>
-            <input class="btn btn-danger btn-block" type="submit" name="cancel" id="cancel" value="Cancel"/>
+            <input class="btn btn-success btn-block" type="submit" name="update" 
+                   id="submit" value="Edit Request"/>
+            <input class="btn btn-danger btn-block" type="submit" name="cancel" 
+                   id="cancel" value="Cancel"/>
         </form>
     </body>
 </html>

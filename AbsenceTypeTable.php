@@ -12,6 +12,8 @@ define("ABS_TYPE_NAME", "absenceTypeName");
 define("ABS_TYPE_USES_LEAVE", "usesAnnualLeave");
 define("ABS_TYPE_CAN_BE_DENIED", "canBeDenied");
 
+//This constant is used to refer to the default annual leave record, which is
+//used as the type of leave for main vacation requests.
 define("ANNUAL_LEAVE", "Annual leave");
 
 /* --------------------------------------------------------------------------------------
@@ -22,7 +24,6 @@ define("ANNUAL_LEAVE", "Annual leave");
  *
  * @return (bool)  True if table is created successfully, false otherwise.
  * ------------------------------------------------------------------------------------- */
-
 function CreateAbsenceTypeTable() {
     $sql = "CREATE TABLE IF NOT EXISTS `mydb`.`absenceTypeTable` (
          `absenceTypeID` INT NOT NULL AUTO_INCREMENT,
@@ -41,7 +42,6 @@ function CreateAbsenceTypeTable() {
             //Table is empty. Create some default absence types.
             CreateAbsenceType(ANNUAL_LEAVE,TRUE,TRUE);
         }
-        
     }
 }
 
@@ -147,6 +147,7 @@ function RetrieveAbsenceTypeByID($id) {
 
     $absenceType = NULL;
 
+    //There should only be one record in the database with this ID.
     if (count($resultArray) == 1) {
         $absenceType = $resultArray[0];
     }
@@ -238,7 +239,6 @@ function UpdateAbsenceType($fields) {
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
-
 
     foreach ($fields as $key => $value) {
         if ($key == ABS_TYPE_ID) {
@@ -332,7 +332,6 @@ function DeleteAbsenceType($ID) {
         $isValidRequest = FALSE;
     }
 
-
     $result = 0;
     if ($isValidRequest) {
         $sql = "DELETE FROM absenceTypeTable WHERE absenceTypeID=" . $ID . ";";
@@ -340,7 +339,6 @@ function DeleteAbsenceType($ID) {
     }
     return $result;
 }
-
 
 /* --------------------------------------------------------------------------------------
  * Function GetAbsenceTypeCount
@@ -366,18 +364,26 @@ function GetAbsenceTypeCount()
 }
 
 
+/* --------------------------------------------------------------------------------------
+ * Function GetAnnualLeaveAbsenceTypeID
+ *
+ * This function gets the absence type ID of the absence type record which is used
+ * for annual leave..
+ *
+ * @return (int) absence type ID or NULL if the absence type is not in the database.
+ * ------------------------------------------------------------------------------------- */
 function GetAnnualLeaveAbsenceTypeID() 
 {
-	$filter[ABS_TYPE_NAME] = "Annual Leave";
+    $filter[ABS_TYPE_NAME] = ANNUAL_LEAVE;
     $absenceTypes = RetrieveAbsenceTypes($filter);
            
     $absenceTypeID = NULL;
     if (count($absenceTypes)== 1)
     {
     	$absenceTypeID = $absenceTypes[0][ABS_TYPE_ID];
-	}
+    }
 	
-	return $absenceTypeID;
+    return $absenceTypeID;
 }
 
 ?>
