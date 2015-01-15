@@ -22,8 +22,39 @@ if (isset($_POST["processadhocrequests"]))
 	processAdHocRequests();
 }
 
-if (isset($_POST["approve1st"])) {   
-    TurnMainVacationRequestIntoApprovedBooking($_POST["approve1st"],1);
+if (isset($_POST["approve1st"])) { 
+    $statusBar = "";
+    $requestID = $_POST["approve1st"];
+    
+    $absenceType = GetAnnualLeaveAbsenceTypeID();
+    
+    $request = RetrieveMainVacationRequestByID($requestID);
+    if ($request <> NULL)
+    {
+        $result = ProcessAbsenceRequest($request[MAIN_VACATION_EMP_ID],
+                                        $request[MAIN_VACATION_1ST_START],
+                                        $request[MAIN_VACATION_1ST_END],
+                                        $absenceType);
+        if ($result == TRUE)
+        {
+            $statusBar = "Request Approved.";
+            
+        
+          
+        }
+        else 
+        {
+            $statusBar = "Unable to approve request";
+        }
+ 
+    }
+    else
+    {
+        $statusBar = "Error: Unable to process your request.".
+                     "The MainVacationRequest ID of $requestID ".
+                     "could not be found in the database. Please ".
+                     "contact your system administrator.";
+    }
 }
 
 if (isset($_POST["approve2nd"])) {   
@@ -85,12 +116,12 @@ if (isset($_POST["rejectadhoc"]))
             <div class="col-md-4 col-md-offset-4 text-center">
                 <h1> Current Processed Requests </h1>
             <div class="input-group" for="StaffWithRequest">
-  		<span class="input-group-addon">With Main Vacation<span class="glyphicon glyphicon-user"></span></span>
+  		<span class="input-group-addon">Employees &nbsp; With&nbsp; Main &nbsp; Vacation&nbsp; Requests</span>
   		<input type="text" class="form-control" name="withCount" id="withCount" readonly value="<?php echo $totalEmployees;?>">
 	    </div>
             
             <div class="input-group" for="StaffWithoutRequest">
-  		<span class="input-group-addon">Without Main Vacation<span class="glyphicon glyphicon-user"></span></span>
+  		<span class="input-group-addon">Employees Without Main Vacation Requests</span>
   		<input type="text" class="form-control" name="withoutCount" id="withCount" readonly value="<?php echo $employeesWithNoMainVacation;?>">
 	    </div>
 
@@ -146,7 +177,6 @@ if (isset($_POST["rejectadhoc"]))
         </div>  
       
          <div id="table">
-             <H2>Current Ad Hoc Absence Requests </H2>
             <form method="post">
             <div class="row">
             <div class="col-md-8 col-md-offset-2 text-center">    
