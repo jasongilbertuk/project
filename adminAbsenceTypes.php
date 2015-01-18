@@ -9,7 +9,7 @@ if (!$isAdministrator)
 }
 
 if (isset($_POST["submit"])) {
-
+    ClearStatus();
     
     $usesAnnualLeave = "0";
     if (isset($_POST["usesAnnualLeave"]))
@@ -21,17 +21,20 @@ if (isset($_POST["submit"])) {
     {
         $canBeDenied = "1";
     }
-    $role = CreateAbsenceType($_POST["absenceTypeName"], 
-                              $usesAnnualLeave,
-                              $canBeDenied);
+    $record = CreateAbsenceType($_POST["absenceTypeName"], 
+                                $usesAnnualLeave,
+                                $canBeDenied);
+    
 }
 
-if (isset($_POST["amend"])) {   
+if (isset($_POST["amend"])) { 
+    ClearStatus();
     $url = "Location:editabsencetype.php?ID=".$_POST["amend"];   
     header($url);
 }
 
 if (isset($_POST["delete"])) {
+    ClearStatus();
     DeleteAbsenceType($_POST["delete"]);
 }
 ?>
@@ -43,30 +46,16 @@ if (isset($_POST["delete"])) {
         <title>Admin Absence Types</title>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
-
-       	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-      	 	<script>
-  	      function validateCreateFields() 
-  	      {
-  	        	alert("hello");
-  	        	var absenceTypeName = $('#absenceTypeName').val();
-  	        	var usesAnnualLeave = $('#usesAnnualLeave').prop('checked'); 
-  	        	var canBeDenied 	= $('#canBeDenied').prop('checked');
-  	        	
-  	        	alert(absenceTypeName);
-  	        	alert(usesAnnualLeave);
-  	        	alert(canBeDenied);
-  	        	alert("hello");
-  	      }
-    </script>    	
     </head>
  
     <body>
         <?php include 'navbar.php'; ?>
 
-        <form name="createAbsenceType" method="post" onsubmit="return validateCreateFields()">
+        <form name="createAbsenceType" method="post">
             <div class="row">
                 <div class="col-md-4 col-md-offset-4 text-center">
                     <h1>Create Absence Type</h1>

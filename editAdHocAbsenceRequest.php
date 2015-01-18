@@ -29,21 +29,25 @@ if ($_GET["ID"] <> NULL)
     }
 }
 
-if (isset($_POST["cancel"])) {   
-    
+if (isset($_POST["cancel"])) { 
+    ClearStatus();
     header("location:".$returnURL);
     exit;
 }
 
 if (isset($_POST["update"])) {
+    ClearStatus();
     $request[AD_HOC_REQ_ID]          =  $_GET["ID"];
     $request[AD_HOC_START]           =   $_POST["startDate"];
     $request[AD_HOC_END]             =   $_POST["endDate"];
     $request[AD_HOC_ABSENCE_TYPE_ID] =   $_POST["absenceType"];
-    UpdateAdHocAbsenceRequest($request);
+    $success = UpdateAdHocAbsenceRequest($request);
 
-    header("location:".$returnURL);
-    exit;
+    if ($success)
+    {
+        header("location:".$returnURL);
+        exit;
+    }
 }
 
 

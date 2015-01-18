@@ -63,6 +63,7 @@ function CreateApprovedAbsenceBookingTable() {
  * ------------------------------------------------------------------------------------- */
 
 function CreateApprovedAbsenceBooking($employeeID, $absenceStartDate, $absenceEndDate, $absenceTypeID) {
+    $statusMessage = "";
     $absenceBooking = NULL;
     //--------------------------------------------------------------------------------
     // Validate Input parameters
@@ -72,27 +73,39 @@ function CreateApprovedAbsenceBooking($employeeID, $absenceStartDate, $absenceEn
     //ensure employee exists in the database.
     $record = RetrieveEmployeeByID($employeeID);
     if ($record == NULL) {
+        $statusMessage.= "Unable to locate employee in database.</br>";
         error_log("employeeID passed to CreateApprovedAbsenceBooking " .
                 " does not exist in the database. ID=" . $employeeID);
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($absenceStartDate)) {
+        $statusMessage.= "Start date is not a valid date.</br>";
         error_log("absenceStartDate passed to CreateApprovedAbsenceBooking " .
                 " is invalid. date=" . $absenceStartDate);
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($absenceEndDate)) {
+        $statusMessage.= "End date is not a valid date.</br>";
         error_log("absenceEndDate passed to CreateApprovedAbsenceBooking " .
                 " is invalid. date=" . $absenceEndDate);
         $inputIsValid = FALSE;
     }
+    
+    if (strtotime($absenceEndDate) < strtotime($absenceStartDate)) 
+    {
+        $statusMessage.="end Date is before start Date.</br>";
+        error_log("End Date is before Start Date.");
+        $inputIsValid = FALSE;
+    }
+
 
     //ensure absence type exists in the database.
     $record = RetrieveAbsenceTypeByID($absenceTypeID);
 
     if ($record == NULL) {
+        $statusMessage.= "Unable to locate absence type in database.</br>";
         error_log("absenceTypeID passed to CreateApprovedAbsenceBooking " .
                 " does not exist in the database. ID=" . $absenceTypeID);
         $inputIsValid = FALSE;
@@ -112,10 +125,13 @@ function CreateApprovedAbsenceBooking($employeeID, $absenceStartDate, $absenceEn
 
         $success = sqlInsertApprovedAbsenceBooking($booking);
         if (!$success) {
+            $statusMessage.= "Unexpected error when inserting to database.".
+                             "Contact your system administrator.</br>";
+            $inputIsValid = false;
             error_log("Failed to create Approved Absence Booking.");
             $booking = NULL;
         }
-
+   
         // Set timezone
         date_default_timezone_set('UTC');
  
@@ -132,13 +148,19 @@ function CreateApprovedAbsenceBooking($employeeID, $absenceStartDate, $absenceEn
             }
             else 
             {
+                $statusMessage.="Unable to locate Date of $date in database.</br>";
+                $inputIsValid = false;
                 error_log("Unable to find date record. Date=".$date);
             }
             $date = date ("Y-m-d", strtotime("+1 day", strtotime($date)));
         }
-
+        if ($inputIsValid)
+        {
+            $statusMessage.= "Record created successfully.</br>";
+        }
     }
-
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $booking;
 }
 
@@ -282,6 +304,7 @@ function RetrieveApprovedAbsenceBookings($filter = NULL) {
  * ------------------------------------------------------------------------------------- */
 
 function UpdateApprovedAbsenceBooking($fields) {
+    $statusMessage = "";
     //--------------------------------------------------------------------------------
     // Validate Input parameters
     //--------------------------------------------------------------------------------
@@ -301,6 +324,7 @@ function UpdateApprovedAbsenceBooking($fields) {
 
             $record = RetrieveEmployeeByID($value);
             if ($record == NULL) {
+                $statusMessage.="Unable to locate employee in database</br>";
                 error_log("Invalid EMP_ID passed to " .
                         "UpdateApprovedAbsenceBooking. Value=" . $value);
                 $inputIsValid = FALSE;
@@ -309,6 +333,7 @@ function UpdateApprovedAbsenceBooking($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                $statusMessage.="Start date is not a valid date.</br>";
                 error_log("Invalid APPR_ABS_START_DATE passed to " .
                         "UpdateApprovedAbsenceBooking. Value=" . $value);
                 $inputIsValid = FALSE;
@@ -317,6 +342,7 @@ function UpdateApprovedAbsenceBooking($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                $statusMessage.="End date is not a valid date.</br>";
                 error_log("Invalid APPR_ABS_END_DATE passed to " .
                         "UpdateApprovedAbsenceBooking. Value=" . $value);
                 $inputIsValid = FALSE;
@@ -326,23 +352,38 @@ function UpdateApprovedAbsenceBooking($fields) {
 
             $record = RetrieveAbsenceTypeByID($value);
             if ($record == NULL) {
+                $statusMessage.="Unable to locate absence type in database</br>";
                 error_log("Invalid APPR_ABS_ABS_TYPE_ID passed to " .
                         "UpdateApprovedAbsenceBooking. Value=" . $value);
                 $inputIsValid = FALSE;
             }
         } else {
+            $statusMessage.="Unexpected field found in input</br>";
             error_log("Invalid field passed to UpdateApprovedAbsenceBooking." .
                     " $key=" . $key);
             $inputIsValid = FALSE;
         }
     }
+    
+    $absenceStartDate = $fields[APPR_ABS_START_DATE];
+    $absenceEndDate = $fields[APPR_ABS_END_DATE];
+    
+    if (strtotime($absenceEndDate) < strtotime($absenceStartDate)) 
+    {
+        $statusMessage.="end Date is before start Date.</br>";
+        error_log("End Date is before Start Date.");
+        $inputIsValid = FALSE;
+    }
+
 
     if (!$validID) {
+        $statusMessage.="No valid ID supplied</br>";
         error_log("No valid ID supplied in call to UpdateApprovedAbsenceBooking.");
         $inputIsValid = FALSE;
     }
 
     if ($countOfFields < 2) {
+        $statusMessage.="Insufficent fields supplied</br>";
         error_log("Insufficent fields supplied in call to UpdateApprovedAbsenceBooking.");
         $inputIsValid = FALSE;
     }
@@ -354,7 +395,18 @@ function UpdateApprovedAbsenceBooking($fields) {
 
     if ($inputIsValid) {
         $success = performSQLUpdate(APPROVED_ABSENCE_BOOKING_TABLE, APPR_ABS_BOOKING_ID, $fields);
+        if ($success)
+        {
+            $statusMessage.="Record updated successfully.</br>";
+        }
+        else 
+        {
+            $statusMessage.="Unexpected error encountered when updating database.</br>";
+            $inputIsValid = false;
+        }
     }
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $success;
 }
 

@@ -25,22 +25,30 @@ if ($_GET["ID"] <> NULL)
 }
 
 if (isset($_POST["cancel"])) {   
+    ClearStatus();
     header("Location:".$returnURL);
+    exit();
 }
 
 if (isset($_POST["update"])) {
+    ClearStatus();
     $record[MAIN_VACATION_REQ_ID]       =   $_GET["ID"];
     $record[MAIN_VACATION_EMP_ID]       =   $employee[EMP_ID];
     $record[MAIN_VACATION_1ST_START]    =   $_POST["firstChoiceStart"];
     $record[MAIN_VACATION_1ST_END]      =   $_POST["firstChoiceEnd"];
     $record[MAIN_VACATION_2ND_START]    =   $_POST["secondChoiceStart"];
     $record[MAIN_VACATION_2ND_END]      =   $_POST["secondChoiceEnd"];
-    UpdateMainVacactionRequest($record);
-
-    header("Location:".$returnURL);
+    $success = UpdateMainVacactionRequest($record);
+    
+    if ($success)
+    {
+        header("Location:".$returnURL);
+        exit();
+    }
 }
 
 if (isset($_POST["delete"])) {
+    ClearStatus();
     DeleteMainVacationRequest($_POST["delete"]);
 }
 
@@ -51,9 +59,10 @@ if (isset($_POST["delete"])) {
     <head>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-       
         <meta charset="UTF-8">
         <title>Admin Employees</title>
     </head>

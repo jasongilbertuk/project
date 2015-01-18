@@ -1,6 +1,8 @@
 <?php
 include "sessionmanagement.php";
 include 'databasefunctions.php';
+ClearStatus();
+
 ?>
 
 <!DOCTYPE html>

@@ -29,10 +29,13 @@ if (isset($_POST["update"])) {
     $date = $dates[0];
     
     $record[PUB_HOL_DATE_ID]=   $date[DATE_TABLE_DATE_ID];
-    UpdatePublicHoliday($record);
+    $success = UpdatePublicHoliday($record);
 
-    $url = "Location:adminPublicHolidays.php";   
-    header($url);
+    if ($success)
+    {
+        $url = "Location:adminPublicHolidays.php";   
+        header($url);
+    }
 }
 
 ?>

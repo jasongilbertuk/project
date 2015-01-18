@@ -62,6 +62,7 @@ function CreateMainVacationRequestTable() {
  * ------------------------------------------------------------------------------------- */
 
 function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoiceEndDate, $secondChoiceStartDate, $secondChoiceEndDate) {
+    $statusMessage = "";
     $request = NULL;
     //--------------------------------------------------------------------------------
     // Validate Input parameters
@@ -71,30 +72,35 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
     $employee = RetrieveEmployeeByID($employeeID);
 
     if ($employee == NULL) {
+        $statusMessage.="Unrecognised Employee ID.</br>";
         error_log("Invalid employeeID passed to CreateMainVacationRequest." .
                 " value=" . $employeeID);
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($firstChoiceStartDate)) {
+        $statusMessage.="1st Choice Start Date is not a valid Date.</br>";
         error_log("Invalid firstChoiceStartDate passed to CreateMainVacationRequest." .
                 " value=" . $firstChoiceStartDate);
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($firstChoiceEndDate)) {
+        $statusMessage.="1st Choice Finish Date is not a valid Date.</br>";
         error_log("Invalid firstChoiceEndDate passed to CreateMainVacationRequest." .
                 " value=" . $firstChoiceEndDate);
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($secondChoiceStartDate)) {
+        $statusMessage.="2nd Choice Start Date is not a valid Date.</br>";
         error_log("Invalid secondChoiceStartDate passed to CreateMainVacationRequest." .
                 " value=" . $secondChoiceStartDate);
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($secondChoiceEndDate)) {
+        $statusMessage.="2nd Choice Finish Date is not a valid Date.</br>";
         error_log("Invalid secondChoiceEndDate passed to CreateMainVacationRequest." .
                 " value=" . $secondChoiceEndDate);
         $inputIsValid = FALSE;
@@ -102,12 +108,14 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
     
     if (strtotime($firstChoiceEndDate) < strtotime($firstChoiceStartDate)) 
     {
+        $statusMessage.="1st Choice End Date is before 1st Choice Start Date.</br>";
         error_log("First Choice End Date is before First Choice Start Date.");
         $inputIsValid = FALSE;
     }
     
     if (strtotime($secondChoiceEndDate) < strtotime($secondChoiceStartDate)) 
     {
+        $statusMessage.="2nd Choice End Date is before 2nd Choice Start Date.</br>";
         error_log("Second Choice End Date is before Second Choice Start Date.");
         $inputIsValid = FALSE;
     }
@@ -126,6 +134,9 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
 
         $success = sqlInsertMainVacationRequest($request);
         if (!$success) {
+            $inputIsValid = false;
+
+            $statusMessage.="Unexpected error encountered with database. Contact your system administrator.</br>";
             error_log("Failed to create main vacation request. " . print_r($request));
             $request = NULL;
         } else {
@@ -138,6 +149,8 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
             if ($employee[EMP_MAIN_VACATION_REQ_ID] <> NULL) {
                 $count = DeleteMainVacationRequest($employee[EMP_MAIN_VACATION_REQ_ID]);
                 if ($count == 0) {
+                    $inputIsValid = false;
+                    $statusMessage.="Unexpected error encountered when removing Main Vacation Request from Database. Contact your system administrator.</br>";
                     error_log("Failed to delete main vacation request. ID=" .
                             $employee[EMP_MAIN_VACATION_REQ_ID]);
                 }
@@ -150,12 +163,19 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
             $employee[EMP_MAIN_VACATION_REQ_ID] = $request[MAIN_VACATION_REQ_ID];
             $success = UpdateEmployee($employee);
             if (!$success) {
+                $statusMessage.="Failed to update employee to reference new main vacation request.";
                 error_log("Failed to update employee to reference new " .
                         "main vacation request.");
+                $inputIsValid = false;
+            }
+            else 
+            {
+                $statusMessage .= "Main Vacation Request successfully created.";
             }
         }
     }
-
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $request;
 }
 
@@ -300,6 +320,8 @@ function RetrieveMainVacationRequests($filter = NULL) {
  * ------------------------------------------------------------------------------------- */
 
 function UpdateMainVacactionRequest($fields) {
+    $success = false;
+    $statusMessage = "";
     //--------------------------------------------------------------------------------
     // Validate Input parameters
     //--------------------------------------------------------------------------------
@@ -319,6 +341,7 @@ function UpdateMainVacactionRequest($fields) {
 
             $record = RetrieveEmployeeByID($value);
             if ($record == NULL) {
+                $statusMessage .="Invalid Main Vacation Employee ID</br>";
                 error_log("Invalid MAIN_VACATION_EMP_ID passed to " .
                         "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
@@ -327,6 +350,7 @@ function UpdateMainVacactionRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                $statusMessage .="Invalid 1st Start Date/br>";
                 error_log("Invalid MAIN_VACATION_1ST_START passed to UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
             }
@@ -334,6 +358,7 @@ function UpdateMainVacactionRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                $statusMessage .="Invalid 1st Finish Date/br>";
                 error_log("Invalid MAIN_VACATION_1ST_END passed to UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
             }
@@ -341,6 +366,7 @@ function UpdateMainVacactionRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                $statusMessage .="Invalid 2nd Start Date/br>";
                 error_log("Invalid MAIN_VACATION_2ND_START passed to UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
             }
@@ -348,21 +374,45 @@ function UpdateMainVacactionRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                $statusMessage .="Invalid 2nd Finish Date/br>";
                 error_log("Invalid MAIN_VACATION_2ND_END passed to UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
             }
         } else {
+            $statusMessage .="Invalid Field encountered./br>";
             error_log("Invalid field passed to UpdateMainVacationRequest. $key=" . $key);
             $inputIsValid = FALSE;
         }
     }
+    
+    $firstChoiceStartDate = $fields[MAIN_VACATION_1ST_START];
+    $firstChoiceEndDate = $fields[MAIN_VACATION_1ST_END];
+    $secondChoiceStartDate = $fields[MAIN_VACATION_2ND_START];
+    $secondChoiceEndDate = $fields[MAIN_VACATION_2ND_END];
+    
+    
+    if (strtotime($firstChoiceEndDate) < strtotime($firstChoiceStartDate)) 
+    {
+        $statusMessage.="1st Choice End Date is before 1st Choice Start Date.</br>";
+        error_log("First Choice End Date is before First Choice Start Date.");
+        $inputIsValid = FALSE;
+    }
+    
+    if (strtotime($secondChoiceEndDate) < strtotime($secondChoiceStartDate)) 
+    {
+        $statusMessage.="2nd Choice End Date is before 2nd Choice Start Date.</br>";
+        error_log("Second Choice End Date is before Second Choice Start Date.");
+        $inputIsValid = FALSE;
+    }
 
     if (!$validID) {
+        $statusMessage .="No valid record ID found/br>";
         error_log("No valid ID supplied in call to UpdateMainVacationRequest.");
         $inputIsValid = FALSE;
     }
 
     if ($countOfFields < 2) {
+        $statusMessage .="You must modify at least one of the fields of the record./br>";
         error_log("Insufficent fields supplied in call to UpdateMainVacationRequest.");
         $inputIsValid = FALSE;
     }
@@ -370,11 +420,19 @@ function UpdateMainVacactionRequest($fields) {
     //--------------------------------------------------------------------------------
     // Only attempt to update a record in the database if the input parameters are ok.
     //--------------------------------------------------------------------------------
-    $success = false;
-
     if ($inputIsValid) {
         $success = performSQLUpdate(MAIN_VACATION_REQUEST_TABLE, MAIN_VACATION_REQ_ID, $fields);
+        if ($success)
+        {
+            $statusMessage.="Record successfully modified.";
+        }
+        else
+        {
+            $inputIsValid = false;
+            $statusMessage.="Error encountered when updating the database. Contact system administrator.</br>";
+        }
     }
+    GenerateStatus($inputIsValid, $statusMessage);
     return $success;
 }
 

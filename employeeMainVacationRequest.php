@@ -22,14 +22,18 @@ if ( $requestID <> NULL)
 
 if (isset($_POST["submit"])) 
 {
+    ClearStatus();
     $request = CreateMainVactionRequest($userID, 
                                $_POST["firstChoiceStart"],
                                $_POST["firstChoiceEnd"],
                                $_POST["secondChoiceStart"], 
                                $_POST["secondChoiceEnd"]);
 
-    $url = "Location:index.php";   
-    header($url);
+    if ($request <> NULL)
+    {
+        $url = "Location:index.php";   
+        header($url);
+    }
 }
 ?>
 

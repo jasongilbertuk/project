@@ -48,18 +48,21 @@ function CreateCompanyRole($roleName, $minStaffLevel) {
     // Validate Input parameters
     //--------------------------------------------------------------------------------
     $inputIsValid = TRUE;
-
+    $statusMessage = "";
     if ($roleName == NULL) {
+        $statusMessage .= "Invalid Company Role Name."; 
         error_log("Invalid NULL name passed to CreateCompanyRole.");
         $inputIsValid = FALSE;
     }
 
     if (isNullOrEmptyString($roleName)) {
+        $statusMessage .= "Company Role Name must be specified."; 
         error_log("Invalid roleName passed to CreateCompanyRole.");
         $inputIsValid = FALSE;
     }
 
     if (!is_numeric($minStaffLevel)) {
+        $statusMessage .= "Minimum Staff Level must be numeric."; 
         error_log("Invalid minStaffLevel parameter passed to CreateCompanyRole.");
         $inputIsValid = FALSE;
     }
@@ -74,10 +77,18 @@ function CreateCompanyRole($roleName, $minStaffLevel) {
 
         $success = sqlInsertCompanyRole($role);
         if (!$success) {
+            $statusMessage .= "Failed to add company role to the database.".
+                             "Please contact your system administrator."; 
             error_log("Failed to create company Role. " . print_r($role));
             $role = NULL;
         }
+        else
+        {
+            $statusMessage .= "Company Role created successfully.";
+        }
+        
     }
+    GenerateStatus($inputIsValid, $statusMessage);
     return $role;
 }
 
@@ -215,10 +226,17 @@ function UpdateCompanyRole($fields) {
                 $validID = true;
                 $countOfFields++;
             }
+            else
+            {
+                $statusMessage.= "Unable to locate Company Role in the database.";
+                error_log("No valid ID supplied in call to UpdateCompanyRole.");
+                $inputIsValid = FALSE;
+            }
         } else if ($key == COMP_ROLE_NAME) {
             $countOfFields++;
 
             if (isNullOrEmptyString($value)) {
+                $statusMessage  .= "You must enter a company role name.";
                 error_log("Invalid COMP_ROLE_NAME passed to UpdateCompanyRole.");
                 $inputIsValid = FALSE;
             }
@@ -226,21 +244,19 @@ function UpdateCompanyRole($fields) {
             $countOfFields++;
 
             if (!is_numeric($value)) {
+                $statusMessage  .= "You must enter a numeric value for minimum staff";
                 error_log("Invalid COMP_ROLE_MIN_STAFF passed to UpdateCompanyRole.");
                 $inputIsValid = FALSE;
             }
         } else {
+            $statusMessage  .= "Invalid field.";
             error_log("Invalid field passed to UpdateCompanyRole. $key=" . $key);
             $inputIsValid = FALSE;
         }
     }
 
-    if (!$validID) {
-        error_log("No valid ID supplied in call to UpdateCompanyRole.");
-        $inputIsValid = FALSE;
-    }
-
     if ($countOfFields < 2) {
+        $statusMessage  .= "You must alter at least one field before updating.";
         error_log("Insufficent fields supplied in call to UpdateCompanyRole.");
         $inputIsValid = FALSE;
     }
@@ -252,7 +268,10 @@ function UpdateCompanyRole($fields) {
 
     if ($inputIsValid) {
         $success = performSQLUpdate(COMPANY_ROLE_TABLE, COMP_ROLE_ID, $fields);
+        $statusMessage .= "Record has been updated successfully.";
     }
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $success;
 }
 

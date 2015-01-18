@@ -10,7 +10,8 @@ if (!$isAdministrator)
 
 if (isset($_POST["submit"])) 
 {
-    $request = CreateMainVactionRequest($_POST["employeeid"], 
+    ClearStatus();
+    $request = CreateMainVactionRequest($_POST["employeeID"], 
                                $_POST["firstChoiceStart"],
                                $_POST["firstChoiceEnd"],
                                $_POST["secondChoiceStart"], 
@@ -19,6 +20,7 @@ if (isset($_POST["submit"]))
 
 
 if (isset($_POST["amend"])) {   
+    ClearStatus();
     $url = "Location:editMainRequest.php?ID=".$_POST["amend"].
            "&back=adminMainVacationRequests.php";   
     header($url);
@@ -26,6 +28,7 @@ if (isset($_POST["amend"])) {
 
 if (isset($_POST["delete"])) 
 {
+    ClearStatus();
     DeleteMainVacationRequest($_POST["delete"]);
 }
 
@@ -74,9 +77,10 @@ function CreateEmployeeSelect()
     <head>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
-
-	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <meta charset="UTF-8">
         <title>Admin Main Vacation Requests</title>
     </head>
@@ -94,9 +98,10 @@ function CreateEmployeeSelect()
                 </span>
                 <?php CreateEmployeeSelect(); ?>
             </div>
+            <br/>
             
             <div class="input-group" for="firstChoiceStart">
-                <span class="input-group-addon">
+                <span class="input-group-addon">1st Choice Start Date&nbsp;
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
                 <input type="date" class="form-control" name="firstChoiceStart" 
@@ -104,7 +109,7 @@ function CreateEmployeeSelect()
             </div>
             
             <div class="input-group" for="firstChoiceEnd">
-                <span class="input-group-addon">
+                <span class="input-group-addon">1st Choice Finish Date
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
                 <input type="date" class="form-control" name="firstChoiceEnd" 
@@ -112,7 +117,7 @@ function CreateEmployeeSelect()
             </div>
             
             <div class="input-group" for="secondChoiceStart">
-                <span class="input-group-addon">
+                <span class="input-group-addon">2nd Choice Start Date&nbsp;
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>
                 <input type="date" class="form-control" name="secondChoiceStart" 
@@ -120,7 +125,7 @@ function CreateEmployeeSelect()
             </div>
             
             <div class="input-group" for="secondChoiceEnd">
-                <span class="input-group-addon">
+                <span class="input-group-addon">1st Choice Finish Date
                     <span class="glyphicon glyphicon-calendar"></span>
                   </span>
                   <input type="date" class="form-control" name="secondChoiceEnd" 

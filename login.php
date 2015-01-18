@@ -1,5 +1,7 @@
 <?php
 session_start();
+$_SESSION["StatusDiv"] = "";
+
 include 'databasefunctions.php';
 
 if (isset($_POST["submit"])) {

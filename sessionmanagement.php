@@ -1,6 +1,12 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['StatusDiv']))
+{
+    $_SESSION['StatusDiv'] = "";
+}
+
+
 if ( (!isset($_SESSION['userID'])) OR
      (!isset($_SESSION['administrator'])) OR
      (!isset($_SESSION['manager']) ))  

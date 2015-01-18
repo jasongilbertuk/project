@@ -8,19 +8,28 @@ if (!$isManager AND !$isAdministrator) {
 }
 
 if (isset($_POST["submit"])) {
-    $request = CreateAdHocAbsenceRequest($_POST["employeeID"], 
+    ClearStatus();
+    $employeeID = NULL;
+    if (isset($_POST["employeeID"]))
+    {
+        $employeeID = $_POST["employeeID"];
+    }
+    
+    $request = CreateAdHocAbsenceRequest($employeeID, 
                                          $_POST["startDate"], 
                                          $_POST["endDate"],
                                          $_POST["absenceType"]);
 }
 
 if (isset($_POST["amend"])) {
+    ClearStatus();
     $url = "Location:editAdHocAbsenceRequest.php?ID=".
             $_POST["amend"] . "&back=adminAdHocAbsenceRequest.php";
     header($url);
 }
 
 if (isset($_POST["delete"])) {
+    ClearStatus();
     DeleteAdHocAbsenceRequest($_POST["delete"]);
 }
 
@@ -87,8 +96,10 @@ function PopulateAdHocTable()
         <title>Admin AdHoc Requests</title>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     </head>
 
     <body>

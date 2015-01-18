@@ -1,4 +1,5 @@
 <?php
+include 'sessionmanagement.php';
 include 'databaseFunctions.php';
 
 if ($_GET["ID"] <> NULL)
@@ -7,14 +8,19 @@ if ($_GET["ID"] <> NULL)
 }
 
 if (isset($_POST["cancel"])) {   
+    ClearStatus();
+
     $url = "Location:adminEmployeeTable.php";   
     header($url);
 }
 
 if (isset($_POST["update"])) {
+    ClearStatus();
+
+    unset($employee);
+    $employee[EMP_ID]         =   $_GET["ID"];
     $employee[EMP_NAME]       =   $_POST["empName"];
     $employee[EMP_EMAIL]      =   $_POST["eMail"];
-    $employee[EMP_PASSWORD]   =   $_POST["password"];
     $employee[EMP_DATEJOINED] =   $_POST["dateJoin"];
     $employee[EMP_LEAVE_ENTITLEMENT]       =   $_POST["annualLeave"];
     $employee[EMP_COMPANY_ROLE]       =   $_POST["companyRole"];
@@ -37,10 +43,13 @@ if (isset($_POST["update"])) {
         }
     }
 
-    UpdateEmployee($employee);
-
-    $url = "Location:adminEmployeeTable.php";   
-    header($url);
+    $result = UpdateEmployee($employee);
+    
+    if ($result)
+    {
+        $url = "Location:adminEmployeeTable.php";   
+        header($url);
+    }
 }
 ?>
 
@@ -72,11 +81,6 @@ if (isset($_POST["update"])) {
             <div class="input-group" for="eMail">
                 <span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
                 <input type="text" class="form-control" placeholder="Email" name="eMail" id="eMail" value="<?php echo $employee[EMP_EMAIL]; ?>">
-            </div>
-
-            <div class="input-group" for="password">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
-                <input type="text" class="form-control" placeholder="Password" name="password" id="password" value="<?php echo $employee[EMP_PASSWORD]; ?>">
             </div>
 
             <div class="input-group" for=dateJoin">

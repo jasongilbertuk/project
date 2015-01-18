@@ -14,55 +14,37 @@ $result = GetEmployeeCount($totalEmployees,$employeesWithNoMainVacation);
 
 if (isset($_POST["processmainrequests"])) 
 {
-	processMainVacationRequests();
+        ClearStatus();
+        $succeed = false;
+        
+	$result = processMainVacationRequests($statusMessage);
+        if ($result ==NULL)
+        {
+            $succeeded = true;
+        }
+        GenerateStatus($succeeded, $statusMessage);
 }
 
 if (isset($_POST["processadhocrequests"])) 
 {
-	processAdHocRequests();
+        ClearStatus();
+	$succeeded = processAdHocRequests($statusMessage);
+        GenerateStatus($succeeded, $statusMessage);
 }
 
 if (isset($_POST["approve1st"])) { 
-    $statusBar = "";
     $requestID = $_POST["approve1st"];
-    
-    $absenceType = GetAnnualLeaveAbsenceTypeID();
-    
-    $request = RetrieveMainVacationRequestByID($requestID);
-    if ($request <> NULL)
-    {
-        $result = ProcessAbsenceRequest($request[MAIN_VACATION_EMP_ID],
-                                        $request[MAIN_VACATION_1ST_START],
-                                        $request[MAIN_VACATION_1ST_END],
-                                        $absenceType);
-        if ($result == TRUE)
-        {
-            $statusBar = "Request Approved.";
-            
-        
-          
-        }
-        else 
-        {
-            $statusBar = "Unable to approve request";
-        }
- 
-    }
-    else
-    {
-        $statusBar = "Error: Unable to process your request.".
-                     "The MainVacationRequest ID of $requestID ".
-                     "could not be found in the database. Please ".
-                     "contact your system administrator.";
-    }
+    ApproveMainVacationRequest($requestID,true);
 }
 
 if (isset($_POST["approve2nd"])) {   
-    TurnMainVacationRequestIntoApprovedBooking($_POST["approve2nd"],2);
+    $requestID = $_POST["approve2nd"];
+    ApproveMainVacationRequest($requestID,false);
 }
 
 if (isset($_POST["reject"])) 
 {
+    ClearStatus();
     $ID = $_POST["reject"];
     DeleteMainVacationRequest($ID);
 }
@@ -70,6 +52,7 @@ if (isset($_POST["reject"]))
 if (isset($_POST["approveadhoc"])) {   
     $ID = $_POST["approveadhoc"];
     
+    ClearStatus();
     $request  = RetrieveAdHocAbsenceRequestByID($ID);
     $startDate = $request[AD_HOC_START];
     $endDate   = $request[AD_HOC_END];
@@ -89,10 +72,77 @@ if (isset($_POST["approveadhoc"])) {
 
 if (isset($_POST["rejectadhoc"])) 
 {
+    ClearStatus();
     $ID = $_POST["reject"];
     DeleteAdHocAbsenceRequest($ID);
 }
 
+function ApproveMainVacationRequest($requestID,$useFirst)
+{
+    $statusMessage = "";
+    $succeeded = true;
+    $absenceType = GetAnnualLeaveAbsenceTypeID();
+    
+    $request = RetrieveMainVacationRequestByID($requestID);
+    if ($request <> NULL)
+    {
+        $start = $request[MAIN_VACATION_1ST_START];
+        $end = $request[MAIN_VACATION_1ST_END];
+        
+        if (!$useFirst)
+        {
+          $start = $request[MAIN_VACATION_2ND_START];
+          $end = $request[MAIN_VACATION_2ND_END];          
+        }
+        $succeeded = ProcessAbsenceRequest($request[MAIN_VACATION_EMP_ID],
+                                        $start,$end,$absenceType,$statusMessage);
+        if ($succeeded)
+        {
+            DeleteMainVacationRequest($requestID);
+        }
+     }
+    else
+    {
+        $statusMessage .= "Error: Unable to process your request.".
+                          "The MainVacationRequest ID of $requestID ".
+                          "could not be found in the database. Please ".
+                           "contact your system administrator.</br>";
+        $succeeded = false;;
+    }
+    
+    GenerateStatus($succeeded, $statusMessage);
+}
+
+function ApproveAdHocRequest($requestID)
+{
+    $statusMessage = "";
+    $succeeded = true;
+ 
+    $request = RetrieveAdHocAbsenceRequestByID($requestID);
+    if ($request <> NULL)
+    {
+        $absenceType = $request[AD_HOC_ABSENCE_TYPE_ID];
+        $start = $request[AD_HOC_START];
+        $end = $request[AD_HOC_END];
+        
+        $succeeded = ProcessAbsenceRequest($request[AD_HOC_EMP_ID],
+                                        $start,$end,$absenceType,$statusMessage);
+        if ($succeeded)
+        {
+            DeleteAdHocAbsenceRequest($requestID);
+        }
+     }
+    else
+    {
+        $statusMessage .= "Error: Unable to process your request.".
+                          "The AdHoc Request ID of $requestID ".
+                          "could not be found in the database. Please ".
+                           "contact your system administrator.</br>";
+        $succeeded = false;;
+    }
+    
+    GenerateStatus($succeeded, $statusMessage);
+}
 
 ?>
 
@@ -103,8 +153,9 @@ if (isset($_POST["rejectadhoc"]))
         <title>Administer Vacations</title>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
-
-      	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     </head>
  

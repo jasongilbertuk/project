@@ -39,4 +39,5 @@
         </ul>
     </div>
 </nav>
+<?php echo $_SESSION["StatusDiv"] ?>
         

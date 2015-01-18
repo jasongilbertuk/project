@@ -1,11 +1,11 @@
 <?php
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * CONSTANTS
  *
- * These constants should be used when refering to the table and the fields within its
- * records.
- * ------------------------------------------------------------------------------------- */
+ * These constants should be used when refering to the table and the fields 
+ * within its records.
+ * -------------------------------------------------------------------------- */
 define("ABSENCE_TYPE_TABLE", "absenceTypeTable");
 define("ABS_TYPE_ID", "absenceTypeID");
 define("ABS_TYPE_NAME", "absenceTypeName");
@@ -16,14 +16,14 @@ define("ABS_TYPE_CAN_BE_DENIED", "canBeDenied");
 //used as the type of leave for main vacation requests.
 define("ANNUAL_LEAVE", "Annual leave");
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function CreateAbsenceTypeTable
  *
- * This function creates the SQL statement needed to construct the AbsenceType table
- * in the database.
+ * This function creates the SQL statement needed to construct the AbsenceType 
+ * table in the database.
  *
  * @return (bool)  True if table is created successfully, false otherwise.
- * ------------------------------------------------------------------------------------- */
+ * ---------------------------------------------------------------------------*/
 function CreateAbsenceTypeTable() {
     $sql = "CREATE TABLE IF NOT EXISTS `mydb`.`absenceTypeTable` (
          `absenceTypeID` INT NOT NULL AUTO_INCREMENT,
@@ -45,44 +45,50 @@ function CreateAbsenceTypeTable() {
     }
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function CreateAbsenceType
  *
  * This function creates a new Absence Type row in the AbsenceTypeTable.
  *
  * $absenceTypeName (string) Textual name of the type of absence.
- * $usesAnnual Leave (boolean) Whether or not this type of absence uses annual leave.
+ * $usesAnnual Leave (boolean) Whether or not this type of absence uses annual 
+ *             leave.
  * $canBeDenied (boolean) Whether or not this type of absence can be denied.
  *
- * @return (array) If successful, an array is returned where each key represents a field
- *                 in the record. If unsuccessful, the return will be NULL.
- * ------------------------------------------------------------------------------------- */
-
+ * @return (array) If successful, an array is returned where each key represents 
+ *                 a field in the record. If unsuccessful, the return will 
+ *                 be NULL.
+ * ---------------------------------------------------------------------------*/
 function CreateAbsenceType($absenceTypeName, $usesAnnualLeave, $canBeDenied) {
+    $statusMessage = "";
     $absenceType = NULL;
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     $inputIsValid = TRUE;
 
     if (isNullOrEmptyString($absenceTypeName)) {
+        $statusMessage.="Invalid absence type name. Can not be blank.</br>";
         error_log("Invalid absenceTypeName passed to CreateAbsenceType.");
         $inputIsValid = FALSE;
     }
 
     if ($usesAnnualLeave<>0 AND $usesAnnualLeave<>1) {
+        $statusMessage.="Invalid value for the uses annual leave flag.</br>";
         error_log("Invalid usesAnnualLeave parameter passed to CreateAbsenceType.");
         $inputIsValid = FALSE;
     }
 
     if ($canBeDenied<>0 AND $canBeDenied<>1) {
+        $statusMessage.="Invalid value for the can be denied flag.</br>";
         error_log("Invalid canBeDenied parameter passed to CreateAbsenceType.");
         $inputIsValid = FALSE;
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to insert a record in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    // Only attempt to insert a record in the database if the input parameters 
+    // are ok.
+    //--------------------------------------------------------------------------
     if ($inputIsValid) {
         // Create an array with each field required in the record. 
         $absenceType[ABS_TYPE_ID] = NULL;
@@ -92,27 +98,36 @@ function CreateAbsenceType($absenceTypeName, $usesAnnualLeave, $canBeDenied) {
         
         $success = sqlInsertAbsenceType($absenceType);
         if (!$success) {
+            $statusMessage.="Database error encountered. Unable to create absence type.</br>";
+            $inputIsValid = false;
             error_log("Failed to create absence type.");
             $absenceType = NULL;
         }
+        else
+        {
+            $statusMessage.="Record created in database successfully.</br>";
+        }
     }
-
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $absenceType;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function sqlInsertAbsenceType
  *
  * This function constructs the SQL statement required to insert a new record
  * into the absenceTypeTable
  *
- * &$absenceType (array) Array containing all of the fields required for the record.
+ * &$absenceType (array) Array containing all of the fields required for the 
+ *                       record.
  *
  * @return (bool) TRUE if insert into database was successful, false otherwise.
  * 		   
  * Note: If successful then the ABS_TYPE_ID entry in the array
- * 	     passed by the caller will be set to the ID of the record in the database. 
- * ------------------------------------------------------------------------------------- */
+ * 	 passed by the caller will be set to the ID of the record in the 
+ *       database. 
+ * ---------------------------------------------------------------------------*/
 
 function sqlInsertAbsenceType(&$absenceType) {
     $absenceType[ABS_TYPE_ID] = NULL;
@@ -128,18 +143,18 @@ function sqlInsertAbsenceType(&$absenceType) {
     return $absenceType[ABS_TYPE_ID] <> 0;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function RetrieveAbsenceTypeByID
  *
- * This function uses the ID supplied as a parameter to construct an SQL select statement
- * and then performs this query, returning an array containing the key value pairs of the
- * record (or NULL if no record is found matching the id).
+ * This function uses the ID supplied as a parameter to construct an SQL select 
+ * statement and then performs this query, returning an array containing the key 
+ * value pairs of the record (or NULL if no record is found matching the id).
  *
  * $id (int) id of the record to retrieve from the database..
  *
- * @return (array) array of key value pairs representing the fields in the record, or 
- *                 NULL if no record exists with the id supplied.
- * ------------------------------------------------------------------------------------- */
+ * @return (array) array of key value pairs representing the fields in the 
+ *                 record, or NULL if no record exists with the id supplied.
+ * ---------------------------------------------------------------------------*/
 
 function RetrieveAbsenceTypeByID($id) {
     $filter[ABS_TYPE_ID] = $id;
@@ -155,26 +170,29 @@ function RetrieveAbsenceTypeByID($id) {
     return $absenceType;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function RetrieveAbsenceTypes
  *
- * This function constructs the SQL statement required to query the AbsenceTypeTable.
+ * This function constructs the SQL statement required to query the 
+ * AbsenceTypeTable.
  *
- * $filter (array) Optional parameter. If supplied, then the array should contain a set
- *                 of key value pairs, where the keys correspond to one (or more) fields
- *                 in the record (see constants at top of file) and the values correspond
- *                 to the values to filter against (IE: The WHERE clause).
+ * $filter (array) Optional parameter. If supplied, then the array should 
+ *                 contain a set of key value pairs, where the keys correspond 
+ *                 to one (or more) fields in the record (see constants at top
+ *                 of file) and the values correspondto the values to filter 
+ *                 against (IE: The WHERE clause).
  *
- * @return (array) If successful, an array of arrays, where each element corresponds to 
- *                 a row from the query. If a failure occurs, return will be NULL. 
- * ------------------------------------------------------------------------------------- */
+ * @return (array) If successful, an array of arrays, where each element
+ *                 corresponds to a row from the query. If a failure occurs, 
+ *                 return will be NULL. 
+ * ---------------------------------------------------------------------------*/
 
 function RetrieveAbsenceTypes($filter = NULL) {
     $inputIsValid = TRUE;
 
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     if ($filter <> NULL) {
         foreach ($filter as $key => $value) {
             if (strcmp($key, ABS_TYPE_ID) == 0) {
@@ -207,35 +225,38 @@ function RetrieveAbsenceTypes($filter = NULL) {
         }
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to perform query in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Only attempt to perform query in the database if the input parameters 
+    // are ok.
+    //-------------------------------------------------------------------------
     $result = NULL;
     if ($inputIsValid) {
         $result = performSQLSelect(ABSENCE_TYPE_TABLE, $filter);
     }
+    
 
     return $result;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function UpdateAbsenceType
  *
  * This function constructs the SQL statement required to update a row in 
  * the AbsenceTypeTable.
  *
- * $fields (array) array of key value pairs, where keys correspond to fields in the
- *                 record (see constants at start of this file). Note, this array
- *                 MUST provide the id of the record (ABS_TYPE_ID) and one or more other
- *                 fields to be updated. 
+ * $fields (array) array of key value pairs, where keys correspond to fields 
+ *                 in the record (see constants at start of this file). 
+ *                 Note, this array MUST provide the id of the 
+ *                 record (ABS_TYPE_ID) and one or more other fields to be updated. 
  *
  * @return (bool) TRUE if update succeeds. FALSE otherwise. 
- * ------------------------------------------------------------------------------------- */
+ * ---------------------------------------------------------------------------*/
 
 function UpdateAbsenceType($fields) {
-    //--------------------------------------------------------------------------------
+    $statusMessage = "";
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
@@ -251,12 +272,14 @@ function UpdateAbsenceType($fields) {
             $countOfFields++;
 
             if (isNullOrEmptyString($value)) {
+                $statusMessage.="Invalid absence type name. Can not be empty.</br>";
                 error_log("Invalid ABS_TYPE_NAME passed to UpdateAbsenceType.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == ABS_TYPE_USES_LEAVE) {
             $countOfFields++;
             if ($value<>0 AND $value<>1) {
+                $statusMessage.="Invalid uses annual leave flag value.</br>";
                 error_log("Invalid ABS_TYPE_USES_LEAVE passed to UpdateAbsenceType.");
                 $inputIsValid = FALSE;
             }
@@ -264,21 +287,25 @@ function UpdateAbsenceType($fields) {
             $countOfFields++;
 
             if ($value<>0 AND $value<>1) {
+                $statusMessage.="Invalid can be denied flag value.</br>";
                 error_log("Invalid ABS_TYPE_CAN_BE_DENIED passed to UpdateAbsenceType.");
                 $inputIsValid = FALSE;
             }
         } else {
+            $statusMessage.="Invalid field encountered.</br>";
             error_log("Invalid field passed to UpdateAbsenceType. $key=" . $key);
             $inputIsValid = FALSE;
         }
     }
 
     if (!$validID) {
+        $statusMessage.="No valid ID supplied.</br>";
         error_log("No valid ID supplied in call to UpdateAbsenceType.");
         $inputIsValid = FALSE;
     }
 
     if ($countOfFields < 2) {
+        $statusMessage.="Insufficent fields supplied in call.</br>";
         error_log("Insufficent fields supplied in call to UpdateAbsenceType.");
         $inputIsValid = FALSE;
     }
@@ -291,23 +318,35 @@ function UpdateAbsenceType($fields) {
     if ($inputIsValid) {
         
         $success = performSQLUpdate(ABSENCE_TYPE_TABLE, ABS_TYPE_ID, $fields);
+        if ($success)
+        {
+            $statusMessage .= "Record successfully created in Database.</br>";
+        }
+        else {
+            $statusMessage .= "Unexpected database error encountered when ".
+                              "trying to perform update.</br>";
+            $inputIsValid = false;
+        }
     }
-
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $success;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function DeleteAbsenceType
  *
  * This function constructs the SQL statement required to delete a row in 
  * the AbsenceTypeTable.
  *
- * $ID(integer) ID of the record to be removed from the table. This should be set to 
- *              the ABS_TYPE_ID value of the record you wish to delete.
+ * $ID(integer) ID of the record to be removed from the table. This should be 
+ *              set to the ABS_TYPE_ID value of the record you wish 
+ *              to delete.
  *
- * @return (int) count of rows deleted. 0 means delete was unsuccessful, usually because
- *               one or more records in the database refers to this absenceType.
- * ------------------------------------------------------------------------------------- */
+ * @return (int) count of rows deleted. 0 means delete was unsuccessful, usually
+ *               because one or more records in the database refers to this 
+ *               absenceType.
+ * --------------------------------------------------------------------------*/
 
 function DeleteAbsenceType($ID) {
     $isValidRequest = TRUE;
@@ -340,13 +379,13 @@ function DeleteAbsenceType($ID) {
     return $result;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  * Function GetAbsenceTypeCount
  *
  * This function gets a count of absence type records in the table.
  *
  * @return (int) count of rows in the table
- * ------------------------------------------------------------------------------------- */
+ * --------------------------------------------------------------------------*/
 
 function GetAbsenceTypeCount() 
 {
@@ -364,14 +403,15 @@ function GetAbsenceTypeCount()
 }
 
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function GetAnnualLeaveAbsenceTypeID
  *
- * This function gets the absence type ID of the absence type record which is used
- * for annual leave..
+ * This function gets the absence type ID of the absence type record which is 
+ * used for annual leave..
  *
- * @return (int) absence type ID or NULL if the absence type is not in the database.
- * ------------------------------------------------------------------------------------- */
+ * @return (int) absence type ID or NULL if the absence type is not in the
+ *               database.
+ * -------------------------------------------------------------------------- */
 function GetAnnualLeaveAbsenceTypeID() 
 {
     $filter[ABS_TYPE_NAME] = ANNUAL_LEAVE;

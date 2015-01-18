@@ -22,10 +22,13 @@ if (isset($_POST["update"])) {
     $role[COMP_ROLE_ID]       =   $_GET["roleID"];
     $role[COMP_ROLE_NAME]     =   $_POST["roleName"];
     $role[COMP_ROLE_MIN_STAFF]=   $_POST["minStaff"];
-    UpdateCompanyRole($role);
+    $result = UpdateCompanyRole($role);
 
-    $url = "Location:adminCompanyRoles.php";   
-    header($url);
+    if ($result)
+    {
+        $url = "Location:adminCompanyRoles.php";   
+        header($url);
+    }
 }
 ?>
 

@@ -4,6 +4,7 @@
  * Includes
  * -------------------------------------------------------------------------- */
 
+include 'status.php';
 include 'AdHocRequestTable.php';
 include 'CompanyRoleTable.php';
 include 'EmployeeTable.php';

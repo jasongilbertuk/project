@@ -61,6 +61,7 @@ function CreateAdHocAbsenceRequestTable() {
  * ------------------------------------------------------------------------------------- */
 
 function CreateAdHocAbsenceRequest($employeeID, $startDate, $endDate, $absenceTypeID) {
+    $statusMessage = "";
     $request = NULL;
     //--------------------------------------------------------------------------------
     // Validate Input parameters
@@ -70,20 +71,30 @@ function CreateAdHocAbsenceRequest($employeeID, $startDate, $endDate, $absenceTy
     $record = RetrieveEmployeeByID($employeeID);
 
     if ($record == NULL) {
+        $statusMessage .= "Unable to locate the employees ID in the database.</br>";
         error_log("employeeID passed to CreateAdHocAbsenceRequest does not exist in " .
                 "the database. ID=" . $employeeID);
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($startDate)) {
+        $statusMessage .= "Start date given is not a valid date.</br>";
         error_log("Invalid start date passed to CreateAdHocAbsenceRequest. date=" .
                 $startDate);
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($endDate)) {
+        $statusMessage .= "End date given is not a valid date.</br>";
         error_log("Invalid end date passed to CreateAdHocAbsenceRequest. date=" .
                 $endDate);
+        $inputIsValid = FALSE;
+    }
+
+    if (strtotime($endDate) < strtotime($startDate)) 
+    {
+        $statusMessage.="end Date is before start Date.</br>";
+        error_log("End Date is before Start Date.");
         $inputIsValid = FALSE;
     }
 
@@ -91,10 +102,12 @@ function CreateAdHocAbsenceRequest($employeeID, $startDate, $endDate, $absenceTy
     $record = RetrieveAbsenceTypeByID($absenceTypeID);
 
     if ($record == NULL) {
+        $statusMessage .= "Unable to locate the absence type in the database.</br>";
         error_log("absenceType passed to CreateAdHocAbsenceRequest does not exist in " .
                 "the database. ID=" . $absenceTypeID);
         $inputIsValid = FALSE;
     }
+     
 
     //--------------------------------------------------------------------------------
     // Only attempt to insert a record in the database if the input parameters are ok.
@@ -109,10 +122,19 @@ function CreateAdHocAbsenceRequest($employeeID, $startDate, $endDate, $absenceTy
         $success = sqlInsertAdHocAbsenceRequest($request);
 
         if (!$success) {
+            $isValidInput = false;
+            $statusMessage .= "Unexpected issue when writing to the database.".
+                              "Contact your system administrator.</br>";
             error_log("Failed to create Ad Hoc Absence Request.");
             $request = NULL;
         }
+        else 
+        {
+            $statusMessage.="Record successfully created.";
+        }
     }
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $request;
 }
 
@@ -251,6 +273,8 @@ function RetrieveAdHocAbsenceRequests($filter = NULL) {
  * ------------------------------------------------------------------------------------- */
 
 function UpdateAdHocAbsenceRequest($fields) {
+    $statusMessage = "";
+    
     //--------------------------------------------------------------------------------
     // Validate Input parameters
     //--------------------------------------------------------------------------------
@@ -269,6 +293,7 @@ function UpdateAdHocAbsenceRequest($fields) {
 
             $record = RetrieveEmployeeByID($value);
             if ($record == NULL) {
+                $statusMessage .= "Employee specified can not be found in the database.</br>";
                 error_log("Invalid AD_HOC_EMP_ID passed to UpdateAdHocAbsenceRequest." .
                         " Value=" . $value);
                 $inputIsValid = FALSE;
@@ -277,6 +302,7 @@ function UpdateAdHocAbsenceRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                $statusMessage .= "Start date entered is not a valid date.</br>";
                 error_log("Invalid AD_HOC_START passed to UpdateAdHocAbsenceRequest." .
                         " Value=" . $value);
                 $inputIsValid = FALSE;
@@ -285,6 +311,7 @@ function UpdateAdHocAbsenceRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
+                $statusMessage .= "End date entered is not a valid date.</br>";
                 error_log("Invalid AD_HOC_END passed to UpdateAdHocAbsenceRequest." .
                         " Value=" . $value);
                 $inputIsValid = FALSE;
@@ -294,22 +321,35 @@ function UpdateAdHocAbsenceRequest($fields) {
 
             $record = RetrieveAbsenceTypeByID($value);
             if ($record == NULL) {
+                $statusMessage .= "Absence Type selected can not be found in the database.</br>";
                 error_log("Invalid  AD_HOC_ABSENCE_TYPE_ID passed to " .
                         "UpdateAdHocAbsenceRequest. Value=" . $value);
                 $inputIsValid = FALSE;
             }
         } else {
+            $statusMessage .= "Unknown field encountered.</br>";
             error_log("Invalid field passed to UpdateAdHocAbsenceRequest. $key=" . $key);
             $inputIsValid = FALSE;
         }
     }
+    $startDate = $fields[AD_HOC_START];
+    $endDate = $fields[AD_HOC_END];
+    
+    if (strtotime($endDate) < strtotime($startDate)) 
+    {
+        $statusMessage.="end Date is before start Date.</br>";
+        error_log("End Date is before Start Date.");
+        $inputIsValid = FALSE;
+    }
 
     if (!$validID) {
+        $statusMessage .= "No valid record ID found.</br>";
         error_log("No valid ID supplied in call to UpdateAbsenceType.");
         $inputIsValid = FALSE;
     }
 
     if ($countOfFields < 2) {
+        $statusMessage .= "Insufficent fields supplied in call to UpdateAbsenceType.</br>";
         error_log("Insufficent fields supplied in call to UpdateAbsenceType.");
         $inputIsValid = FALSE;
     }
@@ -321,8 +361,19 @@ function UpdateAdHocAbsenceRequest($fields) {
 
     if ($inputIsValid) {
         $success = performSQLUpdate(ADHOC_ABSENCE_REQUEST_TABLE, AD_HOC_REQ_ID, $fields);
+        if ($success)
+        {
+            $statusMessage .= "Record successfully updated.</br>";
+        }
+        else 
+        {
+            $statusMessage .= "Unexpected error encountered when updating database.".
+                              "Contact your system administrator.</br>";
+            $inputIsValid = false;
+        }
     }
-
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $success;
 }
 

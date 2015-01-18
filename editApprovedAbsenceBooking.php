@@ -1,4 +1,5 @@
 <?php
+include 'sessionmanagement.php';
 include 'databaseFunctions.php';
 
 if ($_GET["ID"] <> NULL)
@@ -13,11 +14,16 @@ if (isset($_POST["cancel"])) {
 
 if (isset($_POST["update"])) {
     DeleteApprovedAbsenceBooking($_GET["ID"]);
-    CreateApprovedAbsenceBooking($_POST["employeeID"], 
-            $_POST["startDate"],$_POST["endDate"],$_POST["absenceType"]);
+    $success = CreateApprovedAbsenceBooking($_POST["employeeID"], 
+                                            $_POST["startDate"],
+                                            $_POST["endDate"],
+                                            $_POST["absenceType"]);
     
-    $url = "Location:adminApprovedAbsenceBookings.php";   
-    header($url);
+    if ($success)
+    {
+        $url = "Location:adminApprovedAbsenceBookings.php";   
+        header($url);
+    }
 }
 
 ?>

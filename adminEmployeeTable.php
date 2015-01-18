@@ -10,6 +10,8 @@ if (!$isAdministrator)
 
 if (isset($_POST["submit"])) 
 {
+    ClearStatus();
+
     $isAdministrator = 0;
     $isManager = 0;
     
@@ -34,13 +36,16 @@ if (isset($_POST["submit"]))
                                $isManager); 
 }
 
-if (isset($_POST["amend"])) {   
+if (isset($_POST["amend"])) { 
+    ClearStatus();
+
     $url = "Location:editEmployee.php?ID=".$_POST["amend"];   
     header($url);
 }
 
 if (isset($_POST["delete"])) 
 {
+    ClearStatus();
     DeleteEmployee($_POST["delete"]);
 }
 
@@ -69,7 +74,7 @@ if (isset($_POST["delete"]))
                 
                 <div class="input-group" for="empName">
                     <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                    <input type="text" class="form-control" placeholder="Name" name="empName" id="empName">
+                    <input type="text" class="form-control" placeholder="Name" name="empName" id="empName" >
                 </div>
 
                 <div class="input-group" for="eMail">

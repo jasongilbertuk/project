@@ -49,18 +49,16 @@ function CreatePublicHolidayTable() {
  * ------------------------------------------------------------------------------------- */
 
 function CreatePublicHoliday($nameOfPublicHoliday, $dateID) {
+    $statusMessage = "";
+    
     $publicHoliday = NULL;
     //--------------------------------------------------------------------------------
     // Validate Input parameters
     //--------------------------------------------------------------------------------
     $inputIsValid = TRUE;
     if (isNullOrEmptyString($nameOfPublicHoliday)) {
+        $statusMessage.="Name of public holiday can not be blank</br>";
         error_log("Invalid name passed to CreatePublicHoliday.");
-        $inputIsValid = FALSE;
-    }
-
-    if ($dateID == NULL) {
-        error_log("Invalid dateID passed to CreatePublicHoliday.");
         $inputIsValid = FALSE;
     }
 
@@ -70,6 +68,7 @@ function CreatePublicHoliday($nameOfPublicHoliday, $dateID) {
     $dateRecord = RetrieveDateByID($dateID);
 
     if ($dateRecord == NULL) {
+        $statusMessage.="Invalid Date supplied.</br>";
         error_log("DateID passed to CreatePublicHoliday doesn't exist in database.");
         $inputIsValid = FALSE;
     }
@@ -85,6 +84,8 @@ function CreatePublicHoliday($nameOfPublicHoliday, $dateID) {
         $success = sqlInsertPublicHoliday($publicHoliday);
 
         if (!$success) {
+            $statusMessage.="Unexpected error when inserting to database.</br>";
+            $inputIsValid = false;
             error_log("Failed to create public holiday.");
             $publicHoliday = NULL;
         } else {
@@ -95,11 +96,19 @@ function CreatePublicHoliday($nameOfPublicHoliday, $dateID) {
             $success = UpdateDate($dateRecord);
 
             if (!$success) {
+                $statusMessage.="Unexpected error when updating date table.</br>";
+                $inputIsValid = false;
                 error_log("Failed to update date reference to public holiday.");
                 $publicHoliday = NULL;
             }
+            else
+            {
+                $statusMessage.="Record successfully created.</br>";
+            }
         }
     }
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $publicHoliday;
 }
 
@@ -224,6 +233,7 @@ function RetrievePublicHolidays($filter = NULL) {
  * ------------------------------------------------------------------------------------- */
 
 function UpdatePublicHoliday($fields) {
+    $statusMessage = "";
     //--------------------------------------------------------------------------------
     // Validate Input parameters
     //--------------------------------------------------------------------------------
@@ -242,6 +252,7 @@ function UpdatePublicHoliday($fields) {
             $countOfFields++;
 
             if (isNullOrEmptyString($value)) {
+                $statusMessage.="Public holiday name must be entered.</br>";
                 error_log("Invalid PUB_HOL_NAME passed to UpdatePublicHoliday.");
                 $inputIsValid = FALSE;
             }
@@ -251,21 +262,25 @@ function UpdatePublicHoliday($fields) {
             $record = RetrieveDateByID($value);
 
             if ($record == NULL) {
+                $statusMessage.="Unable to located date in database.</br>";
                 error_log("Invalid  PUB_HOL_DATE_ID passed to UpdatePublicHoliday.");
                 $inputIsValid = FALSE;
             }
         } else {
+            $statusMessage.="Unexpected field encountered in input.</br>";
             error_log("Invalid field passed to UpdatePublicHoliday.");
             $inputIsValid = FALSE;
         }
     }
 
     if (!$validID) {
+        $statusMessage.="No valid ID supplied in call to UpdatePublicHoliday.</br>";
         error_log("No valid ID supplied in call to UpdatePublicHoliday.");
         $inputIsValid = FALSE;
     }
 
     if ($countOfFields < 2) {
+        $statusMessage.="Insufficent fields supplied in call to UpdatePublicHoliday.</br>";
         error_log("Insufficent fields supplied in call to UpdatePublicHoliday.");
         $inputIsValid = FALSE;
     }
@@ -277,8 +292,18 @@ function UpdatePublicHoliday($fields) {
 
     if ($inputIsValid) {
         $success = performSQLUpdate(PUBLIC_HOLIDAY_TABLE, PUB_HOL_ID, $fields);
+        if ($success)
+        {
+            $statusMessage.="Record successfully updated.</br>";
+        }
+        else 
+        {
+            $statusMessage.="Unexpected error when updating the database.</br>";
+            $inputIsValid = false;
+        }
     }
 
+    GenerateStatus($inputIsValid, $statusMessage);
     return $success;
 }
 

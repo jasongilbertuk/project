@@ -124,6 +124,7 @@ function CreateEmployee($employeeName, $emailAddress, $password,
                         $mainVacationRequestID, $companyRoleID, 
                         $isAdministrator = 0, $isManager =0) {
     
+    $statusMessage = "";
     $employee = NULL;
     //--------------------------------------------------------------------------------
     // Validate Input parameters
@@ -131,32 +132,37 @@ function CreateEmployee($employeeName, $emailAddress, $password,
     $inputIsValid = TRUE;
 
     if (isNullOrEmptyString($employeeName)) {
+        $statusMessage .= "Employee Name can not be blank.<br/>";
         error_log("Invalid employeeName passed to CreateEmployee.");
         $inputIsValid = FALSE;
     }
 
     if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+        $statusMessage .= "Email address given is not a valid email format.<br/>";
         error_log("Invalid email address passed to CreateEmployee.");
         $inputIsValid = FALSE;
     }
 
-	$errorArray = isValidPassword($password);
+    $errorArray = isValidPassword($password);
 	
     if (count($errorArray) <> 0) 
     {
     	foreach ($errorArray as $key=>$value)
     	{
-        	error_log($value);
+            $statusMessage .= $value."<br/>";
+            error_log($value);
         }
         $inputIsValid = FALSE;
     }
 
     if (!isValidDate($dateJoinedTheCompany)) {
+        $statusMessage .= "Value given for Date joined the company is not a valid date.<br/>";
         error_log("Invalid dateJoinedTheCompany passed to CreateEmployee.");
         $inputIsValid = FALSE;
     }
 
     if (!is_numeric($annualLeaveEntitlement)) {
+        $statusMessage .= "Please enter a valid value for annual leave entitlement.<br/>";
         error_log("Invalid annualLeaveEntitlement passed to CreateEmployee.");
         $inputIsValid = FALSE;
     }
@@ -165,6 +171,7 @@ function CreateEmployee($employeeName, $emailAddress, $password,
         $record = RetrieveMainVacationRequestByID($mainVacationRequestID);
 
         if ($record == NULL) {
+            $statusMessage .= "Main Vacation Request ID does not exist in the database.<br/>";
             error_log("Invalid mainVacationRequestID passed to CreateEmployee.");
             $inputIsValid = FALSE;
         }
@@ -173,6 +180,7 @@ function CreateEmployee($employeeName, $emailAddress, $password,
     $record = RetrieveCompanyRoleByID($companyRoleID);
 
     if ($record == NULL) {
+        $statusMessage .= "Company Role ID does not exist in the database.<br/>";
         error_log("Invalid companyRoleID passed to CreateEmployee.");
         $inputIsValid = FALSE;
     }
@@ -198,10 +206,18 @@ function CreateEmployee($employeeName, $emailAddress, $password,
 
         $success = sqlInsertEmployee($employee);
         if (!$success) {
+            $statusMessage .= "Unexpected error when inserting the record to the database.<br/>";
             error_log("Failed to create Employee. " . print_r($employee));
             $employee = NULL;
+            $inputIsValid = false;
+        }
+        else
+        {
+            $statusMessage = "Record Created Successfully.";
         }
     }
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $employee;
 }
 
@@ -357,6 +373,8 @@ function RetrieveEmployees($filter = NULL) {
  * ------------------------------------------------------------------------------------- */
 
 function UpdateEmployee($fields) {
+    $statusMessage = "";
+
     //--------------------------------------------------------------------------------
     // Validate Input parameters
     //--------------------------------------------------------------------------------
@@ -376,36 +394,40 @@ function UpdateEmployee($fields) {
             $countOfFields++;
 
             if (isNullOrEmptyString($value)) {
+            
+                $statusMessage .= "Employee name can not be blank.</br>";
                 error_log("Invalid EMP_NAME passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == EMP_EMAIL) {
+            
             $countOfFields++;
 
             if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+            
+                $statusMessage .= "Email address is not in a valid format.</br>";
                  error_log("Invalid email address passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == EMP_PASSWORD) {
+            //No validation on password, since this is an MD5 encoded string.
             $countOfFields++;
 
-            if ($value == "" OR $value == NULL) { 
-                error_log("Invalid EMP_PASSWORD passed to UpdateEmployee.");
-                $inputIsValid = FALSE;
-            }
         } else if ($key == EMP_DATEJOINED) {
+            
             $countOfFields++;
 
             if (!isValidDate($value)) {
-                               
+            
+                $statusMessage.="Date Joined value is not a valid date</br>";               
                 error_log("Invalid EMP_DATEJOINED passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == EMP_LEAVE_ENTITLEMENT) {
             $countOfFields++;
-
+            
             if (!is_numeric($value)) {
-                               
+            $statusMessage.="Employee Leave Entitlement must be a numeric value.</br>";               
                 error_log("Invalid EMP_LEAVE_ENTITLEMENT passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
@@ -413,21 +435,24 @@ function UpdateEmployee($fields) {
             if ($value <> NULL)
             {
                 $record = RetrieveMainVacationRequestByID($value);
-
+                   
                 if ($record == NULL) {
-                               
+            
+                    $statusMessage.="Main Vacation Request ID not found in database.</br>";               
                     error_log("Invalid EMP_MAIN_VACATION_REQ_ID passed to UpdateEmployee.");
                     $inputIsValid = FALSE;
                     
                 }
             }    
         } else if ($key == EMP_COMPANY_ROLE) {
+            
             $countOfFields++;
 
             $record = RetrieveCompanyRoleByID($value);
 
             if ($record == NULL) {
-                               
+                     
+                $statusMessage.="Company Role ID not found in database.</br>";               
                 error_log("Invalid EMP_COMPANY_ROLE passed to UpdateEmployee.");
                 $inputIsValid = FALSE;
             }
@@ -440,17 +465,19 @@ function UpdateEmployee($fields) {
         }
         else {
                           
+            $statusMessage.="Unrecognised field of $key encountered.</br>";               
             error_log("Invalid field passed to UpdateEmployee. $key=" . $key);
             $inputIsValid = FALSE;
         }
     }
-
     if (!$validID) {
+        $statusMessage .= "No valid ID supplied.</br>";
         error_log("No valid ID supplied in call to UpdateEmployee.");
         $inputIsValid = FALSE;
     }
 
     if ($countOfFields < 2) {
+        $statusMessage .= "Insufficent fields supplied.</br>";
         error_log("Insufficent fields supplied in call to UpdateEmployee.");
         $inputIsValid = FALSE;
     }
@@ -461,8 +488,22 @@ function UpdateEmployee($fields) {
     $success = false;
 
     if ($inputIsValid) {
+
         $success = performSQLUpdate(EMPLOYEE_TABLE, EMP_ID, $fields);
+        if ($success)
+        {
+
+            $statusMessage .= "Record has been successfully updated.";
+        }
+        else 
+        {
+
+            $inputIsValid = false;
+            $statusMessage .= "Unexpected Database error encountered. Please contact your system administrator.";
+        }
     }
+    
+    GenerateStatus($inputIsValid, $statusMessage);
     return $success;
 }
 
