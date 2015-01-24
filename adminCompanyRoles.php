@@ -115,8 +115,6 @@ function DisplayCompanyRolesTableBody()
                 document.querySelector('#staffNumber').value = level;
             }
         </script>
-
     </body>
-
 </html>
 

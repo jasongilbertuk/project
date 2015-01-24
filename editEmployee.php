@@ -18,12 +18,12 @@ if (isset($_POST["update"])) {
     ClearStatus();
 
     unset($employee);
-    $employee[EMP_ID]         =   $_GET["ID"];
-    $employee[EMP_NAME]       =   $_POST["empName"];
-    $employee[EMP_EMAIL]      =   $_POST["eMail"];
-    $employee[EMP_DATEJOINED] =   $_POST["dateJoin"];
-    $employee[EMP_LEAVE_ENTITLEMENT]       =   $_POST["annualLeave"];
-    $employee[EMP_COMPANY_ROLE]       =   $_POST["companyRole"];
+    $employee[EMP_ID]               =   $_GET["ID"];
+    $employee[EMP_NAME]             =   $_POST["empName"];
+    $employee[EMP_EMAIL]            =   $_POST["eMail"];
+    $employee[EMP_DATEJOINED]       =   $_POST["dateJoin"];
+    $employee[EMP_LEAVE_ENTITLEMENT]=   $_POST["annualLeave"];
+    $employee[EMP_COMPANY_ROLE]     =   $_POST["companyRole"];
     
     $employee[EMP_ADMIN_PERM] = '0';
     if (isset($_POST['isAdmin']))

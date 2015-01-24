@@ -294,6 +294,5 @@ function DisplayAdHocRequestTableBody()
             </div>
             </form>
         </div>  
-        
     </body>
 </html>

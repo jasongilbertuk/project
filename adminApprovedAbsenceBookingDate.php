@@ -69,7 +69,5 @@ function DisplayApproveAbsenceBookingDatesTable()
             </div>   
             </form>
         </div>
-
     </body>
-
 </html>

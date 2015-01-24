@@ -1,24 +1,24 @@
 <?php
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * CONSTANTS
  *
- * These constants should be used when refering to the table and the fields within its
- * records.
- * ------------------------------------------------------------------------------------- */
+ * These constants should be used when refering to the table and the fields 
+ * within its records.
+ * ---------------------------------------------------------------------------*/
 define("COMPANY_ROLE_TABLE", "companyRoleTable");
 define("COMP_ROLE_ID", "companyRoleID");
 define("COMP_ROLE_NAME", "roleName");
 define("COMP_ROLE_MIN_STAFF", "minimumStaffingLevel");
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function CreateCompanyRoleTable
  *
  * This function creates the SQL statement needed to construct the table
  * in the database.
  *
  * @return (bool)  True if table is created successfully, false otherwise.
- * ------------------------------------------------------------------------------------- */
+ * ---------------------------------------------------------------------------*/
 
 function CreateCompanyRoleTable() {
     $sql = "CREATE TABLE IF NOT EXISTS `mydb`.`companyRoleTable` (
@@ -29,7 +29,7 @@ function CreateCompanyRoleTable() {
     performSQL($sql);
 }
 
-/* --------------------------------------------------------------------------------------
+/* ---------------------------------------------------------------------------
  * Function CreateCompanyRole
  *
  * This function creates a new CompanyRole record in the 
@@ -38,15 +38,16 @@ function CreateCompanyRoleTable() {
  * $roleName (string) name of the role.
  * $minStaffLevel (int) minimum number of staff that needs to be maintained.
  *
- * @return (array) If successful, an array is returned where each key represents a field
- *                 in the record. If unsuccessful, the return will be NULL.
- * ------------------------------------------------------------------------------------- */
+ * @return (array) If successful, an array is returned where each key represents 
+ *                 a field in the record. If unsuccessful, the return will be 
+ *                 NULL.
+ * ------------------------------------------------------------------------- */
 
 function CreateCompanyRole($roleName, $minStaffLevel) {
     $role = NULL;
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     $inputIsValid = TRUE;
     $statusMessage = "";
     if ($roleName == NULL) {
@@ -66,9 +67,10 @@ function CreateCompanyRole($roleName, $minStaffLevel) {
         error_log("Invalid minStaffLevel parameter passed to CreateCompanyRole.");
         $inputIsValid = FALSE;
     }
-    //--------------------------------------------------------------------------------
-    // Only attempt to insert a record in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Only attempt to insert a record in the database if the input parameters 
+    // are ok.
+    //-------------------------------------------------------------------------
     if ($inputIsValid) {
         // Create an array with each field required in the record. 
         $role[COMP_ROLE_ID] = NULL;
@@ -92,7 +94,7 @@ function CreateCompanyRole($roleName, $minStaffLevel) {
     return $role;
 }
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Function sqlInsertCompanyRole 
  *
  * This function constructs the SQL statement required to insert a new record
@@ -104,7 +106,7 @@ function CreateCompanyRole($roleName, $minStaffLevel) {
  * 		   
  * Note: If successful then the COMP_ROLE_ID entry in the 
  * array passed by the caller will be set to the ID of the record in the database. 
- * ------------------------------------------------------------------------------------- */
+ * ---------------------------------------------------------------------------*/
 
 function sqlInsertCompanyRole(&$role) {
     $sql = "INSERT INTO companyroletable (roleName,minimumStaffingLevel) " .
@@ -114,18 +116,18 @@ function sqlInsertCompanyRole(&$role) {
     return ($role[COMP_ROLE_ID] <> 0);
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function RetrieveCompanyRoleByID
  *
- * This function uses the ID supplied as a parameter to construct an SQL select statement
- * and then performs this query, returning an array containing the key value pairs of the
- * record (or NULL if no record is found matching the id).
+ * This function uses the ID supplied as a parameter to construct an SQL select 
+ * statement and then performs this query, returning an array containing the key 
+ * value pairs of the record (or NULL if no record is found matching the id).
  *
  * $id (int) id of the record to retrieve from the database..
  *
- * @return (array) array of key value pairs representing the fields in the record, or 
- *                 NULL if no record exists with the id supplied.
- * ------------------------------------------------------------------------------------- */
+ * @return (array) array of key value pairs representing the fields in the 
+ *                 record, or NULL if no record exists with the id supplied.
+ * ---------------------------------------------------------------------------*/
 
 function RetrieveCompanyRoleByID($id) {
     $filter[COMP_ROLE_ID] = $id;
@@ -140,19 +142,22 @@ function RetrieveCompanyRoleByID($id) {
     return $result;
 }
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Function RetrieveCompanyRoles
  *
- * This function constructs the SQL statement required to query the CompanyRole table.
+ * This function constructs the SQL statement required to query the CompanyRole 
+ * table.
  *
- * $filter (array) Optional parameter. If supplied, then the array should contain a set
- *                 of key value pairs, where the keys correspond to one (or more) fields
- *                 in the record (see constants at top of file) and the values correspond
- *                 to the values to filter against (IE: The WHERE clause).
+ * $filter (array) Optional parameter. If supplied, then the array should 
+ *                 contain a set of key value pairs, where the keys correspond 
+ *                 to one (or more) fields in the record (see constants at top 
+ *                 of file) and the values correspond to the values to filter 
+ *                 against (IE: The WHERE clause).
  *
- * @return (array) If successful, an array of arrays, where each element corresponds to 
- *                 a row from the query. If a failure occurs, return will be NULL. 
- * ------------------------------------------------------------------------------------- */
+ * @return (array) If successful, an array of arrays, where each element  
+ *                 corresponds to a row from the query. If a failure occurs, 
+ *                 return will be NULL. 
+ * ---------------------------------------------------------------------------*/
 
 function RetrieveCompanyRoles($filter = NULL) {
     $inputIsValid = TRUE;
@@ -187,9 +192,10 @@ function RetrieveCompanyRoles($filter = NULL) {
         }
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to perform query in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    // Only attempt to perform query in the database if the input parameters are
+    // ok.
+    //--------------------------------------------------------------------------
     $result = NULL;
     if ($inputIsValid) {
         $result = performSQLSelect(COMPANY_ROLE_TABLE, $filter);
@@ -197,24 +203,24 @@ function RetrieveCompanyRoles($filter = NULL) {
     return $result;
 }
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Function UpdateCompanyRole
  *
  * This function constructs the SQL statement required to update a row in 
  * the CompanyRole table.
  *
- * $fields (array) array of key value pairs, where keys correspond to fields in the
- *                 record (see constants at start of this file). Note, this array
- *                 MUST provide the id of the record (COMP_ROLE_ID) and one or more other
- *                 fields to be updated. 
+ * $fields (array) array of key value pairs, where keys correspond to fields 
+ *                 in the record (see constants at start of this file). Note, 
+ *                 this array MUST provide the id of the record (COMP_ROLE_ID) 
+ *                 and one or more other fields to be updated. 
  *
  * @return (bool) TRUE if update succeeds. FALSE otherwise. 
- * ------------------------------------------------------------------------------------- */
+ * ---------------------------------------------------------------------------*/
 
 function UpdateCompanyRole($fields) {
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
@@ -261,9 +267,10 @@ function UpdateCompanyRole($fields) {
         $inputIsValid = FALSE;
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to update a record in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Only attempt to update a record in the database if the input parameters 
+    // are ok.
+    //-------------------------------------------------------------------------
     $success = false;
 
     if ($inputIsValid) {
@@ -275,17 +282,17 @@ function UpdateCompanyRole($fields) {
     return $success;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function DeleteCompanyRole
  *
  * This function constructs the SQL statement required to delete a row in 
  * the CompanyRole table.
  *
- * $ID(integer) ID of the record to be removed from the table. This should be set to 
- *              the COMP_ROLE_ID value of the record you wish to delete.
+ * $ID(integer) ID of the record to be removed from the table. This should be set  
+ *              to the COMP_ROLE_ID value of the record you wish to delete.
  *
  * @return (int) count of rows deleted. 0 means delete was unsuccessful. 
- * ------------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------- */
 
 function DeleteCompanyRole($ID) {
     $result = 0;

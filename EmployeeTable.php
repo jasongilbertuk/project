@@ -1,11 +1,11 @@
 <?php
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * CONSTANTS
  *
- * These constants should be used when refering to the table and the fields within its
- * records.
- * ------------------------------------------------------------------------------------- */
+ * These constants should be used when refering to the table and the fields 
+ * within its records.
+ * ---------------------------------------------------------------------------*/
 define("EMPLOYEE_TABLE", "employeeTable");
 define("EMP_ID", "employeeID");
 define("EMP_NAME", "employeeName");
@@ -68,14 +68,14 @@ function isValidPassword($password)
 }
 
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function CreateEmployeeTable
  *
  * This function creates the SQL statement needed to construct the table
  * in the database.
  *
  * @return (bool)  True if table is created successfully, false otherwise.
- * ------------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------- */
 
 function CreateEmployeeTable() {
     $sql = "CREATE TABLE IF NOT EXISTS `mydb`.`EmployeeTable` (
@@ -100,7 +100,7 @@ function CreateEmployeeTable() {
     performSQL($sql);
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function CreateEmployee
  *
  * This function creates a new Employee record in the table.
@@ -108,16 +108,20 @@ function CreateEmployeeTable() {
  * $employeeName (string)  Name of the employee
  * $emailAddress (string)  Email address of the employee
  * $password (string)      Password for the employee
- * $dateJoinedTheCompany (string) Date joined the company. Must be in the form YYYY-MM-DD
- * $annualLeaveEntitlement (int) Number of days annual leave that the employee is entitled to.
- * $mainVacationRequestID (int) ID of the main Vacation Request record associated with 
- *                         this employee. Note this parameter may be set to NULL if 
- *                         the employee has no mainVacationRequest at time of creation.
- * $companyRoleID (int) ID of the company role record associated with this employee.
+ * $dateJoinedTheCompany (string) Date joined the company. Must be in the form 
+ *                                YYYY-MM-DD
+ * $annualLeaveEntitlement (int) Number of days annual leave that the employee 
+ *                               is entitled to.
+ * $mainVacationRequestID (int) ID of the main Vacation Request record  
+ *                         associated with this employee. Note this parameter  
+ *                         may be set to NULL if the employee has no 
+ *                         mainVacationRequest at time of creation.
+ * $companyRoleID (int) ID of the company role record associated with this 
+ *                      employee.
  *
- * @return (array) If successful, an array is returned where each key represents a field
- *                 in the record. If unsuccessful, the return will be NULL.
- * ------------------------------------------------------------------------------------- */
+ * @return (array) If successful, an array is returned where each key represents 
+ *                 a field in the record. If unsuccessful, the return will be NULL.
+ * -------------------------------------------------------------------------- */
 
 function CreateEmployee($employeeName, $emailAddress, $password, 
                         $dateJoinedTheCompany, $annualLeaveEntitlement, 
@@ -126,9 +130,9 @@ function CreateEmployee($employeeName, $emailAddress, $password,
     
     $statusMessage = "";
     $employee = NULL;
-    //--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     $inputIsValid = TRUE;
 
     if (isNullOrEmptyString($employeeName)) {
@@ -156,13 +160,15 @@ function CreateEmployee($employeeName, $emailAddress, $password,
     }
 
     if (!isValidDate($dateJoinedTheCompany)) {
-        $statusMessage .= "Value given for Date joined the company is not a valid date.<br/>";
+        $statusMessage .= "Value given for Date joined the company is not a ".
+                          "valid date.<br/>";
         error_log("Invalid dateJoinedTheCompany passed to CreateEmployee.");
         $inputIsValid = FALSE;
     }
 
     if (!is_numeric($annualLeaveEntitlement)) {
-        $statusMessage .= "Please enter a valid value for annual leave entitlement.<br/>";
+        $statusMessage .= "Please enter a valid value for annual leave ".
+                          "entitlement.<br/>";
         error_log("Invalid annualLeaveEntitlement passed to CreateEmployee.");
         $inputIsValid = FALSE;
     }
@@ -171,7 +177,8 @@ function CreateEmployee($employeeName, $emailAddress, $password,
         $record = RetrieveMainVacationRequestByID($mainVacationRequestID);
 
         if ($record == NULL) {
-            $statusMessage .= "Main Vacation Request ID does not exist in the database.<br/>";
+            $statusMessage .= "Main Vacation Request ID does not exist in the ".
+                              "database.<br/>";
             error_log("Invalid mainVacationRequestID passed to CreateEmployee.");
             $inputIsValid = FALSE;
         }
@@ -185,9 +192,10 @@ function CreateEmployee($employeeName, $emailAddress, $password,
         $inputIsValid = FALSE;
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to insert a record in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    // Only attempt to insert a record in the database if the input parameters 
+    // are ok.
+    //--------------------------------------------------------------------------
     if ($inputIsValid) {
         // Create an array with each field required in the record. 
         $employee[EMP_ID] = NULL;
@@ -206,7 +214,8 @@ function CreateEmployee($employeeName, $emailAddress, $password,
 
         $success = sqlInsertEmployee($employee);
         if (!$success) {
-            $statusMessage .= "Unexpected error when inserting the record to the database.<br/>";
+            $statusMessage .= "Unexpected error when inserting the record to ".
+                              "the database.<br/>";
             error_log("Failed to create Employee. " . print_r($employee));
             $employee = NULL;
             $inputIsValid = false;
@@ -221,7 +230,7 @@ function CreateEmployee($employeeName, $emailAddress, $password,
     return $employee;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function sqlInsertEmployee 
  *
  * This function constructs the SQL statement required to insert a new record
@@ -232,33 +241,35 @@ function CreateEmployee($employeeName, $emailAddress, $password,
  * @return (bool) TRUE if insert into database was successful, false otherwise.
  * 		   
  * Note: If successful then the EMP_ID entry in the 
- * array passed by the caller will be set to the ID of the record in the database. 
- * ------------------------------------------------------------------------------------- */
+ * array passed by the caller will be set to the ID of the record in the 
+ * database. 
+ * ---------------------------------------------------------------------------*/
 
 function sqlInsertEmployee(&$employee) {
     $sql = "INSERT INTO EmployeeTable (employeeName,emailAddress,password," .
-            "annualLeaveEntitlement,dateJoinedTheCompany,companyRole_companyRoleID,adminPermissions,managerPermissions) " .
-            "VALUES ('" . $employee[EMP_NAME] . "','" . $employee[EMP_EMAIL] . "','"
-            . $employee[EMP_PASSWORD] . "','" . $employee[EMP_LEAVE_ENTITLEMENT] .
-            "','" . $employee[EMP_DATEJOINED] . "','" . $employee[EMP_COMPANY_ROLE] .
+            "annualLeaveEntitlement,dateJoinedTheCompany,".
+            "companyRole_companyRoleID,adminPermissions,managerPermissions) " .
+            "VALUES ('".$employee[EMP_NAME]."','". $employee[EMP_EMAIL]. "','"
+            . $employee[EMP_PASSWORD] . "','".$employee[EMP_LEAVE_ENTITLEMENT] .
+            "','".$employee[EMP_DATEJOINED]."','".$employee[EMP_COMPANY_ROLE] .
             "','".$employee[EMP_ADMIN_PERM]."','".$employee[EMP_MANAGER_PERM]."');";
 
     $employee[EMP_ID] = performSQLInsert($sql);
     return $employee[EMP_ID] <> 0;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function RetrieveEmployeeByID
  *
- * This function uses the ID supplied as a parameter to construct an SQL select statement
- * and then performs this query, returning an array containing the key value pairs of the
- * record (or NULL if no record is found matching the id).
+ * This function uses the ID supplied as a parameter to construct an SQL select 
+ * statement and then performs this query, returning an array containing the key 
+ * value pairs of the record (or NULL if no record is found matching the id).
  *
  * $id (int) id of the record to retrieve from the database..
  *
- * @return (array) array of key value pairs representing the fields in the record, or 
- *                 NULL if no record exists with the id supplied.
- * ------------------------------------------------------------------------------------- */
+ * @return (array) array of key value pairs representing the fields in the 
+ *                  record, or NULL if no record exists with the id supplied.
+ * ---------------------------------------------------------------------------*/
 
 function RetrieveEmployeeByID($id) {
     $filter[EMP_ID] = $id;
@@ -273,26 +284,29 @@ function RetrieveEmployeeByID($id) {
     return $result;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function RetrieveEmployees
  *
- * This function constructs the SQL statement required to query the employees table.
+ * This function constructs the SQL statement required to query the employees 
+ * table.
  *
- * $filter (array) Optional parameter. If supplied, then the array should contain a set
- *                 of key value pairs, where the keys correspond to one (or more) fields
- *                 in the record (see constants at top of file) and the values correspond
- *                 to the values to filter against (IE: The WHERE clause).
+ * $filter (array) Optional parameter. If supplied, then the array should 
+ *                 contain a set of key value pairs, where the keys correspond ≈
+ *                 contain a set in the record (see constants at top of file) 
+ *                 and the values correspond to the values to filter against 
+ *                 (IE: The WHERE clause).
  *
- * @return (array) If successful, an array of arrays, where each element corresponds to 
- *                 a row from the query. If a failure occurs, return will be NULL. 
- * ------------------------------------------------------------------------------------- */
+ * @return (array) If successful, an array of arrays, where each element 
+ *                 corresponds to a row from the query. If a failure occurs, 
+ *                 return will be NULL. 
+ * ---------------------------------------------------------------------------*/
 
 function RetrieveEmployees($filter = NULL) {
     $inputIsValid = TRUE;
 
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     if ($filter <> NULL) {
         foreach ($filter as $key => $value) {
             if (strcmp($key, EMP_ID) == 0) {
@@ -348,9 +362,10 @@ function RetrieveEmployees($filter = NULL) {
         }
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to perform query in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    // Only attempt to perform query in the database if the input parameters 
+    // are ok.
+    //--------------------------------------------------------------------------
     $result = NULL;
     if ($inputIsValid) {
         $result = performSQLSelect(EMPLOYEE_TABLE, $filter);
@@ -358,26 +373,26 @@ function RetrieveEmployees($filter = NULL) {
     return $result;
 }
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Function UpdateEmployee
  *
  * This function constructs the SQL statement required to update a row in 
  * the Employee table.
  *
- * $fields (array) array of key value pairs, where keys correspond to fields in the
- *                 record (see constants at start of this file). Note, this array
- *                 MUST provide the id of the record (EMP_ID) and one or more other
- *                 fields to be updated. 
+ * $fields (array) array of key value pairs, where keys correspond to fields in 
+ *                 the record (see constants at start of this file). Note, this 
+ *                 array MUST provide the id of the record (EMP_ID) and one or 
+ *                 more other fields to be updated. 
  *
  * @return (bool) TRUE if update succeeds. FALSE otherwise. 
- * ------------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------- */
 
 function UpdateEmployee($fields) {
     $statusMessage = "";
 
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
@@ -482,9 +497,10 @@ function UpdateEmployee($fields) {
         $inputIsValid = FALSE;
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to update a record in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Only attempt to update a record in the database if the input parameters 
+    // are ok.
+    //-------------------------------------------------------------------------
     $success = false;
 
     if ($inputIsValid) {
@@ -499,7 +515,8 @@ function UpdateEmployee($fields) {
         {
 
             $inputIsValid = false;
-            $statusMessage .= "Unexpected Database error encountered. Please contact your system administrator.";
+            $statusMessage .= "Unexpected Database error encountered. Please ".
+                               "contact your system administrator.";
         }
     }
     
@@ -507,17 +524,17 @@ function UpdateEmployee($fields) {
     return $success;
 }
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Function DeleteEmployee
  *
  * This function constructs the SQL statement required to delete a row in 
  * the employee table.
  *
- * $ID(integer) ID of the record to be removed from the table. This should be set to 
- *              the EMP_ID value of the record you wish to delete.
+ * $ID(integer) ID of the record to be removed from the table. This should be  
+ *              set to the EMP_ID value of the record you wish to delete.
  *
  * @return (int) count of rows deleted. 0 means delete was unsuccessful. 
- * ------------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------- */
 
 function DeleteEmployee($ID) {
     $result = 0;
@@ -554,7 +571,7 @@ function DeleteEmployee($ID) {
 }
 
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Function GetEmployeeCount
  *
  * This function gets a count of employee records which match a given filter.
@@ -563,7 +580,7 @@ function DeleteEmployee($ID) {
  *                that should be filtered into the count.
  *
  * @return (int) count of rows that match this filter. 
- * ------------------------------------------------------------------------------------- */
+ * -------------------------------------------------------------------------- */
 
 function GetEmployeeCount(&$totalEmployees,&$employeesWithNoMainVacation) 
 {
@@ -579,7 +596,8 @@ function GetEmployeeCount(&$totalEmployees,&$employeesWithNoMainVacation)
     $totalEmployees = $data[0];  
      
      
-    $sql = "SELECT COUNT(*) FROM ".EMPLOYEE_TABLE." WHERE mainVacationRequestID IS NULL";
+    $sql = "SELECT COUNT(*) FROM ".EMPLOYEE_TABLE." WHERE mainVacationRequestID ".
+            "IS NULL";
    
     $result = mysqli_query($conn, $sql);
     if (!$result) {

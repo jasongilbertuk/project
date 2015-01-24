@@ -2,11 +2,14 @@
 include 'sessionmanagement.php';
 include 'databaseFunctions.php';
 
+// If user is not an adminstrator, redirect them back to the home page.
 if (!$isAdministrator) {
     header('Location: index.php');
     exit();
 }
 
+// If user has clicked the submit button, try and create the approved absence 
+// booking
 if (isset($_POST["submit"])) {
     ClearStatus();
     $employeeID = NULL;
@@ -19,17 +22,24 @@ if (isset($_POST["submit"])) {
                                        $_POST["endDate"], $_POST["absenceType"]);
 }
 
+// If user has clicked the amend button, redirect them to the edit approvced
+// booking page, using a GET parameter with the ID of the record to edit.
 if (isset($_POST["amend"])) {
     ClearStatus();
     $url = "Location:editApprovedAbsenceBooking.php?ID=" . $_POST["amend"];
     header($url);
 }
 
+// If user has clicked the delete button, delete the record from the table.
 if (isset($_POST["delete"])) {
     ClearStatus();
     DeleteApprovedAbsenceBooking($_POST["delete"]);
 }
 
+//-----------------------------------------------------------------------------
+// This function will generate the HTML necessary for the employee select
+// drop down HTML element
+//-----------------------------------------------------------------------------
 function CreateEmployeeSelect()
 {
     echo '<select class="form-control" name="employeeID" id="employeeID" >';
@@ -47,6 +57,10 @@ function CreateEmployeeSelect()
     echo '</select>';
 }
 
+//-----------------------------------------------------------------------------
+// This function will generate the HTML necessary for the absence type select
+// drop down HTML element
+//-----------------------------------------------------------------------------
 function CreateAbsenceTypeSelect()
 {
     $absenceTypes = RetrieveAbsenceTypes();
@@ -62,6 +76,10 @@ function CreateAbsenceTypeSelect()
     echo '</select>';
 } 
 
+//-----------------------------------------------------------------------------
+// This function will generate the HTML necessary for the body of the 
+// Approved absence table
+//-----------------------------------------------------------------------------
 function DisplayApproveAbsenceTableBody()
 {
     $bookings = RetrieveApprovedAbsenceBookings();

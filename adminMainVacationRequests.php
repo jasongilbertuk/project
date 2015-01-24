@@ -163,9 +163,6 @@ function CreateEmployeeSelect()
             </table>
             </form>
         </div>  
-      
-
     </body>
-
 </html>
 
