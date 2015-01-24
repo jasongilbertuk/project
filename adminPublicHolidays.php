@@ -24,6 +24,31 @@ if (isset($_POST["delete"])) {
     ClearStatus();
     DeletePublicHoliday($_POST["delete"]);
 }
+
+function DisplayPublicHolidayTableBody()
+{
+    $holidays = RetrievePublicHolidays();
+    if ($holidays <> NULL)
+    {
+        foreach ($holidays as $holiday) 
+        { 
+            $date = RetrieveDateByID($holiday[PUB_HOL_DATE_ID]);
+            echo "<tr>";
+            echo "<td>".$holiday[PUB_HOL_ID]."</td>";
+            echo "<td>".$holiday[PUB_HOL_NAME]."</td>";
+            echo "<td>".$holiday[PUB_HOL_DATE_ID]."</td>";
+            echo "<td>".$date[DATE_TABLE_DATE]."</td>";
+            echo '<td> <button class="btn btn-success" type="submit" '. 
+                 'name="amend" value="'.$holiday[PUB_HOL_ID].'">'.
+                 'Amend</button></td>';
+            echo '<td> <button class="btn btn-danger" type="submit"'. 
+                 'name="delete" value="'.$holiday[PUB_HOL_ID].'">'.
+                 'Delete</button></td>';
+            echo '</tr>';
+        }
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -47,17 +72,24 @@ if (isset($_POST["delete"])) {
             <div class="col-md-4 col-md-offset-4 text-center">
                 <h1> Add Public Holiday </h1>
             <div class="input-group" for="name">
-		<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>	
-                <input type="text" class="form-control" name="name" id="name" placeholder="Public Holiday Name">
+		<span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>	
+                <input type="text" class="form-control" name="name" id="name" 
+                       placeholder="Public Holiday Name">
             </div>
 
             <div class="input-group" for="date">
-		<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>	
-  		<input type="date" class="form-control" name="date" id="date" placeholder="Date">
+		<span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>	
+  		<input type="date" class="form-control" name="date" id="date" 
+                       placeholder="Date">
             </div>
                 
             <br/>    
-            <input class="btn btn-success btn-block col-md-4" type="submit" name="submit" id="submit" value="Add"/> 
+            <input class="btn btn-success btn-block col-md-4" type="submit" 
+                   name="submit" id="submit" value="Add"/> 
             </div>
             </div>
         </form>
@@ -80,22 +112,7 @@ if (isset($_POST["delete"])) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $holidays = RetrievePublicHolidays();
-                    if ($holidays <> NULL)
-                    {
-                        foreach ($holidays as $holiday) { 
-                            $date = RetrieveDateByID($holiday[PUB_HOL_DATE_ID]);
-                            ?>
-                        <tr>
-                            <td><?php echo $holiday[PUB_HOL_ID]; ?></td>
-                            <td><?php echo $holiday[PUB_HOL_NAME]; ?></td>
-                            <td><?php echo $holiday[PUB_HOL_DATE_ID]; ?></td>
-                            <td><?php echo $date[DATE_TABLE_DATE]; ?></td>
-                            <td> <button class="btn btn-success" type="submit" name="amend"  value="<?php echo $holiday[PUB_HOL_ID]; ?>">Amend</button></td>
-                            <td> <button class="btn btn-danger" type="submit" name="delete"  value="<?php echo $holiday[PUB_HOL_ID]; ?>">Delete</button></td>
-                        </tr>
-                        <?php }} ?>
+                    <?php DisplayPublicHolidayTableBody(); ?>
                 </tbody>
             </table>
             </div>

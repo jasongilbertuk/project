@@ -1,11 +1,11 @@
 <?php
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * CONSTANTS
  *
- * These constants should be used when refering to the table and the fields within its
- * records.
- * ------------------------------------------------------------------------------------- */
+ * These constants should be used when refering to the table and the fields 
+ * within its records.
+ * ---------------------------------------------------------------------------*/
 define("MAIN_VACATION_REQUEST_TABLE", "mainVacationRequestTable");
 define("MAIN_VACATION_REQ_ID", "mainVacationRequestID");
 define("MAIN_VACATION_EMP_ID", "employeeID");
@@ -14,14 +14,14 @@ define("MAIN_VACATION_1ST_END", "firstChoiceEndDate");
 define("MAIN_VACATION_2ND_START", "secondChoiceStartDate");
 define("MAIN_VACATION_2ND_END", "secondChoiceEndDate");
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Function CreateMainVacationRequestTable
  *
  * This function creates the SQL statement needed to construct the table
  * in the database.
  *
  * @return (bool)  True if table is created successfully, false otherwise.
- * ------------------------------------------------------------------------------------- */
+ * ---------------------------------------------------------------------------*/
 
 function CreateMainVacationRequestTable() {
     $sql = "CREATE TABLE IF NOT EXISTS `mydb`.`mainVacationRequestTable` (
@@ -42,7 +42,7 @@ function CreateMainVacationRequestTable() {
     performSQL($sql);
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function CreateMainVacationRequest
  *
  * This function creates a new MainVacationRequestrecord in the table.
@@ -57,16 +57,20 @@ function CreateMainVacationRequestTable() {
  * $secondChoiceEndDate (string)  string in the form YYYY-MM-DD. 
  *                               end date of the second choice request.
  *
- * @return (array) If successful, an array is returned where each key represents a field
- *                 in the record. If unsuccessful, the return will be NULL.
- * ------------------------------------------------------------------------------------- */
+ * @return (array) If successful, an array is returned where each key represents 
+ *                 a field in the record. If unsuccessful, the return will be 
+ *                 NULL.
+ * ---------------------------------------------------------------------------*/
 
-function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoiceEndDate, $secondChoiceStartDate, $secondChoiceEndDate) {
+function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, 
+                                  $firstChoiceEndDate, $secondChoiceStartDate, 
+                                  $secondChoiceEndDate) 
+{
     $statusMessage = "";
     $request = NULL;
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     $inputIsValid = TRUE;
 
     $employee = RetrieveEmployeeByID($employeeID);
@@ -121,9 +125,10 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
     }
     
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to insert a record in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Only attempt to insert a record in the database if the input parameters 
+    // are ok.
+    //-------------------------------------------------------------------------
     if ($inputIsValid) {
         $request[MAIN_VACATION_REQ_ID] = NULL;
         $request[MAIN_VACATION_EMP_ID] = $employeeID;
@@ -136,34 +141,41 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
         if (!$success) {
             $inputIsValid = false;
 
-            $statusMessage.="Unexpected error encountered with database. Contact your system administrator.</br>";
-            error_log("Failed to create main vacation request. " . print_r($request));
+            $statusMessage.="Unexpected error encountered with database. ".
+                            "Contact your system administrator.</br>";
+            error_log("Failed to create main vacation request. ");
             $request = NULL;
-        } else {
-            //-------------------------------------------------------------------------
+        } 
+        else 
+        {
+            //-----------------------------------------------------------------
             // Now that Main Vacation Request has been created, we need to 
-            // update the employee record to reference it. First, chcek to see if
-            // the employee already has a main vacation request (in which case we 
-            // need to deltete it.
-            //-------------------------------------------------------------------------
+            // update the employee record to reference it. First, chcek to see 
+            // if the employee already has a main vacation request (in which 
+            //  case we need to deltete it.
+            //-----------------------------------------------------------------
             if ($employee[EMP_MAIN_VACATION_REQ_ID] <> NULL) {
-                $count = DeleteMainVacationRequest($employee[EMP_MAIN_VACATION_REQ_ID]);
+                $count = DeleteMainVacationRequest(
+                        $employee[EMP_MAIN_VACATION_REQ_ID]);
                 if ($count == 0) {
                     $inputIsValid = false;
-                    $statusMessage.="Unexpected error encountered when removing Main Vacation Request from Database. Contact your system administrator.</br>";
+                    $statusMessage.="Unexpected error encountered when removing".
+                                     " Main Vacation Request from Database. ".
+                                     "Contact your system administrator.</br>";
                     error_log("Failed to delete main vacation request. ID=" .
                             $employee[EMP_MAIN_VACATION_REQ_ID]);
                 }
             }
 
-            //-------------------------------------------------------------------------
-            // Now update the employee record to reference the new MainVacationRequest
-            // record.
-            //-------------------------------------------------------------------------
+            //-----------------------------------------------------------------
+            // Now update the employee record to reference the new 
+            // MainVacationRequest record.
+            //-----------------------------------------------------------------
             $employee[EMP_MAIN_VACATION_REQ_ID] = $request[MAIN_VACATION_REQ_ID];
             $success = UpdateEmployee($employee);
             if (!$success) {
-                $statusMessage.="Failed to update employee to reference new main vacation request.";
+                $statusMessage.="Failed to update employee to reference new ".
+                                "main vacation request.";
                 error_log("Failed to update employee to reference new " .
                         "main vacation request.");
                 $inputIsValid = false;
@@ -179,7 +191,7 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
     return $request;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function sqlInsertMainVacationRequest
  *
  * This function constructs the SQL statement required to insert a new record
@@ -190,31 +202,35 @@ function CreateMainVactionRequest($employeeID, $firstChoiceStartDate, $firstChoi
  * @return (bool) TRUE if insert into database was successful, false otherwise.
  * 		   
  * Note: If successful then the MAIN_VACATION_REQ_ID entry in the 
- * array passed by the caller will be set to the ID of the record in the database. 
- * ------------------------------------------------------------------------------------- */
+ * array passed by the caller will be set to the ID of the record in the 
+ * database. 
+ * ---------------------------------------------------------------------------*/
 
 function sqlInsertMainVacationRequest(&$request) {
-    $sql = "INSERT INTO mainVacationRequestTable (employeeID,firstChoiceStartDate," .
-            "firstChoiceEndDate,secondChoiceStartDate,secondChoiceEndDate) " .
+    $sql = "INSERT INTO mainVacationRequestTable (employeeID,".
+            "firstChoiceStartDate,firstChoiceEndDate," .
+            "secondChoiceStartDate,secondChoiceEndDate) " .
             "VALUES ('" . $request[MAIN_VACATION_EMP_ID] .
-            "','" . $request[MAIN_VACATION_1ST_START] . "','" . $request[MAIN_VACATION_1ST_END] .
-            "','" . $request[MAIN_VACATION_2ND_START] . "','" . $request[MAIN_VACATION_2ND_END] . "');";
+            "','" . $request[MAIN_VACATION_1ST_START] . 
+            "','" . $request[MAIN_VACATION_1ST_END] .
+            "','" . $request[MAIN_VACATION_2ND_START] . 
+            "','" . $request[MAIN_VACATION_2ND_END] . "');";
     $request[MAIN_VACATION_REQ_ID] = performSQLInsert($sql);
     return $request[MAIN_VACATION_REQ_ID] <> 0;
 }
 
-/* --------------------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Function RetrieveMainVacationRequestByID
  *
- * This function uses the ID supplied as a parameter to construct an SQL select statement
- * and then performs this query, returning an array containing the key value pairs of the
- * record (or NULL if no record is found matching the id).
+ * This function uses the ID supplied as a parameter to construct an SQL select
+ * statement and then performs this query, returning an array containing the key 
+ * value pairs of the record (or NULL if no record is found matching the id).
  *
  * $id (int) id of the record to retrieve from the database..
  *
- * @return (array) array of key value pairs representing the fields in the record, or 
- *                 NULL if no record exists with the id supplied.
- * ------------------------------------------------------------------------------------- */
+ * @return (array) array of key value pairs representing the fields in the 
+ *                 record, or NULL if no record exists with the id supplied.
+ * ---------------------------------------------------------------------------*/
 
 function RetrieveMainVacationRequestByID($id) {
     $filter[MAIN_VACATION_REQ_ID] = $id;
@@ -229,27 +245,29 @@ function RetrieveMainVacationRequestByID($id) {
     return $result;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function RetrieveMainVacationRequests
  *
  * This function constructs the SQL statement required to query the 
  * MainVacationRequest table.
  *
- * $filter (array) Optional parameter. If supplied, then the array should contain a set
- *                 of key value pairs, where the keys correspond to one (or more) fields
- *                 in the record (see constants at top of file) and the values correspond
- *                 to the values to filter against (IE: The WHERE clause).
+ * $filter (array) Optional parameter. If supplied, then the array should 
+ *                 contain a set of key value pairs, where the keys correspond 
+ *                 to one (or more) fields in the record (see constants at top 
+ *                 of file) and the values correspond to the values to filter 
+ *                 against (IE: The WHERE clause).
  *
- * @return (array) If successful, an array of arrays, where each element corresponds to 
- *                 a row from the query. If a failure occurs, return will be NULL. 
- * ------------------------------------------------------------------------------------- */
+ * @return (array) If successful, an array of arrays, where each element 
+ *                 corresponds to a row from the query. If a failure occurs, 
+ *                 return will be NULL. 
+ * ---------------------------------------------------------------------------*/
 
 function RetrieveMainVacationRequests($filter = NULL) {
     $inputIsValid = TRUE;
 
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     if ($filter <> NULL) {
         foreach ($filter as $key => $value) {
             if (strcmp($key, MAIN_VACATION_REQ_ID) == 0) {
@@ -289,15 +307,17 @@ function RetrieveMainVacationRequests($filter = NULL) {
                     $inputIsValid = FALSE;
                 }
             } else {
-                error_log("Unknown Filter " . $key . " passed to RetrieveMainVacationRequests.");
+                error_log("Unknown Filter " . $key . 
+                        " passed to RetrieveMainVacationRequests.");
                 $inputIsValid = FALSE;
             }
         }
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to perform query in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
+    // Only attempt to perform query in the database if the input parameters 
+    // are ok.
+    //-------------------------------------------------------------------------
     $result = NULL;
     if ($inputIsValid) {
         $result = performSQLSelect(MAIN_VACATION_REQUEST_TABLE, $filter);
@@ -305,26 +325,27 @@ function RetrieveMainVacationRequests($filter = NULL) {
     return $result;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function UpdateMainVacationRequest
  *
  * This function constructs the SQL statement required to update a row in 
  * the MainVacationRequest table.
  *
- * $fields (array) array of key value pairs, where keys correspond to fields in the
- *                 record (see constants at start of this file). Note, this array
- *                 MUST provide the id of the record (MAIN_VACATION_REQ_ID) and one or 
- *                 more other fields to be updated. 
+ * $fields (array) array of key value pairs, where keys correspond to fields 
+ *                 in the record (see constants at start of this file). Note, 
+ *                 this array MUST provide the id of the record 
+ *                 (MAIN_VACATION_REQ_ID) and one or more other fields to be 
+ *                 updated. 
  *
  * @return (bool) TRUE if update succeeds. FALSE otherwise. 
- * ------------------------------------------------------------------------------------- */
+ * ------------------------------------------------------------------------- */
 
 function UpdateMainVacactionRequest($fields) {
     $success = false;
     $statusMessage = "";
-    //--------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------
     // Validate Input parameters
-    //--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
@@ -351,7 +372,8 @@ function UpdateMainVacactionRequest($fields) {
 
             if (!isValidDate($value)) {
                 $statusMessage .="Invalid 1st Start Date/br>";
-                error_log("Invalid MAIN_VACATION_1ST_START passed to UpdateMainVacationRequest.");
+                error_log("Invalid MAIN_VACATION_1ST_START passed to ".
+                          "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == MAIN_VACATION_1ST_END) {
@@ -359,7 +381,8 @@ function UpdateMainVacactionRequest($fields) {
 
             if (!isValidDate($value)) {
                 $statusMessage .="Invalid 1st Finish Date/br>";
-                error_log("Invalid MAIN_VACATION_1ST_END passed to UpdateMainVacationRequest.");
+                error_log("Invalid MAIN_VACATION_1ST_END passed to ".
+                          "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == MAIN_VACATION_2ND_START) {
@@ -367,7 +390,8 @@ function UpdateMainVacactionRequest($fields) {
 
             if (!isValidDate($value)) {
                 $statusMessage .="Invalid 2nd Start Date/br>";
-                error_log("Invalid MAIN_VACATION_2ND_START passed to UpdateMainVacationRequest.");
+                error_log("Invalid MAIN_VACATION_2ND_START passed to ".
+                          "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
             }
         } else if ($key == MAIN_VACATION_2ND_END) {
@@ -375,12 +399,14 @@ function UpdateMainVacactionRequest($fields) {
 
             if (!isValidDate($value)) {
                 $statusMessage .="Invalid 2nd Finish Date/br>";
-                error_log("Invalid MAIN_VACATION_2ND_END passed to UpdateMainVacationRequest.");
+                error_log("Invalid MAIN_VACATION_2ND_END passed to ".
+                          "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
             }
         } else {
             $statusMessage .="Invalid Field encountered./br>";
-            error_log("Invalid field passed to UpdateMainVacationRequest. $key=" . $key);
+            error_log("Invalid field passed to ".
+                      "UpdateMainVacationRequest. $key=" . $key);
             $inputIsValid = FALSE;
         }
     }
@@ -417,11 +443,13 @@ function UpdateMainVacactionRequest($fields) {
         $inputIsValid = FALSE;
     }
 
-    //--------------------------------------------------------------------------------
-    // Only attempt to update a record in the database if the input parameters are ok.
-    //--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    // Only attempt to update a record in the database if the input parameters 
+    // are ok.
+    //--------------------------------------------------------------------------
     if ($inputIsValid) {
-        $success = performSQLUpdate(MAIN_VACATION_REQUEST_TABLE, MAIN_VACATION_REQ_ID, $fields);
+        $success = performSQLUpdate(MAIN_VACATION_REQUEST_TABLE, 
+                                    MAIN_VACATION_REQ_ID, $fields);
         if ($success)
         {
             $statusMessage.="Record successfully modified.";
@@ -429,24 +457,26 @@ function UpdateMainVacactionRequest($fields) {
         else
         {
             $inputIsValid = false;
-            $statusMessage.="Error encountered when updating the database. Contact system administrator.</br>";
+            $statusMessage.="Error encountered when updating the database. ".
+                            "Contact system administrator.</br>";
         }
     }
     GenerateStatus($inputIsValid, $statusMessage);
     return $success;
 }
 
-/* --------------------------------------------------------------------------------------
+/* ----------------------------------------------------------------------------
  * Function DeleteMainVacationRequest
  *
  * This function constructs the SQL statement required to delete a row in 
  * the MainVacationRequest table.
  *
- * $ID(integer) ID of the record to be removed from the table. This should be set to 
- *              the  MAIN_VACATION_REQ_ID value of the record you wish to delete.
+ * $ID(integer) ID of the record to be removed from the table. This should be  
+ *              set to the  MAIN_VACATION_REQ_ID value of the record you wish to 
+ *              delete.
  *
  * @return (int) count of rows deleted. 0 means delete was unsuccessful. 
- * ------------------------------------------------------------------------------------- */
+ * --------------------------------------------------------------------------*/
 
 function DeleteMainVacationRequest($ID) {
     $result = 0;
@@ -459,7 +489,8 @@ function DeleteMainVacationRequest($ID) {
             UpdateEmployee($employee);
         }
 
-        $sql = "DELETE FROM mainVacationRequestTable WHERE mainVacationRequestID=" . $ID . ";";
+        $sql = "DELETE FROM mainVacationRequestTable WHERE mainVacationRequestID=".
+                $ID . ";";
         $result = performSQL($sql);
     }
     return $result;

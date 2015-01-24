@@ -49,6 +49,35 @@ if (isset($_POST["delete"]))
     DeleteEmployee($_POST["delete"]);
 }
 
+function DisplayEmployeeTableBody()
+{
+    $employees = RetrieveEmployees();
+    if ($employees <> NULL)
+    {
+        foreach ($employees as $employee) 
+        { 
+            $role = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
+            echo "<tr>";
+            echo "<td>".$employee[EMP_ID]."</td>";
+            echo "<td>".$employee[EMP_NAME]."</td>";
+            echo "<td>".$employee[EMP_EMAIL]."</td>";
+            echo "<td>".$employee[EMP_DATEJOINED]."</td>";
+            echo "<td>".$employee[EMP_LEAVE_ENTITLEMENT]."</td>";
+            echo "<td>".$role[COMP_ROLE_NAME]."</td>";
+            echo "<td>".$employee[EMP_MAIN_VACATION_REQ_ID]."</td>";
+            echo "<td>".$employee[EMP_ADMIN_PERM]."</td>";
+            echo "<td>".$employee[EMP_MANAGER_PERM]."</td>";
+            echo '<td> <button type="submit" class="btn btn-success" '.
+                 'name="amend" id="amend"  value="'.$employee[EMP_ID].
+                 '">Amend</button></td>';
+            echo '<td> <button type="submit" class="btn btn-danger" '.
+                 'name="delete" id="delete" value="'.$employee[EMP_ID].
+                 '">Delete</button></td>';
+            echo "</tr>";
+        }
+    } 
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -58,6 +87,8 @@ if (isset($_POST["delete"]))
         <link rel="stylesheet" href="style.css">
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <meta charset="UTF-8">
         <title>Admin Employees</title>
     </head>
@@ -73,27 +104,38 @@ if (isset($_POST["delete"]))
                 <h1> Create a new Employee </h1>
                 
                 <div class="input-group" for="empName">
-                    <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                    <input type="text" class="form-control" placeholder="Name" name="empName" id="empName" >
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-user"></span>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Name" 
+                           name="empName" id="empName" >
                 </div>
 
                 <div class="input-group" for="eMail">
-                    <span class="input-group-addon"><span class="glyphicon glyphicon-envelope"></span></span>
-                    <input type="text" class="form-control" placeholder="Email" name="eMail" id="eMail">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-envelope"></span>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Email" 
+                           name="eMail" id="eMail">
                 </div>
 
 
                 <div class="input-group" for="password">
-                    <span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
-                    <input type="text" class="form-control" placeholder="Password" name="password" id="password">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-lock"></span>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Password" 
+                           name="password" id="password">
                 </div>
 
                 <div class="input-group" for=dateJoin">
-                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                    <input type="date" class="form-control" name="dateJoin" id="dateJoin" placeholder="Date Joined">
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                    <input type="date" class="form-control" name="dateJoin" 
+                           id="dateJoin" placeholder="Date Joined">
                 </div>
-
-                <br />
+                <br/>
 
                 <label for="companyRole">Company Role</label>
                 <?php
@@ -101,7 +143,8 @@ if (isset($_POST["delete"]))
                 if ($roles <> NULL) {
                     echo '<select  class= "form-control" name="companyRole">';
                     foreach ($roles as $role) {
-                        echo '<option value="' . $role[COMP_ROLE_ID] . '">' . $role[COMP_ROLE_NAME] . '</option>';
+                        echo '<option value="' . $role[COMP_ROLE_ID] . '">' .
+                                $role[COMP_ROLE_NAME] . '</option>';
                     }
                 }
 
@@ -110,18 +153,21 @@ if (isset($_POST["delete"]))
                 <br/>
 
                 <label for="annualLeave">Annual Leave Entitlement</label>
-                <input type="range"  class= "form-control" name="annualLeave" min="10" max="28" value="19" step="1" 
+                <input type="range"  class= "form-control" name="annualLeave" 
+                       min="10" max="28" value="19" step="1" 
                        oninput="updateAnnualLeave(value)"  id="annualLeave" /> 
                 <output for="minStaff" id="Leave">19</output>
 
                 <br/>
                 
                     <label for="isAdministrator" >Is Administrator</label>
-                    <input type="checkbox" name="isAdministrator" id="isAdministrator" /> 
+                    <input type="checkbox" name="isAdministrator" 
+                           id="isAdministrator" /> 
                     <label for="isManager" >&nbsp;&nbsp;Is Manager</label>
                     <input type="checkbox"  name="isManager" id="isManager" /> 
                 </div>
-                <input type="submit" class="btn btn-success col-md-4 col-md-offset-4" name="submit" id="submit" value="Add Employee"/>
+                <input type="submit" class="btn btn-success col-md-4 col-md-offset-4" 
+                       name="submit" id="submit" value="Add Employee"/>
             </div>    
         </form>
         
@@ -148,27 +194,7 @@ if (isset($_POST["delete"]))
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $employees = RetrieveEmployees();
-                    if ($employees <> NULL)
-                    {
-                        foreach ($employees as $employee) { 
-                            $role = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
-                            ?>
-                        <tr>
-                                    <td><?php echo $employee[EMP_ID]; ?></td>
-                                    <td><?php echo $employee[EMP_NAME]; ?></td>
-                                    <td><?php echo $employee[EMP_EMAIL]; ?></td>
-                                    <td><?php echo $employee[EMP_DATEJOINED]; ?></td>
-                                    <td><?php echo $employee[EMP_LEAVE_ENTITLEMENT]; ?></td>
-                                    <td><?php echo $role[COMP_ROLE_NAME]; ?></td>
-                                    <td><?php echo $employee[EMP_MAIN_VACATION_REQ_ID]; ?></td>
-                                    <td><?php echo $employee[EMP_ADMIN_PERM]; ?></td>
-                                    <td><?php echo $employee[EMP_MANAGER_PERM]; ?></td>
-                                    <td> <button type="submit" class="btn btn-success" name="amend" id="amend"  value="<?php echo $employee[EMP_ID]; ?>">Amend</button></td>
-                                    <td> <button type="submit" class="btn btn-danger" name="delete" id="delete" value="<?php echo $employee[EMP_ID]; ?>">Delete</button></td>
-                        </tr>
-                        <?php }} ?>
+                    <?php DisplayEmployeeTableBody(); ?>
                 </tbody>
             </table>
             </form>

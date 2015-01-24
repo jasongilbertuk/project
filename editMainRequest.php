@@ -81,7 +81,8 @@ if (isset($_POST["delete"])) {
                 $employee = RetrieveEmployeeByID($record[MAIN_VACATION_EMP_ID]);
                 if ($employee <> NULL)
                 {
-                  echo '<input type="text" class="form-control" name="empID" id="empID" readonly value="'.$employee[EMP_NAME].'"/>';
+                  echo '<input type="text" class="form-control" name="empID" '
+                    . 'id="empID" readonly value="'.$employee[EMP_NAME].'"/>';
                 }
             ?> 
            </div>

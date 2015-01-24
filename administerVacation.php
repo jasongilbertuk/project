@@ -15,7 +15,8 @@ $result = GetEmployeeCount($totalEmployees,$employeesWithNoMainVacation);
 if (isset($_POST["processmainrequests"])) 
 {
         ClearStatus();
-        $succeed = false;
+        $succeeded = false;
+        $statusMessage = "";
         
 	$result = processMainVacationRequests($statusMessage);
         if ($result ==NULL)
@@ -144,6 +145,55 @@ function ApproveAdHocRequest($requestID)
     GenerateStatus($succeeded, $statusMessage);
 }
 
+function DisplayMainVacationTableBody()
+{
+    $requests = RetrieveMainVacationRequests();
+    if ($requests <> NULL)
+    {
+        foreach ($requests as $request) 
+        { 
+            $employee = RetrieveEmployeeByID($request[MAIN_VACATION_EMP_ID]);
+            echo "<tr>";
+            echo "<td>".$employee[EMP_NAME]."</td>";
+            echo "<td>".$request[MAIN_VACATION_1ST_START]."</td>";
+            echo "<td>".$request[MAIN_VACATION_1ST_END]."</td>";
+            echo "<td>".$request[MAIN_VACATION_2ND_START]."</td>";
+            echo "<td>".$request[MAIN_VACATION_2ND_END]."</td>";
+            echo '<td> <button class="btn btn-success" type="submit" '.
+                 'name="approve1st"  value="'.$request[MAIN_VACATION_REQ_ID].
+                 '">Approve 1st Choice</button></td>';
+            echo '<td> <button class="btn btn-success" type="submit" '.
+                 'name="approve2nd"  value="'.$request[MAIN_VACATION_REQ_ID].
+                    '">Approve 2nd Choice</button></td>';
+            echo '<td> <button class="btn btn-danger" type="submit" name="reject"'.
+                 ' value="'.$request[MAIN_VACATION_REQ_ID].'">Reject</button></td>';
+            echo '</tr>';
+        }
+    } 
+}
+
+function DisplayAdHocRequestTableBody()
+{
+    $requests = RetrieveAdHocAbsenceRequests();
+    if ($requests <> NULL)
+    {
+        foreach ($requests as $request) 
+        { 
+            $employee = RetrieveEmployeeByID($request[AD_HOC_EMP_ID]);
+            echo "<tr>";
+            echo "<td>".$employee[EMP_NAME]."</td>";
+            echo "<td>".$request[AD_HOC_START]."</td>";
+            echo "<td>".$request[AD_HOC_END]."</td>";
+            echo '<td> <button class="btn btn-success" type="submit" '.
+                 'name="approveadhoc"  value="'.$request[AD_HOC_REQ_ID].
+                 '">Approve</button></td>';
+            echo '<td> <button class="btn btn-danger" type="submit" '.
+                 'name="rejectadhoc"  value="'.$request[AD_HOC_REQ_ID].
+                 '">Reject</button></td>';
+            echo "</tr>";
+        }
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -160,25 +210,37 @@ function ApproveAdHocRequest($requestID)
     </head>
  
     <body>
-        <?php include 'navbar.php'; ?>
+        <?php include "navbar.php"; ?>
         
         <form method="post">
             <div class="row">
             <div class="col-md-4 col-md-offset-4 text-center">
                 <h1> Current Processed Requests </h1>
             <div class="input-group" for="StaffWithRequest">
-  		<span class="input-group-addon">Employees &nbsp; With&nbsp; Main &nbsp; Vacation&nbsp; Requests</span>
-  		<input type="text" class="form-control" name="withCount" id="withCount" readonly value="<?php echo $totalEmployees;?>">
+  		<span class="input-group-addon">
+                    Employees &nbsp; With&nbsp; Main &nbsp; Vacation&nbsp; Requests
+                </span>
+  		<input type="text" class="form-control" name="withCount" 
+                       id="withCount" readonly 
+                       value="<?php echo $totalEmployees;?>">
 	    </div>
             
             <div class="input-group" for="StaffWithoutRequest">
-  		<span class="input-group-addon">Employees Without Main Vacation Requests</span>
-  		<input type="text" class="form-control" name="withoutCount" id="withCount" readonly value="<?php echo $employeesWithNoMainVacation;?>">
+  		<span class="input-group-addon">
+                    Employees Without Main Vacation Requests
+                </span>
+  		<input type="text" class="form-control" name="withoutCount" 
+                       id="withCount" readonly 
+                       value="<?php echo $employeesWithNoMainVacation;?>">
 	    </div>
 
                         
-            <input class="btn btn-success btn-block" type="submit" name="processmainrequests" id="submit" value="Process Main Requests"/>
-            <input class="btn btn-success btn-block" type="submit" name="processadhocrequests" id="submit" value="Process Ad Hoc Requests"/>
+            <input class="btn btn-success btn-block" type="submit" 
+                   name="processmainrequests" id="submit" 
+                   value="Process Main Requests"/>
+            <input class="btn btn-success btn-block" type="submit" 
+                   name="processadhocrequests" id="submit" 
+                   value="Process Ad Hoc Requests"/>
             </div>
             </div>
         </form>
@@ -202,24 +264,7 @@ function ApproveAdHocRequest($requestID)
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $requests = RetrieveMainVacationRequests();
-                    if ($requests <> NULL)
-                    {
-                        foreach ($requests as $request) { 
-                            $employee = RetrieveEmployeeByID($request[MAIN_VACATION_EMP_ID]);
-                            ?>
-                        <tr>
-                            <td><?php echo $employee[EMP_NAME]; ?></td>
-                            <td><?php echo $request[MAIN_VACATION_1ST_START]; ?></td>
-                            <td><?php echo $request[MAIN_VACATION_1ST_END]; ?></td>
-                            <td><?php echo $request[MAIN_VACATION_2ND_START]; ?></td>
-                            <td><?php echo $request[MAIN_VACATION_2ND_END]; ?></td>
-                            <td> <button class="btn btn-success" type="submit" name="approve1st"  value="<?php echo $request[MAIN_VACATION_REQ_ID]; ?>">Approve 1st Choice</button></td>
-                            <td> <button class="btn btn-success" type="submit" name="approve2nd"  value="<?php echo $request[MAIN_VACATION_REQ_ID]; ?>">Approve 2nd Choice</button></td>
-                            <td> <button class="btn btn-danger" type="submit" name="reject"  value="<?php echo $request[MAIN_VACATION_REQ_ID]; ?>">Reject</button></td>
-                        </tr>
-                        <?php }} ?>
+                    <?php DisplayMainVacationTableBody(); ?>
                 </tbody>
             </table>
             </div>
@@ -242,21 +287,7 @@ function ApproveAdHocRequest($requestID)
                     </tr>
                 </thead>
                 <tbody>
-                    <?php
-                    $requests = RetrieveAdHocAbsenceRequests();
-                    if ($requests <> NULL)
-                    {
-                        foreach ($requests as $request) { 
-                            $employee = RetrieveEmployeeByID($request[AD_HOC_EMP_ID]);
-                            ?>
-                        <tr>
-                            <td><?php echo $employee[EMP_NAME]; ?></td>
-                            <td><?php echo $request[AD_HOC_START]; ?></td>
-                            <td><?php echo $request[AD_HOC_END]; ?></td>
-                            <td> <button class="btn btn-success" type="submit" name="approveadhoc"  value="<?php echo $request[AD_HOC_REQ_ID]; ?>">Approve</button></td>
-                            <td> <button class="btn btn-danger" type="submit" name="rejectadhoc"  value="<?php echo $request[AD_HOC_REQ_ID]; ?>">Reject</button></td>
-                        </tr>
-                        <?php }} ?>
+                    <?php DisplayAdHocRequestTableBody(); ?>
                 </tbody>
             </table>
             </div>

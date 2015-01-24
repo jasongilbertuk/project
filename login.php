@@ -32,6 +32,8 @@ if (isset($_POST["submit"])) {
     <head>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         <meta charset="UTF-8">
@@ -47,15 +49,19 @@ if (isset($_POST["submit"])) {
                     <form method="POST">
                         <div class="input-group" for="email">
                             <span class="input-group-addon glyphicon glyphicon-user"></span>
-                            <input type="email" class="form-control" name="inputEmail" id="email" placeholder="Email">
+                            <input type="email" class="form-control" 
+                                   name="inputEmail" id="email" placeholder="Email">
                         </div>
 
                         <div class="input-group" for="password">
                             <span class="input-group-addon glyphicon glyphicon-lock"></span>
-                            <input type="password" class="form-control" name="inputPassword" id="password" placeholder="Password">
+                            <input type="password" class="form-control" 
+                                   name="inputPassword" id="password" placeholder="Password">
                         </div>
 
-                        <input type="submit" class="btn btn-lg btn-primary btn-block btn-default" name="submit" value="Sign In">
+                        <input type="submit" 
+                               class="btn btn-lg btn-primary btn-block btn-default" 
+                               name="submit" value="Sign In">
                     </form>
                 </div>
              </div>     

@@ -63,8 +63,9 @@ if (isset($_POST["update"])) {
         <title>Amend Absence Type</title>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
-
-      	<script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     </head>
  
@@ -76,8 +77,11 @@ if (isset($_POST["update"])) {
                 <div class="col-md-4 col-md-offset-4 text-center">
                     <h1> Edit Absence Type </h1>
             <div class="input-group" for="name">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                <input type="text" class="form-control" name="name" id="name" value="<?php echo $absenceType[ABS_TYPE_NAME];?>">
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-user"></span>
+                </span>
+                <input type="text" class="form-control" name="name" id="name" 
+                       value="<?php echo $absenceType[ABS_TYPE_NAME];?>">
 	    </div>
 
             <label for="usesLeave">Uses Annual Leave</label>
@@ -90,8 +94,10 @@ if (isset($_POST["update"])) {
             
             <br/> <br/>
             
-            <input class="btn btn-success btn-block" type="submit" name="update" id="submit" value="Update"/> 
-            <input class="btn btn-success btn-block" type="submit" name="cancel" id="cancel" value="Cancel"/> 
+            <input class="btn btn-success btn-block" type="submit" name="update" 
+                   id="submit" value="Update"/> 
+            <input class="btn btn-success btn-block" type="submit" name="cancel" 
+                   id="cancel" value="Cancel"/> 
                 </div>
             </div>
         </form>

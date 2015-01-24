@@ -45,6 +45,8 @@ if (isset($_POST["update"])) {
     <head>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="style.css">
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
         
@@ -63,20 +65,27 @@ if (isset($_POST["update"])) {
                 <h1> Edit Public Holiday </h1>    
                 
             <div class="input-group" for="roleName">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                <input type="text" class="form-control"  name="name" id="name" placeholder="Public Holiday Name"
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="text" class="form-control"  name="name" id="name" 
+                       placeholder="Public Holiday Name"
                        value="<?php echo $record[PUB_HOL_NAME];?>">
             </div>
                    
             <div class="input-group" for="date">
-                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                <input type="text" class="form-control"  name="date" id="date" placeholder="Date Joined"
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+                <input type="text" class="form-control"  name="date" id="date" 
+                       placeholder="Date Joined"
                        value="<?php echo $date[DATE_TABLE_DATE]; ?>">
             </div>     
 
-            
-            <input class="btn btn-success btn-block" type="submit" name="update" id="submit" value="Update"/> 
-            <input class="btn btn-danger btn-block" type="submit" name="cancel" id="cancel" value="Cancel"/> 
+            <input class="btn btn-success btn-block" type="submit" name="update" 
+                   id="submit" value="Update"/> 
+            <input class="btn btn-danger btn-block" type="submit" name="cancel" 
+                   id="cancel" value="Cancel"/> 
             </div>
             </div>
         </form>

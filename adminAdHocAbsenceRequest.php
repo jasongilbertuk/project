@@ -2,11 +2,15 @@
 include 'sessionmanagement.php';
 include 'databasefunctions.php';
 
+// If user is not an adminstrator or a manager redirect them back to the home 
+// page.
 if (!$isManager AND !$isAdministrator) {
     header('Location: index.php');
     exit();
 }
 
+// If user has clicked the submit button, try and create the ad hoc request in
+// the database.
 if (isset($_POST["submit"])) {
     ClearStatus();
     $employeeID = NULL;
@@ -21,6 +25,8 @@ if (isset($_POST["submit"])) {
                                          $_POST["absenceType"]);
 }
 
+// If user has clicked the amend button, redirect them to the edit adhoc absence
+// page, using a GET parameter with the ID of the record to edit.
 if (isset($_POST["amend"])) {
     ClearStatus();
     $url = "Location:editAdHocAbsenceRequest.php?ID=".
@@ -28,11 +34,16 @@ if (isset($_POST["amend"])) {
     header($url);
 }
 
+// If user has clicked the delete button, delete the record from the table.
 if (isset($_POST["delete"])) {
     ClearStatus();
     DeleteAdHocAbsenceRequest($_POST["delete"]);
 }
 
+//-----------------------------------------------------------------------------
+// This function will generate the HTML necessary for the Employee select
+// dropdown.
+//-----------------------------------------------------------------------------
 function CreateEmployeeSelect()
 {
     echo '<select class="form-control" name="employeeID" id="employeeID" >';
@@ -50,6 +61,10 @@ function CreateEmployeeSelect()
     echo '</select>';
 }
 
+//-----------------------------------------------------------------------------
+// This function will generate the HTML necessary for the body of the 
+// AbsenceType select dropdown.
+//-----------------------------------------------------------------------------
 function CreateAbsenceTypeSelect()
 {
     $absenceTypes = RetrieveAbsenceTypes();
@@ -65,6 +80,10 @@ function CreateAbsenceTypeSelect()
     echo '</select>';
 } 
 
+//-----------------------------------------------------------------------------
+// This function will generate the HTML necessary for the body of the 
+// AdHoc table.
+//-----------------------------------------------------------------------------
 function PopulateAdHocTable()
 {
     $requests = RetrieveAdHocAbsenceRequests();

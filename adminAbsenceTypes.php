@@ -2,12 +2,14 @@
 include 'sessionmanagement.php';
 include 'databaseFunctions.php';
 
+// If user is not an adminstrator, redirect them back to the home page.
 if (!$isAdministrator)
 {
    header('Location: index.php');
    exit();
 }
 
+// If user has clicked the submit button, try and create the absence type.
 if (isset($_POST["submit"])) {
     ClearStatus();
     
@@ -24,19 +26,48 @@ if (isset($_POST["submit"])) {
     $record = CreateAbsenceType($_POST["absenceTypeName"], 
                                 $usesAnnualLeave,
                                 $canBeDenied);
-    
 }
 
+// If user has clicked the amend button, redirect them to the edit absence
+// type page, using a GET parameter with the ID of the record to edit.
 if (isset($_POST["amend"])) { 
     ClearStatus();
     $url = "Location:editabsencetype.php?ID=".$_POST["amend"];   
     header($url);
 }
 
+// If user has clicked the delete button, delete the record from the table.
 if (isset($_POST["delete"])) {
     ClearStatus();
     DeleteAbsenceType($_POST["delete"]);
 }
+
+//-----------------------------------------------------------------------------
+// This function will generate the HTML necessary for the body of the 
+// AbsenceType table.
+//-----------------------------------------------------------------------------
+function DisplayAbsenceTypeBody() 
+{
+    $absenceTypes = RetrieveAbsenceTypes();
+    if ($absenceTypes <> NULL) 
+    {
+        foreach ($absenceTypes as $absenceType) 
+        {
+            echo "<tr>";
+            echo "<td>".$absenceType[ABS_TYPE_NAME]."</td>";
+            echo "<td>".$absenceType[ABS_TYPE_USES_LEAVE]."</td>";
+            echo "<td>".$absenceType[ABS_TYPE_CAN_BE_DENIED]."</td>";
+            echo '<td> <button class="btn btn-success" type="submit" '.
+                 'name="amend"  value="'.$absenceType[ABS_TYPE_ID].
+                 '">Amend</button></td>';
+            echo '<td> <button class="btn btn-danger" type="submit" '.
+                 'name="delete"  value="'.
+                    $absenceType[ABS_TYPE_ID].'">Delete</button></td>';
+            echo '</tr>';
+        }
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -60,19 +91,25 @@ if (isset($_POST["delete"])) {
                 <div class="col-md-4 col-md-offset-4 text-center">
                     <h1>Create Absence Type</h1>
                     <div class="input-group" for="absenceTypeName">
-                        <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
-                        <input type="text" class="form-control" placeholder="Absence Name" name="absenceTypeName" id="absenceTypeName">
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-user"></span>
+                        </span>
+                        <input type="text" class="form-control" 
+                               placeholder="Absence Name" name="absenceTypeName" 
+                               id="absenceTypeName">
                     </div>
 
                     <label for="usesAnnualLeave">Uses Annual Leave</label>
-                    <input type="checkbox" name="usesAnnualLeave" id="usesAnnualLeave" /> 
+                    <input type="checkbox" name="usesAnnualLeave" 
+                           id="usesAnnualLeave" /> 
                     
                     <label for="canBeDenied">&nbsp;&nbsp;Can Be Denied</label>
                     <input type="checkbox" name="canBeDenied" id="canBeDenied" /> 
 
                     <br /> <br />
 
-                    <input class="btn btn-success btn-block" type="submit" name="submit" id="submit" value="Add Absence Type"/> 
+                    <input class="btn btn-success btn-block" type="submit" 
+                           name="submit" id="submit" value="Add Absence Type"/> 
                 </div>
             </div>
         </form>
@@ -92,27 +129,10 @@ if (isset($_POST["delete"])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        $absenceTypes = RetrieveAbsenceTypes();
-                        if ($absenceTypes <> NULL) {
-                            foreach ($absenceTypes as $absenceType) {
-                                ?>
-                                <tr>
-                                    <td><?php echo $absenceType[ABS_TYPE_NAME]; ?></td>
-                                    <td><?php echo $absenceType[ABS_TYPE_USES_LEAVE]; ?></td>
-                                    <td><?php echo $absenceType[ABS_TYPE_CAN_BE_DENIED]; ?></td>
-                                    <td> <button class="btn btn-success" type="submit" name="amend"  value="<?php echo $absenceType[ABS_TYPE_ID]; ?>">Amend</button></td>
-                                    <td> <button class="btn btn-danger" type="submit" name="delete"  value="<?php echo $absenceType[ABS_TYPE_ID]; ?>">Delete</button></td>
-                                </tr>
-                            <?php }
-                        } ?>
+                        <?php DisplayAbsenceTypeBody(); ?>
                     </tbody>
                 </table>
             </form>
         </div>
-        
- 
-    }
-}
     </body>
 </html>

@@ -25,6 +25,29 @@ if (isset($_POST["delete"])) {
     DeleteCompanyRole($_POST["delete"]);
 }
 
+function DisplayCompanyRolesTableBody()
+{
+    $roles = RetrieveCompanyRoles();
+    if ($roles <> NULL)
+    {
+        foreach ($roles as $role) 
+        {
+            echo "<tr>";
+            echo "<td>".$role[COMP_ROLE_NAME]."</td>";
+            echo "<td>".$role[COMP_ROLE_MIN_STAFF]."</td>";
+            echo "<td>"; 
+            echo '<button class="btn btn-success" type="submit"'.
+                 'name="amend"'.
+                 'value="'.$role[COMP_ROLE_ID].'">'.
+                 'Amend</button></td>';
+            echo '<td> <button class="btn btn-danger" type="submit"'.
+                 'name="delete"'.  
+                 'value="'.$role[COMP_ROLE_ID].'">'.
+                 'Delete</button></td>';
+            echo '</tr>';
+        }
+    } 
+}
 ?>
 
 <!DOCTYPE html>
@@ -80,25 +103,7 @@ if (isset($_POST["delete"])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php
-                        $roles = RetrieveCompanyRoles();
-                        if ($roles <> NULL)
-                        {
-                            foreach ($roles as $role) { ?>
-                            <tr>
-                                <td><?php echo $role[COMP_ROLE_NAME]; ?></td>
-                                <td><?php echo $role[COMP_ROLE_MIN_STAFF]; ?></td>
-                                <td> 
-                                    <button class="btn btn-success" type="submit"
-                                      name="amend"  
-                                      value="<?php echo $role[COMP_ROLE_ID]; ?>">
-                                        Amend</button></td>
-                                <td> <button class="btn btn-danger" type="submit"
-                                      name="delete"  
-                                      value="<?php echo $role[COMP_ROLE_ID]; ?>">
-                                        Delete</button></td>
-                            </tr>
-                        <?php }} ?>
+                        <?php DisplayCompanyRolesTableBody(); ?>
                     </tbody>
                 </table>
             </form>
