@@ -1,30 +1,55 @@
 <?php
 session_start();
-$_SESSION["StatusDiv"] = "";
-
 include 'databasefunctions.php';
 
+    
+
+if (!isset($_SESSION['StatusDiv']))
+{
+    $_SESSION['StatusDiv'] = "";
+}
+
 if (isset($_POST["submit"])) {
-    $filter[EMP_EMAIL] = $_POST["inputEmail"];
-    $employees = RetrieveEmployees($filter);
-    if (count($employees)==1)
+    ClearStatus();
+    $email = $_POST["inputEmail"];
+    $password = $_POST["inputPassword"];
+    
+    if ($email == "")
     {
-        $encryptedPassword = $employees[0][EMP_PASSWORD];
-        $temp = md5(md5($_POST["inputEmail"]).$_POST["inputPassword"]);
+        GenerateStatus(false,"You must enter an email address.");
+    }
+    else if ($password == "")
+    {
+        GenerateStatus(false,"You must enter a password.");
+    }
+    else 
+    {
+        $filter[EMP_EMAIL] = $email;
+        $employees = RetrieveEmployees($filter);
+        if (count($employees)<>1)
+        {
+            GenerateStatus(false,"No matching email address found.");
+        }
+        else 
+        {
+            $encryptedPassword = $employees[0][EMP_PASSWORD];
+            $temp = md5(md5($email).$password);
         
-        if ($temp == $encryptedPassword)
-        {
-            $_SESSION['userID'] = $employees[0][EMP_ID];
-            $_SESSION['administrator'] = $employees[0][EMP_ADMIN_PERM];
-            $_SESSION['manager'] = $employees[0][EMP_MANAGER_PERM];
-            header('Location: index.php');
-        }
-        else
-        {
-            echo "Login Failed";
-        }
+            if ($temp == $encryptedPassword)
+            {
+                $_SESSION['userID'] = $employees[0][EMP_ID];
+                $_SESSION['administrator'] = $employees[0][EMP_ADMIN_PERM];
+                $_SESSION['manager'] = $employees[0][EMP_MANAGER_PERM];
+                header('Location: index.php');
+            }
+            else
+            {
+                GenerateStatus(false,"Password is incorrect.");
+            }
+       }
     }
 }
+    
 ?>
 
 <!DOCTYPE html>
