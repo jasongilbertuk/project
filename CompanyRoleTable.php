@@ -67,6 +67,8 @@ function CreateCompanyRole($roleName, $minStaffLevel) {
         error_log("Invalid minStaffLevel parameter passed to CreateCompanyRole.");
         $inputIsValid = FALSE;
     }
+    
+ 
     //-------------------------------------------------------------------------
     // Only attempt to insert a record in the database if the input parameters 
     // are ok.
@@ -221,6 +223,7 @@ function UpdateCompanyRole($fields) {
     //-------------------------------------------------------------------------
     // Validate Input parameters
     //-------------------------------------------------------------------------
+    $statusMessage="";
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
@@ -295,6 +298,7 @@ function UpdateCompanyRole($fields) {
  * -------------------------------------------------------------------------- */
 
 function DeleteCompanyRole($ID) {
+    $statusMessage = "";
     $result = 0;
     $record = RetrieveCompanyRoleByID($ID);
     if ($record <> NULL) {
@@ -309,6 +313,8 @@ function DeleteCompanyRole($ID) {
 
         $sql = "DELETE FROM companyroletable WHERE companyRoleID=" . $ID . ";";
         $result = performSQL($sql);
+        $statusMessage = "Role Deleted.</br>";
+        GenerateStatus(true, $statusMessage);
     }
     return $result;
 }
