@@ -124,7 +124,7 @@ function DisplayEmployeeTableBody()
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-lock"></span>
                     </span>
-                    <input type="text" class="form-control" placeholder="Password" 
+                    <input type="password" class="form-control" placeholder="Password" 
                            name="password" id="password">
                 </div>
 

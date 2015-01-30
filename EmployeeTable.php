@@ -191,6 +191,19 @@ function CreateEmployee($employeeName, $emailAddress, $password,
         error_log("Invalid companyRoleID passed to CreateEmployee.");
         $inputIsValid = FALSE;
     }
+    
+    //Ensure email address doesn't already exist in the database.
+    $filter[EMP_EMAIL] = $emailAddress;
+    $result = RetrieveEmployees($filter);
+    
+    if ($result <> NULL)
+    {
+        $statusMessage .= "Unable to create record as a user with email address "
+                       ."$emailAddress already exists.<br/>";
+        error_log("Unable to create record as a user with email address "
+                  ."$emailAddress already exists");
+        $inputIsValid = FALSE;
+    }
 
     //--------------------------------------------------------------------------
     // Only attempt to insert a record in the database if the input parameters 
@@ -538,7 +551,8 @@ function UpdateEmployee($fields) {
 
 function DeleteEmployee($ID) {
     $result = 0;
-
+    $statusMessage = "";
+    
     $employee = RetrieveEmployeeByID($ID);
 
     if ($employee != NULL) {
@@ -565,6 +579,9 @@ function DeleteEmployee($ID) {
 
         $sql = "DELETE FROM employeeTable WHERE employeeID=" . $ID . ";";
         $result = performSQL($sql);
+        
+        $statusMessage .= "Record deleted.</br>";
+        GenerateStatus(true,$statusMessage);
     }
 
     return $result;
