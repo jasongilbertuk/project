@@ -406,6 +406,7 @@ function UpdateAdHocAbsenceRequest($fields) {
 
 function DeleteAdHocAbsenceRequest($ID) {
     $sql = "DELETE FROM adHocAbsenceRequestTable WHERE adHocAbsenceRequestID=" . $ID . ";";
+    GenerateStatus(true,"Record successfully deleted");
     return performSQL($sql);
 }
 ?>

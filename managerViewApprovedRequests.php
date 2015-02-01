@@ -11,25 +11,25 @@ if (isset($_POST["submit"]))
 {
     ClearStatus();
     $statusMessage = "";
-    $inputIsValid = false;
+    $inputIsValid = true;
     
     $startDate = $_POST["startDate"];
     $endDate = $_POST["endDate"];
     
     if (!isValidDate($startDate)) {
         $statusMessage.="Start Date is not a valid Date.</br>";
-        $inputIsValid = FALSE;
+        $inputIsValid = false;
     }
 
     if (!isValidDate($endDate)) {
         $statusMessage.="Finish Date is not a valid Date.</br>";
-        $inputIsValid = FALSE;
+        $inputIsValid = false;
     }
     
     if (strtotime($endDate) < strtotime($startDate)) 
     {
         $statusMessage.="End Date is before Start Date.</br>";
-        $inputIsValid = FALSE;
+        $inputIsValid = false;
     }
 
     if ($inputIsValid == false)

@@ -6,6 +6,7 @@ if (isset($_POST["deleteApproved"])) {
 }
 
 if (isset($_POST["amendAdHoc"])) {   
+    ClearStatus();
     $url = "Location:editAdHocAbsenceRequest.php?ID=".$_POST["amendAdHoc"].
            "&back=employeeDisplayDetails.php";   
     header($url);
@@ -17,7 +18,8 @@ if (isset($_POST["deleteAdHoc"]))
 }
 
 
-if (isset($_POST["amendMain"])) {   
+if (isset($_POST["amendMain"])) {
+    ClearStatus();
     $url = "Location:editMainRequest.php?ID=".$_POST["amendMain"].
            "&back=employeeDisplayDetails.php";   
     header($url);

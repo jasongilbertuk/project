@@ -438,6 +438,7 @@ function DeleteApprovedAbsenceBooking($ID) {
             DeleteApprovedAbsenceBookingDate($approvedAbsenceBookingDate[APPR_ABS_BOOK_DATE_ID]);
         }
     }
+    GenerateStatus(true,"Record successfully deleted.");
     return $result;
 }
 

@@ -249,6 +249,7 @@ function UpdatePublicHoliday($fields) {
     $inputIsValid = TRUE;
     $validID = false;
     $countOfFields = 0;
+    $oldDateRecord = NULL;
 
     foreach ($fields as $key => $value) {
         if ($key == PUB_HOL_ID) {
@@ -256,6 +257,7 @@ function UpdatePublicHoliday($fields) {
             if ($record <> NULL) {
                 $validID = true;
                 $countOfFields++;
+                $oldDateRecord = RetrieveDateByID($record[PUB_HOL_DATE_ID]);
             }
         } else if ($key == PUB_HOL_NAME) {
             $countOfFields++;
@@ -304,6 +306,16 @@ function UpdatePublicHoliday($fields) {
         $success = performSQLUpdate(PUBLIC_HOLIDAY_TABLE, PUB_HOL_ID, $fields);
         if ($success)
         {
+            $oldDateRecord[DATE_TABLE_PUBLIC_HOL_ID] = NULL;
+            $success = UpdateDate($oldDateRecord);
+            
+            $dateRecord = RetrieveDateByID($fields[PUB_HOL_DATE_ID]);
+            //-------------------------------------------------------------
+            // Update the date records public holiday ID field.
+            //-------------------------------------------------------------
+            $dateRecord[DATE_TABLE_PUBLIC_HOL_ID] = $fields[PUB_HOL_ID];
+            $success = UpdateDate($dateRecord);
+            
             $statusMessage.="Record successfully updated.</br>";
         }
         else 
@@ -341,7 +353,7 @@ function DeletePublicHoliday($ID) {
         $sql = "DELETE FROM publicHolidayTable WHERE publicHolidayID=". $ID. ";";
         $result = performSQL($sql);
     }
-
+    GenerateStatus(true,"Record successfully deleted.");
     return $result;
 }
 

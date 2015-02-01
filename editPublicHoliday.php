@@ -27,7 +27,21 @@ if (isset($_POST["update"])) {
     $dates = RetrieveDates($filter);
     
     $date = $dates[0];
+
+    $currentRecord = RetrievePublicHolidayByID($_GET["ID"]);
     
+    if ($currentRecord <> NULL)
+    {
+        if ($currentRecord[PUB_HOL_DATE_ID]<> $date[DATE_TABLE_DATE_ID])
+        {
+            //Date has changed, so remove the public holiday ID from the old
+            //date record and add to the new date record.
+            $oldDate = RetrieveDateByID($currentRecord[PUB_HOL_DATE_ID]);
+            $oldDate[DATE_TABLE_PUBLIC_HOL_ID] = NULL;
+            UpdateDate($oldDate);
+        }
+    }
+
     $record[PUB_HOL_DATE_ID]=   $date[DATE_TABLE_DATE_ID];
     $success = UpdatePublicHoliday($record);
 

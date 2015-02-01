@@ -34,11 +34,13 @@ if (isset($_POST["processadhocrequests"]))
 }
 
 if (isset($_POST["approve1st"])) { 
+    ClearStatus();
     $requestID = $_POST["approve1st"];
     ApproveMainVacationRequest($requestID,true);
 }
 
-if (isset($_POST["approve2nd"])) {   
+if (isset($_POST["approve2nd"])) {  
+    ClearStatus();
     $requestID = $_POST["approve2nd"];
     ApproveMainVacationRequest($requestID,false);
 }
@@ -222,7 +224,7 @@ function DisplayAdHocRequestTableBody()
                 </span>
   		<input type="text" class="form-control" name="withCount" 
                        id="withCount" readonly 
-                       value="<?php echo $totalEmployees;?>">
+                       value="<?php echo $totalEmployees-$employeesWithNoMainVacation;?>">
 	    </div>
             
             <div class="input-group" for="StaffWithoutRequest">

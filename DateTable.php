@@ -234,11 +234,13 @@ function UpdateDate($fields) {
         } else if ($key == DATE_TABLE_PUBLIC_HOL_ID) {
             $countOfFields++;
 
-            $record = RetrievePublicHolidayByID($value);
-            if ($record == NULL) {
-
-                error_log("Invalid DATE_TABLE_PUBLIC_HOL_ID passed to UpdateDate.");
-                $inputIsValid = FALSE;
+            if ($value <> NULL)
+            {
+                $record = RetrievePublicHolidayByID($value);
+                if ($record == NULL) {
+                    error_log("Invalid DATE_TABLE_PUBLIC_HOL_ID passed to UpdateDate.");
+                    $inputIsValid = FALSE;
+                }
             }
         } else {
             error_log("Invalid field passed to UpdateDate. $key=" . $key);

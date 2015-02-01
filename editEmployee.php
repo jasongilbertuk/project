@@ -4,7 +4,7 @@ include 'databaseFunctions.php';
 
 if ($_GET["ID"] <> NULL)
 {
-    $employee = RetrieveEmployeeByID($_GET["ID"]);
+    $Employee = RetrieveEmployeeByID($_GET["ID"]);
 }
 
 if (isset($_POST["cancel"])) {   
@@ -17,33 +17,33 @@ if (isset($_POST["cancel"])) {
 if (isset($_POST["update"])) {
     ClearStatus();
 
-    unset($employee);
-    $employee[EMP_ID]               =   $_GET["ID"];
-    $employee[EMP_NAME]             =   $_POST["empName"];
-    $employee[EMP_EMAIL]            =   $_POST["eMail"];
-    $employee[EMP_DATEJOINED]       =   $_POST["dateJoin"];
-    $employee[EMP_LEAVE_ENTITLEMENT]=   $_POST["annualLeave"];
-    $employee[EMP_COMPANY_ROLE]     =   $_POST["companyRole"];
+    unset($Employee);
+    $Employee[EMP_ID]               =   $_GET["ID"];
+    $Employee[EMP_NAME]             =   $_POST["empName"];
+    $Employee[EMP_EMAIL]            =   $_POST["eMail"];
+    $Employee[EMP_DATEJOINED]       =   $_POST["dateJoin"];
+    $Employee[EMP_LEAVE_ENTITLEMENT]=   $_POST["annualLeave"];
+    $Employee[EMP_COMPANY_ROLE]     =   $_POST["companyRole"];
     
-    $employee[EMP_ADMIN_PERM] = '0';
+    $Employee[EMP_ADMIN_PERM] = '0';
     if (isset($_POST['isAdmin']))
     {
         if ($_POST["isAdmin"] == 'on')
         {
-         $employee[EMP_ADMIN_PERM] = '1';
+         $Employee[EMP_ADMIN_PERM] = '1';
         }
     }
     
-    $employee[EMP_MANAGER_PERM] = '0';
+    $Employee[EMP_MANAGER_PERM] = '0';
     if (isset($_POST['isManager']))
     {
         if ($_POST["isManager"] == 'on')
         {
-             $employee[EMP_MANAGER_PERM] = '1';
+             $Employee[EMP_MANAGER_PERM] = '1';
         }
     }
 
-    $result = UpdateEmployee($employee);
+    $result = UpdateEmployee($Employee);
     
     if ($result)
     {
@@ -60,7 +60,7 @@ function GenerateCompanyRoleSelect()
         echo '<select class="form-control" name="companyRole">';
         foreach ($roles as $role)
         {
-            if ($role[COMP_ROLE_ID]== $employee[EMP_COMPANY_ROLE])
+            if ($role[COMP_ROLE_ID]== $Employee[EMP_COMPANY_ROLE])
             {
                 echo '<option  selected="selected" value="'.$role[COMP_ROLE_ID].
                         '">'.$role[COMP_ROLE_NAME].'</option>';
@@ -105,16 +105,16 @@ function GenerateCompanyRoleSelect()
                 </span>
                 <input type="text" class="form-control" placeholder="Name" 
                        name="empName" id="empName" 
-                       value="<?php echo $employee[EMP_NAME]; ?>">
+                       value="<?php echo $Employee[EMP_NAME]; ?>">
             </div>
-
+            
             <div class="input-group" for="eMail">
                 <span class="input-group-addon">
                     <span class="glyphicon glyphicon-envelope"></span>
                 </span>
                 <input type="text" class="form-control" placeholder="Email" 
                        name="eMail" id="eMail" 
-                       value="<?php echo $employee[EMP_EMAIL]; ?>">
+                       value="<?php echo $Employee[EMP_EMAIL]; ?>">
             </div>
 
             <div class="input-group" for=dateJoin">
@@ -123,17 +123,17 @@ function GenerateCompanyRoleSelect()
                 </span>
                 <input type="date" class="form-control" name="dateJoin" 
                        id="dateJoin" placeholder="Date Joined" 
-                       value="<?php echo $employee[EMP_DATEJOINED]; ?>">
+                       value="<?php echo $Employee[EMP_DATEJOINED]; ?>">
             </div>
                 
             <br />
             
             <label for="annualLeave">Annual Leave Entitlement</label>
             <input type="range" name="annualLeave" min="10" max="28" 
-                   value="<?php echo $employee[EMP_LEAVE_ENTITLEMENT]; ?>"
+                   value="<?php echo $Employee[EMP_LEAVE_ENTITLEMENT]; ?>"
                    step="1" oninput="updateAnnualLeave(value)"  id="annualLeave" /> 
             <output for="minStaff" id="Leave">
-                <?php echo $employee[EMP_LEAVE_ENTITLEMENT]; ?></output>
+                <?php echo $Employee[EMP_LEAVE_ENTITLEMENT]; ?></output>
             
             <br />
             
@@ -143,11 +143,11 @@ function GenerateCompanyRoleSelect()
             
             <label for="isAdmin"> Is Administrator</label>
             <input type="checkbox" name="isAdmin" id="isAdmin" 
-                   <?php if ($employee[EMP_ADMIN_PERM] == 1) echo "checked"; ?>/>
+                   <?php if ($Employee[EMP_ADMIN_PERM] == 1) echo "checked"; ?>/>
             
             <label for="isManager"> Is Manager</label>
             <input type="checkbox" name="isManager" id="isManager" 
-                   <?php if ($employee[EMP_MANAGER_PERM] == 1) echo "checked"; ?>/>
+                   <?php if ($Employee[EMP_MANAGER_PERM] == 1) echo "checked"; ?>/>
             
             <br /><br/>
             

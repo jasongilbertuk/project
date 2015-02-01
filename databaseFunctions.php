@@ -347,13 +347,10 @@ function CreateNewDatabase($destroyExistingDB = false, $createWithTestData = fal
                                      "Zaq12wsx", "2006-01-01", 20, NULL, 
                                      $cashier[COMP_ROLE_ID], 0, 0);
 
-        $leonaLewis = CreateEmployee("Leona Lewis", "leonalewis@test.com", 
-                                     "Zaq12wsx", "2007-01-01", 20, NULL, 
-                                     $cashier[COMP_ROLE_ID], 0, 0);
 
         $leonJackson = CreateEmployee("Leon Jackson", "leonjackson@test.com", 
                                       "Zaq12wsx", "2008-01-01", 20, NULL, 
-                                      $cashier[COMP_ROLE_ID], 0, 0);
+                                      $manager[COMP_ROLE_ID], 0, 0);
 
         $alexandraBurke = CreateEmployee("Alexandra Burke", "alexburke@test.com",
                                         "Zaq12wsx", "2009-01-01", 20, NULL, 
@@ -424,8 +421,7 @@ function CreateNewDatabase($destroyExistingDB = false, $createWithTestData = fal
         $request = CreateMainVactionRequest($shayneWard[EMP_ID], 
                     "2015-01-10", "2015-01-15", "2015-02-10", "2015-02-15");
         
-        $request = CreateMainVactionRequest($leonaLewis[EMP_ID], 
-                    "2015-01-10", "2015-01-15", "2015-02-10", "2015-02-15");
+
         
         $request = CreateMainVactionRequest($leonJackson[EMP_ID], 
                     "2015-01-10", "2015-01-15", "2015-02-10", "2015-02-15");
@@ -455,8 +451,7 @@ function CreateNewDatabase($destroyExistingDB = false, $createWithTestData = fal
         $request = CreateAdHocAbsenceRequest($shayneWard[EMP_ID], 
                     "2015-03-10", "2015-03-15", $annualLeave[ABS_TYPE_ID]);
         
-        $request = CreateAdHocAbsenceRequest($leonaLewis[EMP_ID], 
-                    "2015-03-10", "2015-03-15", $sickness[ABS_TYPE_ID]);
+
         
         $request = CreateAdHocAbsenceRequest($leonJackson[EMP_ID], 
                     "2015-03-10", "2015-03-15", $sickness[ABS_TYPE_ID]);
@@ -478,6 +473,21 @@ function CreateNewDatabase($destroyExistingDB = false, $createWithTestData = fal
         
         $request = CreateAdHocAbsenceRequest($benHaenow[EMP_ID], 
                     "2015-03-10", "2015-03-15", $compasionate[ABS_TYPE_ID]);
+        
+        
+        $leonaLewis = CreateEmployee("Leona Lewis", "leonalewis@test.com", 
+                                     "Zaq12wsx", "2007-01-01", 20, NULL, 
+                                     $cashier[COMP_ROLE_ID], 1, 1);
+        
+        $request = CreateAdHocAbsenceRequest($leonaLewis[EMP_ID], 
+                    "2015-03-10", "2015-03-15", $sickness[ABS_TYPE_ID]);
+                
+        $request = CreateMainVactionRequest($leonaLewis[EMP_ID], 
+                    "2015-01-10", "2015-01-15", "2015-02-10", "2015-02-15");
+        
+        $request = CreateApprovedAbsenceBooking($leonaLewis[EMP_ID], 
+                                                "2015-04-01","2015-04-10",
+                                                $training[ABS_TYPE_ID]);
     }
 }
 

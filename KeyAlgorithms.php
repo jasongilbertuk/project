@@ -226,7 +226,6 @@ function HasSufficentAnnualLeave($employeeID,$startDate,$endDate,$absenceTypeID)
             $dateID = $dateRecord[DATE_TABLE_DATE_ID];
             $filter[APPR_ABS_BOOK_DATE_DATE_ID] = $dateID;
             $bookingsForDate = RetrieveApprovedAbsenceBookingDates($filter);
-        
             if ($bookingsForDate <> NULL)
             {
         	//One or more bookings exist. itterate through them.
@@ -236,12 +235,10 @@ function HasSufficentAnnualLeave($employeeID,$startDate,$endDate,$absenceTypeID)
                     //record from the database
                     $absenceBooking = RetrieveApprovedAbsenceBookingByID(
                                   $bookingDate[APPR_ABS_BOOK_DATE_ABS_BOOK_ID]);
-        		
                     if ($absenceBooking <> NULL)
                     {
                         $staffMember = RetrieveEmployeeByID(
                                         $absenceBooking[APPR_ABS_EMPLOYEE_ID]);
-            
            	 	//-----------------------------------------------------
                         // Check to see if this member of staff performs the 
                         // same role as the role of the employee requesting this 
@@ -249,7 +246,7 @@ function HasSufficentAnnualLeave($employeeID,$startDate,$endDate,$absenceTypeID)
            	 	//-----------------------------------------------------
            	 	if ($staffMember[EMP_COMPANY_ROLE] == $roleID)
             		{
-                            $countOfStaffOnLeavel = $countOfStaffOnLeave + 1;
+                            $countOfStaffOnLeave = $countOfStaffOnLeave + 1;
             		}
                     }
                     else
@@ -286,17 +283,17 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
     $sufficentStaffInRole = TRUE;
 	
     // Get the employee record from the database.
-    $employee = RetrieveEmployeeByID($employeeID);
-    if ($employee <> NULL)
+    $Employee = RetrieveEmployeeByID($employeeID);
+    if ($Employee <> NULL)
     {
     	// Get the associated Company Role record from the database.
-    	$employeeRole = RetrieveCompanyRoleByID($employee[EMP_COMPANY_ROLE]);
+    	$employeeRole = RetrieveCompanyRoleByID($Employee[EMP_COMPANY_ROLE]);
     	if ($employeeRole <> NULL)
     	{
             $minimumStaffingLevel = $employeeRole[COMP_ROLE_MIN_STAFF];
 	
             //Calculate the total number of employees in this role.
-            $filter[EMP_COMPANY_ROLE] = $employee[EMP_COMPANY_ROLE];
+            $filter[EMP_COMPANY_ROLE] = $Employee[EMP_COMPANY_ROLE];
             $employeesInRole = RetrieveEmployees($filter);
             $numEmployeesInRole = count($employeesInRole);
 
@@ -312,7 +309,7 @@ function SufficentStaffInRoleToGrantRequest($employeeID,$startDate,$endDate)
 	    	$strDate = date('Y-m-d', $tempDate); 
                 //Calculate the number of staff in this role that are on leave 
                 //on this date.
-                $staffOnLeave = CountStaffOnLeave($employee[EMP_COMPANY_ROLE],
+                $staffOnLeave = CountStaffOnLeave($Employee[EMP_COMPANY_ROLE],
                                                   $strDate);
 	    
         	//Q.Would granting this leave would take us below the minimum
@@ -411,7 +408,7 @@ function ProcessAbsenceRequest($employeeID,$startDate,$endDate,$absenceTypeID,
                 $bookingApproved = FALSE;
                 $statusMessage .= "Absence Rejected from $startDate to $endDate.".
                                   "Request would leave role below minimum ".
-                                  "lstaffing level. Staff notified via email.</br>";	
+                                  "staffing level. Staff notified via email.</br>";	
          
                 $message = "Absence Rejected from $startDate to $endDate. ".
                            "Request would leave role below minimum staffing ".
@@ -491,11 +488,11 @@ function ProcessMainVacationRequests(&$statusMessage)
             $secondChoiceStartDate      = $row[MAIN_VACATION_2ND_START];
             $secondChoiceEndDate        = $row[MAIN_VACATION_2ND_END];
             $absenceTypeID              = GetAnnualLeaveAbsenceTypeID();
-            $employee                   = RetrieveEmployeeByID($employeeID);
+            $Employee                   = RetrieveEmployeeByID($employeeID);
             
             
             $statusMessage.="<b>[Processing main vacation request for ".
-                    $employee[EMP_NAME]."]</b><br/>";
+                    $Employee[EMP_NAME]."]</b><br/>";
             $statusMessage.="Attempting first choice from $firstChoiceStartDate ".
                             "to $firstChoiceEndDate.</br>";
             

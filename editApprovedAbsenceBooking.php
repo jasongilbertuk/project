@@ -1,6 +1,7 @@
 <?php
 include 'sessionmanagement.php';
 include 'databaseFunctions.php';
+$request = array();
 
 if ($_GET["ID"] <> NULL)
 {
@@ -8,7 +9,7 @@ if ($_GET["ID"] <> NULL)
 }
 
 if (isset($_POST["cancel"])) {   
-    $url = "Location:adminApprovedAbsenceBooking.php";   
+    $url = "Location:adminApprovedAbsenceBookings.php";   
     header($url);
 }
 
@@ -26,23 +27,23 @@ if (isset($_POST["update"])) {
     }
 }
 
-function GenerateEmployeeSelect()
+function GenerateEmployeeSelect($request)
 {
     $employees = RetrieveEmployees();
     if ($employees <> NULL)
     {
         echo '<select class="form-control" name="employeeID">';
-        foreach ($employees as $employee)
+        foreach ($employees as $Employee)
         {
-            if ($employee[EMP_ID]== $request[APPR_ABS_EMPLOYEE_ID])
+            if ($Employee[EMP_ID]== $request[APPR_ABS_EMPLOYEE_ID])
             {
                 echo '<option selected="selected" '.
-                     'value="'.$employee[EMP_ID].'">'.$employee[EMP_NAME].'</option>';
+                     'value="'.$Employee[EMP_ID].'">'.$Employee[EMP_NAME].'</option>';
             }
             else    
             {
-                echo '<option value="'.$employee[EMP_ID].'">'.
-                        $employee[EMP_NAME].'</option>';
+                echo '<option value="'.$Employee[EMP_ID].'">'.
+                        $Employee[EMP_NAME].'</option>';
             }
         }
                 
@@ -96,11 +97,11 @@ function GenerateAbsenceTypeSelect()
             <h1> Edit Approved Absence Booking </h1>
         <form method="post" class="signUp">
             <label for="employeeName">Employee Name</label>
-            <?php  GenerateEmployeeSelect(); ?>
+            <?php  GenerateEmployeeSelect($request); ?>
             <br />
             
             <div class="input-group" for="startDate">
-                <span class="input-group-addon">Start Date  
+                <span class="input-group-addon">Start Date&nbsp;  
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>	
                 <input type="date" class="form-control" name="startDate" 
@@ -108,7 +109,7 @@ function GenerateAbsenceTypeSelect()
             </div>
                
             <div class="input-group" for="endDate">
-                <span class="input-group-addon">End Date  
+                <span class="input-group-addon">Finish Date  
                     <span class="glyphicon glyphicon-calendar"></span>
                 </span>	
                 <input type="date" class="form-control" name="endDate" id="endDate" 

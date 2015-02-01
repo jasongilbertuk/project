@@ -134,14 +134,14 @@ function PopulateAdHocTable()
                         <?php CreateEmployeeSelect(); ?>
                     </div>
                     <div class="input-group" for=startDate">
-                        <span class="input-group-addon">
+                        <span class="input-group-addon">Start Date&nbsp;
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                         <input type="date" class="form-control" name="startDate" 
                                id="startDate" placeholder="Start Date">
                     </div>  
                     <div class="input-group" for=endDate">
-                        <span class="input-group-addon">
+                        <span class="input-group-addon">Finish Date
                             <span class="glyphicon glyphicon-calendar"></span>
                         </span>
                         <input type="date" class="form-control" name="endDate" 

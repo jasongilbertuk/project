@@ -85,6 +85,19 @@ function CreateAbsenceType($absenceTypeName, $usesAnnualLeave, $canBeDenied) {
         $inputIsValid = FALSE;
     }
 
+    //Check to ensure that a record with the same name doesn't already exist.
+    $filter[ABS_TYPE_NAME] = $absenceTypeName;
+    $result = RetrieveAbsenceTypes($filter);
+    
+    if ($result <> NULL)
+    {
+        $statusMessage.="Unable to create as an absence type with that name ".
+                        "already exists</br>";
+        error_log("Unable to create as an absence type with that name ".
+                        "already exists");
+        $inputIsValid = FALSE;
+    }
+    
     //--------------------------------------------------------------------------
     // Only attempt to insert a record in the database if the input parameters 
     // are ok.
@@ -375,6 +388,7 @@ function DeleteAbsenceType($ID) {
     if ($isValidRequest) {
         $sql = "DELETE FROM absenceTypeTable WHERE absenceTypeID=" . $ID . ";";
         $result = performSQLDelete($sql);
+        GenerateStatus(true, "Record has been deleted.");
     }
     return $result;
 }

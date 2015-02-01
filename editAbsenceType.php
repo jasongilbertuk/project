@@ -49,11 +49,14 @@ if (isset($_POST["update"])) {
     $absenceType[ABS_TYPE_USES_LEAVE]= $usesLeave;
     $absenceType[ABS_TYPE_CAN_BE_DENIED]= $canBeDenied;
     
-    UpdateAbsenceType($absenceType);
+    $success = UpdateAbsenceType($absenceType);
 
-    $url = "Location:adminAbsenceTypes.php";   
-    header($url);
-}
+    if ($success)
+    {
+        $url = "Location:adminAbsenceTypes.php";   
+        header($url);
+    }   
+}   
 ?>
 
 <!DOCTYPE html>

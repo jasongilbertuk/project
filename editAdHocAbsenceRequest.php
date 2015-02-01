@@ -11,7 +11,7 @@ if (isset($_GET["back"]))
 if ($_GET["ID"] <> NULL)
 {
     $request = RetrieveAdHocAbsenceRequestByID($_GET["ID"]);
-    $employee = RetrieveEmployeeByID($request[AD_HOC_EMP_ID]);
+    $Employee = RetrieveEmployeeByID($request[AD_HOC_EMP_ID]);
     
     if (!$isAdministrator)
     {
@@ -104,10 +104,10 @@ function CreateAbsenceTypeSelect($absenceIDToSelect)
                 <span class="glyphicon glyphicon-user"></span>
             </span>    
             <?php 
-                if ($employee <> NULL)
+                if ($Employee <> NULL)
                 {
                   echo '<input type="text" class="form-control" name="empID" '.
-                       'id="empID" readonly value="'.$employee[EMP_NAME].'"/>';
+                       'id="empID" readonly value="'.$Employee[EMP_NAME].'"/>';
                 }
             ?> 
            </div>

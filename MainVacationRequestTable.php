@@ -371,7 +371,7 @@ function UpdateMainVacactionRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
-                $statusMessage .="Invalid 1st Start Date/br>";
+                $statusMessage .="Invalid 1st Choice Start Date</br>";
                 error_log("Invalid MAIN_VACATION_1ST_START passed to ".
                           "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
@@ -380,7 +380,7 @@ function UpdateMainVacactionRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
-                $statusMessage .="Invalid 1st Finish Date/br>";
+                $statusMessage .="Invalid 1st Choice Finish Date/br>";
                 error_log("Invalid MAIN_VACATION_1ST_END passed to ".
                           "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
@@ -389,7 +389,7 @@ function UpdateMainVacactionRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
-                $statusMessage .="Invalid 2nd Start Date/br>";
+                $statusMessage .="Invalid 2nd Choice Start Date/br>";
                 error_log("Invalid MAIN_VACATION_2ND_START passed to ".
                           "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
@@ -398,7 +398,7 @@ function UpdateMainVacactionRequest($fields) {
             $countOfFields++;
 
             if (!isValidDate($value)) {
-                $statusMessage .="Invalid 2nd Finish Date/br>";
+                $statusMessage .="Invalid 2nd Choice Finish Date/br>";
                 error_log("Invalid MAIN_VACATION_2ND_END passed to ".
                           "UpdateMainVacationRequest.");
                 $inputIsValid = FALSE;
