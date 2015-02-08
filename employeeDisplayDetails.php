@@ -1,6 +1,6 @@
 <?php
 include 'sessionmanagement.php';
-include 'databaseFunctions.php';
+
 if (isset($_POST["deleteApproved"])) {
     DeleteApprovedAbsenceBooking($_POST["deleteApproved"]);
 }

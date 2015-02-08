@@ -1,6 +1,5 @@
 <?php
 include 'sessionmanagement.php';
-include 'databaseFunctions.php';
 
 if (!$isManager) {
     header('Location: index.php');

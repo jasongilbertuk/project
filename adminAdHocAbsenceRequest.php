@@ -1,6 +1,5 @@
 <?php
 include 'sessionmanagement.php';
-include 'databasefunctions.php';
 
 // If user is not an adminstrator or a manager redirect them back to the home 
 // page.

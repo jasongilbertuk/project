@@ -1,5 +1,5 @@
 <?php
-    include 'databaseFunctions.php';
+    include 'sessionmanagement.php';
     if(isset($_POST['drop']))
     {
         DropDB();

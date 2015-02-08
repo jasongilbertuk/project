@@ -17,13 +17,6 @@ include 'PublicHolidayTable.php';
 include 'MailFunctions.php';
 include 'KeyAlgorithms.php';
 
-//Create a connection to the database. This is a global variable and will 
-//be accessed via $_GLOBALS["connection"]
-$connection = connectToSql("localhost", "root", "root");
-CreateNewDatabase();
-    
-
-
 
 /* -----------------------------------------------------------------------------
  * Function IsValidDate
@@ -263,32 +256,35 @@ function CreateDB() {
 }
 
 /* -----------------------------------------------------------------------------
- * Function CreateDefaultRecordsIfRequired
+ * Function CreateDefaultRecords
  *
  * This function is used to populate some of the tables in the database with 
- * basic date required for operation. This includes creating a default account of 
- * admin if no employees are in the database and creating the date entries in the
- * date table, if the date table is empty.
+ * basic date required for operation. This includes creating the admin account
+ * based on parametes supplied and creating the date entries in the
+ * date table.
  *
  * @return (none) 
  * -------------------------------------------------------------------------- */
-function CreateDefaultRecordsIfRequired() {
+function CreateDefaultRecords($adminName,$adminEmail,$adminPassword,
+                              $adminDateJoined,$adminLeaveEntitlement) {
     
-    //Q. Are there any employees in our database?
-    $employees = RetrieveEmployees();
-    if (count($employees) == 0) {
-        
-        //No employees. Let's set up the database with a default admin account.
-        //Userguide should instruct system admin to delte this account as
-        //soon as real employees accounts have been created.
+    $filter[COMP_ROLE_NAME] = "Admin";
+    $records = RetrieveCompanyRoles($filter);
+    if (count($records) == 0)
+    {
         $role = CreateCompanyRole("Admin", 0);
-        CreateEmployee("admin", "admin@admin.com", "Admin1", "2015-01-01", 20, 
-                    NULL, $role[COMP_ROLE_ID], 1, 1);
+    }
+    else 
+    {
+        $role = $records[0];
     }
     
-    $dates = RetrieveDates();
-    if (count($dates) == 0) {
-        //We also need to populate the database with date records.
+    $success = CreateEmployee($adminName, $adminEmail, 
+                              $adminPassword, $adminDateJoined, 
+                              $adminLeaveEntitlement, NULL, 
+                              $role[COMP_ROLE_ID], 1, 1);
+    if ($success)
+    {
         date_default_timezone_set('UTC');
         $date = '2015-01-01';
         $end_date = '2055-12-31';
@@ -298,7 +294,9 @@ function CreateDefaultRecordsIfRequired() {
             $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
         }
     }
+    return $success;
 }
+
 
 /* -----------------------------------------------------------------------------
  * Function CreateNewDatabase
@@ -324,7 +322,6 @@ function CreateNewDatabase($destroyExistingDB = false, $createWithTestData = fal
     CreateApprovedAbsenceDateTable();
     CreateAdHocAbsenceRequestTable();
     CreateMainVacationRequestTable();
-    CreateDefaultRecordsIfRequired();
 
     if ($createWithTestData) {
 

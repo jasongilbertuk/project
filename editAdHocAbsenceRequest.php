@@ -1,6 +1,5 @@
 <?php
 include 'sessionmanagement.php';
-include 'databaseFunctions.php';
 
 $returnURL = "index.php";
 if (isset($_GET["back"]))

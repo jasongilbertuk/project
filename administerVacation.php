@@ -1,6 +1,5 @@
 <?php
 include 'sessionmanagement.php';
-include 'databasefunctions.php';
 
 if (!$isAdministrator)
 {

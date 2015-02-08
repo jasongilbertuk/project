@@ -1,6 +1,5 @@
 <?php
 include 'sessionmanagement.php';
-include 'databaseFunctions.php';
 
 if ($_GET["ID"] <> NULL)
 {

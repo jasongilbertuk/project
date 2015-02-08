@@ -1,6 +1,5 @@
 <?php
 include 'sessionmanagement.php';  //sets $userID,$isAdministrator and $isManager
-include 'databaseFunctions.php';
 
 $employee = RetrieveEmployeeByID($userID);
 $requestID = $employee[EMP_MAIN_VACATION_REQ_ID];
