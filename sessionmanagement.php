@@ -59,6 +59,4 @@ $page = basename($_SERVER['PHP_SELF']);
         $isManager       = $_SESSION['manager'];    
     }
 }
-
- 
 ?>
